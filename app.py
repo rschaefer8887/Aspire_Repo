@@ -27,6 +27,7 @@ from idp_excel import write_from_extraction  # noqa: E402
 from idp_openai import format_invoice_number  # noqa: E402
 from idp_paths import confidence_threshold, receipts_ready_dir, review_pending_dir  # noqa: E402
 from idp_reference import ReferenceData  # noqa: E402
+from idp_vendor_profiles import vendor_profile_for  # noqa: E402
 from idp_review import (  # noqa: E402
     ReviewSession,
     build_catalog_options,
@@ -204,7 +205,13 @@ def main() -> None:
         not session.vendor_name or session.vendor_confidence < threshold
     )
     original_total = session.original_invoice_total()
-    adjusted_total = effective_invoice_total(original_total, session.lines)
+    vendor_profile = vendor_profile_for(session.vendor_name, session.vendor_raw)
+    adjusted_total = effective_invoice_total(
+        original_total,
+        session.lines,
+        vendor_name=session.vendor_name,
+        vendor_raw=session.vendor_raw,
+    )
     excluded_count = sum(1 for ln in session.lines if ln.excluded)
 
     cols_meta = st.columns(5)
@@ -221,7 +228,10 @@ def main() -> None:
     cols_meta[4].metric(
         "Adjusted total",
         f"${adjusted_total:,.2f}" if adjusted_total is not None else "—",
-        help="Invoice total minus excluded lines (incl. 6% tax)",
+        help=(
+            "Invoice total minus excluded lines "
+            f"({vendor_profile.tax_percent_label()})"
+        ),
     )
 
     if excluded_count:

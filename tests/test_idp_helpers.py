@@ -26,6 +26,11 @@ from idp_reference import (  # noqa: E402
     _norm,
     _product_hint,
 )
+from idp_vendor_profiles import (  # noqa: E402
+    DEFAULT_PROFILE,
+    HD_FOWLER_PROFILE,
+    vendor_profile_for,
+)
 from idp_review import (  # noqa: E402
     ReviewLine,
     ReviewSession,
@@ -43,8 +48,12 @@ class TestIdpHelpers(unittest.TestCase):
         self.assertEqual(format_invoice_number("12345-INV"), "12345-INV")
 
     def test_apply_tax_rounds_three_decimals(self) -> None:
-        self.assertEqual(apply_tax(100.0), 106.0)
-        self.assertEqual(apply_tax(10.555), round(10.555 * 1.06, 3))
+        self.assertEqual(apply_tax(100.0, profile=HD_FOWLER_PROFILE), 106.0)
+        self.assertEqual(
+            apply_tax(10.555, profile=HD_FOWLER_PROFILE),
+            round(10.555 * 1.06, 3),
+        )
+        self.assertEqual(apply_tax(100.0, profile=DEFAULT_PROFILE), 100.0)
 
     def test_sanitize_filename(self) -> None:
         self.assertNotIn("/", sanitize_filename_part("A/B Corp"))
@@ -225,15 +234,42 @@ class TestIdpHelpers(unittest.TestCase):
         self.assertNotIn("laborer", names)
 
     def test_taxed_line_total_includes_tax(self) -> None:
-        self.assertEqual(taxed_line_total(10, 1.25), 13.25)
+        self.assertEqual(
+            taxed_line_total(10, 1.25, profile=HD_FOWLER_PROFILE), 13.25
+        )
+        self.assertEqual(
+            taxed_line_total(10, 1.25, profile=DEFAULT_PROFILE), 12.5
+        )
+
+    def test_vendor_profile_hd_fowler(self) -> None:
+        prof = vendor_profile_for("H.D. Fowler Company {Turf}")
+        self.assertEqual(prof.profile_id, "hd_fowler")
+        self.assertTrue(prof.reconcile_to_invoice_total)
+        self.assertEqual(prof.tax_multiplier, 1.06)
+
+    def test_vendor_profile_default_for_unknown(self) -> None:
+        prof = vendor_profile_for("Acme Supply Co")
+        self.assertEqual(prof.profile_id, "default")
+        self.assertFalse(prof.reconcile_to_invoice_total)
+        self.assertEqual(prof.tax_multiplier, 1.0)
 
     def test_effective_invoice_total_subtracts_excluded_lines(self) -> None:
         lines = [
             ReviewLine("TOOL", 1, 100.0, excluded=True),
             ReviewLine("PART", 2, 50.0, excluded=False),
         ]
-        adjusted = effective_invoice_total(200.0, lines)
-        self.assertEqual(adjusted, round(200.0 - taxed_line_total(1, 100.0), 2))
+        adjusted = effective_invoice_total(
+            200.0,
+            lines,
+            profile=HD_FOWLER_PROFILE,
+        )
+        self.assertEqual(
+            adjusted,
+            round(
+                200.0 - taxed_line_total(1, 100.0, profile=HD_FOWLER_PROFILE),
+                2,
+            ),
+        )
 
     def test_session_to_extraction_omits_excluded_lines(self) -> None:
         session = ReviewSession(
@@ -270,7 +306,7 @@ class TestIdpHelpers(unittest.TestCase):
         self.assertEqual(result.lines[0].item_code, "XQ")
         self.assertEqual(
             result.invoice_total,
-            round(113.25 - taxed_line_total(1, 12.5), 2),
+            round(113.25 - taxed_line_total(1, 12.5, profile=DEFAULT_PROFILE), 2),
         )
 
     def test_session_to_extraction_rejects_all_excluded(self) -> None:

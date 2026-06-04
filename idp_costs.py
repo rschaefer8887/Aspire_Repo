@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from idp_paths import tax_multiplier
+from idp_vendor_profiles import DEFAULT_PROFILE, VendorProfile, vendor_profile_for
 
 
 @dataclass
@@ -15,22 +15,38 @@ class LineOutput:
     unit_cost: float
 
 
-def apply_tax(unit_price: float) -> float:
-    return round(unit_price * tax_multiplier(), 3)
+def apply_tax(
+    unit_price: float,
+    *,
+    profile: VendorProfile | None = None,
+) -> float:
+    prof = profile or DEFAULT_PROFILE
+    if not prof.applies_tax:
+        return round(unit_price, 3)
+    return round(unit_price * prof.tax_multiplier, 3)
 
 
 def line_total_cost(quantity: float, unit_cost: float) -> float:
     return round(quantity * unit_cost, 2)
 
 
-def taxed_line_total(quantity: float, unit_price_pre_tax: float) -> float:
-    """Column F value for a line (pre-tax unit price × tax × qty)."""
-    return line_total_cost(quantity, apply_tax(unit_price_pre_tax))
+def taxed_line_total(
+    quantity: float,
+    unit_price_pre_tax: float,
+    *,
+    profile: VendorProfile | None = None,
+) -> float:
+    """Column F value for a line (unit price after vendor tax rules × qty)."""
+    return line_total_cost(quantity, apply_tax(unit_price_pre_tax, profile=profile))
 
 
 def effective_invoice_total(
     original_total: float | None,
     lines: list,
+    *,
+    vendor_name: str | None = None,
+    vendor_raw: str | None = None,
+    profile: VendorProfile | None = None,
 ) -> float | None:
     """
     Invoice grand total after excluding lines marked excluded=True.
@@ -38,10 +54,13 @@ def effective_invoice_total(
     """
     if original_total is None:
         return None
+    prof = profile or vendor_profile_for(vendor_name, vendor_raw)
     excluded_sum = 0.0
     for ln in lines:
         if getattr(ln, "excluded", False):
-            excluded_sum += taxed_line_total(ln.quantity, ln.unit_price)
+            excluded_sum += taxed_line_total(
+                ln.quantity, ln.unit_price, profile=prof
+            )
     return round(float(original_total) - excluded_sum, 2)
 
 

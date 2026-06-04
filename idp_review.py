@@ -55,7 +55,12 @@ class ReviewSession:
         return self.invoice_total
 
     def adjusted_invoice_total(self) -> float | None:
-        return effective_invoice_total(self.original_invoice_total(), self.lines)
+        return effective_invoice_total(
+            self.original_invoice_total(),
+            self.lines,
+            vendor_name=self.vendor_name,
+            vendor_raw=self.vendor_raw,
+        )
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

@@ -32,9 +32,20 @@ exports/
 | **B10+** | Item code (optional if C has name) |
 | **C10+** | Item name |
 | **D10+** | Quantity |
-| **E10+** | Unit cost (IDP applies ×1.06 tax, 3 decimal places) |
+| **E10+** | Unit cost (vendor profile may apply tax, 3 decimal places) |
 | **F6** | Column heading: Total Cost |
-| **F10+** | Line total (= D × E); unit costs adjusted so ΣF matches invoice grand total |
+| **F10+** | Line total (= D × E); Fowler profile nudges E so ΣF matches invoice grand total |
+
+### Vendor profiles (`idp_vendor_profiles.py`)
+
+Per-vendor rules for tax and total reconciliation. **`process_invoices.py`** stays generic; profiles are selected from the matched Aspire vendor name.
+
+| Profile | Vendor | Tax on unit cost | Reconcile ΣF to invoice total |
+|---------|--------|------------------|-------------------------------|
+| `hd_fowler` | H.D. Fowler Company {Turf} (and names containing “fowler”) | ×1.06 | Yes |
+| `default` | Everyone else | None (×1.0) | No |
+
+Add vendors by extending `HD_FOWLER_PROFILE` / `DEFAULT_PROFILE` or calling `register_vendor_profile()` in `idp_vendor_profiles.py`.
 
 ## Setup
 

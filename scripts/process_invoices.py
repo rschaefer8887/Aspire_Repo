@@ -45,6 +45,7 @@ from idp_paths import (  # noqa: E402
     review_pending_dir,
 )
 from idp_reference import ReferenceData  # noqa: E402
+from idp_vendor_profiles import vendor_profile_for  # noqa: E402
 
 
 def _prompt_refresh_catalog() -> None:
@@ -146,6 +147,16 @@ def process_pdf(
     result = extract_invoice_from_pdf(pdf_path, refs, client=client)
     inv_display = format_invoice_number(result.invoice_number_raw)
     vendor = result.vendor_name or result.vendor_raw
+    profile = vendor_profile_for(result.vendor_name, result.vendor_raw)
+    print(
+        f"  Vendor profile: {profile.display_name} ({profile.profile_id}) — "
+        f"{profile.tax_percent_label()}"
+        + (
+            ", reconcile column F to invoice total"
+            if profile.reconcile_to_invoice_total
+            else ""
+        )
+    )
 
     if dry_run:
         print(f"  Vendor: {vendor!r} ({result.vendor_confidence:.2f})")

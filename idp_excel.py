@@ -16,6 +16,7 @@ from idp_costs import (
 )
 from idp_openai import ExtractionResult, format_invoice_number
 from idp_paths import default_branch, excel_template_path, sanitize_filename_part
+from idp_vendor_profiles import VendorProfile, vendor_profile_for
 
 
 def _ensure_template() -> Path:
@@ -42,6 +43,7 @@ def write_invoice_workbook(
     invoice_number: str,
     lines: list[LineOutput],
     invoice_total: float | None = None,
+    profile: VendorProfile | None = None,
     sheet_name: str = "Invoice_Import",
     line_start: int = 10,
 ) -> bool:
@@ -61,7 +63,12 @@ def write_invoice_workbook(
     ws["B5"] = invoice_number
 
     reconciled = True
-    if invoice_total is not None and invoice_total > 0:
+    if (
+        profile
+        and profile.reconcile_to_invoice_total
+        and invoice_total is not None
+        and invoice_total > 0
+    ):
         reconciled = reconcile_line_costs(lines, invoice_total)
 
     row = line_start
@@ -78,7 +85,12 @@ def write_invoice_workbook(
     return reconciled
 
 
-def extraction_to_lines(result: ExtractionResult) -> list[LineOutput]:
+def extraction_to_lines(
+    result: ExtractionResult,
+    *,
+    profile: VendorProfile | None = None,
+) -> list[LineOutput]:
+    prof = profile or vendor_profile_for(result.vendor_name, result.vendor_raw)
     out: list[LineOutput] = []
     for line in result.lines:
         out.append(
@@ -86,7 +98,7 @@ def extraction_to_lines(result: ExtractionResult) -> list[LineOutput]:
                 item_code=line.item_code or "",
                 item_name=line.item_name or line.description_raw,
                 quantity=line.quantity,
-                unit_cost=apply_tax(line.unit_price),
+                unit_cost=apply_tax(line.unit_price, profile=prof),
             )
         )
     return out
@@ -126,9 +138,10 @@ def write_from_extraction(
         template = _ensure_template()
 
     vendor = result.vendor_name or result.vendor_raw or "Unknown_Vendor"
+    profile = vendor_profile_for(result.vendor_name, result.vendor_raw)
     inv_num = format_invoice_number(result.invoice_number_raw)
     out_path = build_output_path(output_dir, vendor, inv_num)
-    lines = extraction_to_lines(result)
+    lines = extraction_to_lines(result, profile=profile)
     if not lines:
         raise ValueError("No line items to write")
 
@@ -141,6 +154,7 @@ def write_from_extraction(
         invoice_number=inv_num,
         lines=lines,
         invoice_total=result.invoice_total,
+        profile=profile,
     )
     col_f_total = round(
         sum(line_total_cost(l.quantity, l.unit_cost) for l in lines), 2

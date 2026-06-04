@@ -103,6 +103,9 @@ _PRODUCT_HINT_WORD_RE: dict[str, re.Pattern[str]] = {
     "tee": re.compile(r"\btee\b", re.IGNORECASE),
 }
 
+# Fittings where invoice sizes must match catalog sizes exactly (not partial overlap).
+_SIZE_STRICT_PRODUCT_HINTS = frozenset({"tee", "elbow", "coupler", "adapter"})
+
 
 def _product_hint(desc: str) -> str | None:
     d = desc.lower()
@@ -267,7 +270,7 @@ def _sizes_from_text(text: str) -> set[str]:
 
 
 def _sizes_compatible(desc_sizes: set[str], cat_sizes: set[str]) -> bool:
-    """True only when size sets share an exact normalized token (no substring tricks)."""
+    """Loose rule: any shared normalized size token (non-fitting items)."""
     if not desc_sizes:
         return True
     if not cat_sizes:
@@ -275,8 +278,56 @@ def _sizes_compatible(desc_sizes: set[str], cat_sizes: set[str]) -> bool:
     return bool(desc_sizes & cat_sizes)
 
 
-def _size_matches(desc_sizes: set[str], catalog_text: str) -> bool:
-    return _sizes_compatible(desc_sizes, _sizes_from_text(catalog_text))
+def _fitting_sizes_compatible(desc_sizes: set[str], cat_sizes: set[str]) -> bool:
+    """
+    Strict size rules for tees, elbows, couplers, adapters.
+
+    - Invoice lists 2+ sizes (run x branch): catalog must have the same set.
+    - Invoice lists 1 size (equal fitting): catalog must have exactly that size.
+    """
+    if not desc_sizes:
+        return True
+    if not cat_sizes:
+        return False
+    if len(desc_sizes) >= 2:
+        return desc_sizes == cat_sizes
+    if len(cat_sizes) == 1:
+        return desc_sizes == cat_sizes
+    return False
+
+
+def _size_match_score(desc_sizes: set[str], cat_sizes: set[str]) -> tuple[float, int]:
+    """Graded size bonus and tie-break weight (exact set match wins)."""
+    if not desc_sizes or not cat_sizes:
+        return 0.0, 0
+    overlap = desc_sizes & cat_sizes
+    if not overlap:
+        return 0.0, 0
+    score = 0.25 * len(overlap)
+    if desc_sizes == cat_sizes:
+        score += 0.35
+    tie = len(overlap) * 100 + (1000 if desc_sizes == cat_sizes else 0)
+    return score, tie
+
+
+def _sizes_match_for_desc(
+    desc: str, desc_sizes: set[str], cat_sizes: set[str], *, hint: str | None
+) -> bool:
+    if not desc_sizes:
+        return True
+    if not cat_sizes:
+        return False
+    if hint in _SIZE_STRICT_PRODUCT_HINTS:
+        return _fitting_sizes_compatible(desc_sizes, cat_sizes)
+    return _sizes_compatible(desc_sizes, cat_sizes)
+
+
+def _size_matches(
+    desc_sizes: set[str], catalog_text: str, *, desc: str | None = None
+) -> bool:
+    cat_sizes = _sizes_from_text(catalog_text)
+    hint = _product_hint(desc) if desc else None
+    return _sizes_match_for_desc(desc or "", desc_sizes, cat_sizes, hint=hint)
 
 
 def _material_hint(desc: str) -> str | None:
@@ -500,8 +551,13 @@ class ReferenceData:
             return 0.0, 0
         if material == "brass" and "brass" not in name_n:
             return 0.0, 0
-        if desc_sizes and cat_sizes and not _sizes_compatible(desc_sizes, cat_sizes):
-            return 0.0, 0
+
+        size_tie = 0
+        if desc_sizes:
+            if not cat_sizes:
+                return 0.0, 0
+            if not _sizes_match_for_desc(desc, desc_sizes, cat_sizes, hint=hint):
+                return 0.0, 0
 
         score = 0.0
         if code and _norm(code) in desc_n:
@@ -519,8 +575,9 @@ class ReferenceData:
             token_score = hits / len(name_words)
         score = max(score, ratio, token_score * 0.92)
 
-        if desc_sizes and _sizes_compatible(desc_sizes, cat_sizes):
-            score += 0.42
+        if desc_sizes and cat_sizes:
+            size_bonus, size_tie = _size_match_score(desc_sizes, cat_sizes)
+            score += size_bonus
         if "insert" in desc_n and "insert" in name_n:
             score += 0.12
         if re.search(r"\btee\b", desc_n) and re.search(r"\btee\b", name_n):
@@ -561,7 +618,9 @@ class ReferenceData:
             else:
                 plain_hits += 1
         score = max(score, structured_score, _plain_blob_score(plain_hits))
-        tie_break = plain_hits + structured_hits + (10 if structured_score >= 0.98 else 0)
+        tie_break = (
+            size_tie + plain_hits + structured_hits + (10 if structured_score >= 0.98 else 0)
+        )
         return score, tie_break
 
     def _match_by_code_in_description(
@@ -616,7 +675,7 @@ class ReferenceData:
             if overlap < 4:
                 continue
             catalog_text = f"{rec.item_name} {rec.item_alternate_name}"
-            if desc_sizes and not _size_matches(desc_sizes, catalog_text):
+            if desc_sizes and not _size_matches(desc_sizes, catalog_text, desc=desc):
                 continue
             score = overlap / max(len(code_key), len(desc_key))
             if desc_sizes:

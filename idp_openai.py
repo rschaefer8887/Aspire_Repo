@@ -1,0 +1,296 @@
+"""OpenAI vision extraction with structured outputs for invoice IDP."""
+
+from __future__ import annotations
+
+import base64
+import json
+import os
+import re
+from dataclasses import dataclass, field
+from datetime import date
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent / ".env")
+
+try:
+    import fitz  # pymupdf
+except ImportError:
+    fitz = None
+
+from openai import OpenAI
+
+from idp_paths import confidence_threshold
+from idp_reference import ReferenceData
+
+
+@dataclass
+class LineMatch:
+    description_raw: str
+    quantity: float
+    unit_price: float
+    item_code: str | None = None
+    item_name: str | None = None
+    item_alternate_name: str | None = None
+    confidence: float = 0.0
+    rationale: str = ""
+
+
+@dataclass
+class ExtractionResult:
+    invoice_date: date | None
+    vendor_raw: str
+    vendor_name: str | None
+    vendor_id: int | None
+    vendor_confidence: float
+    vendor_rationale: str
+    invoice_number_raw: str
+    invoice_total: float | None = None
+    lines: list[LineMatch] = field(default_factory=list)
+
+
+EXTRACTION_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "invoice_date": {
+            "type": ["string", "null"],
+            "description": "ISO date YYYY-MM-DD from invoice",
+        },
+        "vendor_raw": {"type": "string", "description": "Vendor name as printed on invoice"},
+        "vendor_name": {
+            "type": ["string", "null"],
+            "description": "Must exactly match one vendor_name from the provided vendor list, or null",
+        },
+        "vendor_confidence": {"type": "number"},
+        "vendor_rationale": {"type": "string"},
+        "invoice_number_raw": {"type": "string"},
+        "invoice_total": {
+            "type": ["number", "null"],
+            "description": "Grand total amount due on the invoice (final total including tax)",
+        },
+        "lines": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "description_raw": {"type": "string"},
+                    "quantity": {"type": "number"},
+                    "unit_price": {"type": "number"},
+                    "supplier_item_code": {
+                        "type": ["string", "null"],
+                        "description": "Part/catalog number printed on the invoice line, if any",
+                    },
+                    "read_confidence": {
+                        "type": "number",
+                        "description": "Confidence that qty, price, and description were read correctly",
+                    },
+                    "rationale": {"type": "string"},
+                },
+                "required": [
+                    "description_raw",
+                    "quantity",
+                    "unit_price",
+                    "supplier_item_code",
+                    "read_confidence",
+                    "rationale",
+                ],
+                "additionalProperties": False,
+            },
+        },
+    },
+    "required": [
+        "invoice_date",
+        "vendor_raw",
+        "vendor_name",
+        "vendor_confidence",
+        "vendor_rationale",
+        "invoice_number_raw",
+        "invoice_total",
+        "lines",
+    ],
+    "additionalProperties": False,
+}
+
+
+def require_openai_key() -> str:
+    key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not key:
+        raise RuntimeError("Set OPENAI_API_KEY in .env")
+    return key
+
+
+def pdf_to_base64_images(pdf_path: Path, max_pages: int = 10) -> list[str]:
+    if fitz is None:
+        raise RuntimeError("Install pymupdf: pip install pymupdf")
+    doc = fitz.open(pdf_path)
+    images: list[str] = []
+    try:
+        for i in range(min(len(doc), max_pages)):
+            page = doc[i]
+            pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
+            images.append(base64.b64encode(pix.tobytes("png")).decode("ascii"))
+    finally:
+        doc.close()
+    return images
+
+
+def _parse_total(value) -> float | None:
+    if value is None:
+        return None
+    try:
+        total = float(value)
+    except (TypeError, ValueError):
+        return None
+    return total if total > 0 else None
+
+
+def _parse_date(s: str | None) -> date | None:
+    if not s:
+        return None
+    s = str(s).strip()
+    if re.match(r"^\d{4}-\d{2}-\d{2}$", s):
+        return date.fromisoformat(s)
+    return None
+
+
+def format_invoice_number(raw: str) -> str:
+    raw = str(raw).strip()
+    if not raw:
+        return "UNKNOWN-INV"
+    upper = raw.upper()
+    if upper.endswith("-INV"):
+        return raw
+    return f"{raw}-INV"
+
+
+def extract_invoice_from_pdf(
+    pdf_path: Path,
+    refs: ReferenceData,
+    *,
+    client: OpenAI | None = None,
+) -> ExtractionResult:
+    if client is None:
+        client = OpenAI(api_key=require_openai_key())
+    model = os.environ.get("OPENAI_MODEL", "gpt-4o").strip()
+    images = pdf_to_base64_images(pdf_path)
+    if not images:
+        raise ValueError(f"No pages in PDF: {pdf_path}")
+
+    vendor_list = json.dumps(refs.vendors_for_llm(), ensure_ascii=False)
+
+    system = (
+        "You extract purchase invoice data from images. "
+        "For vendor_name you MUST pick exactly one vendor_name string from the vendor list "
+        "or set vendor_name to null if no confident match. "
+        "For each line, copy description_raw and supplier_item_code as printed on the invoice. "
+        "Do not invent catalog codes. unit_price is the pre-tax unit price. "
+        "invoice_total is the final invoice grand total (amount due, including tax). "
+        "read_confidence is 0.0 to 1.0 for OCR/extraction quality only."
+    )
+    user_content: list[dict] = [
+        {
+            "type": "text",
+            "text": f"VENDOR LIST (use exact vendor_name):\n{vendor_list}",
+        }
+    ]
+    for b64 in images:
+        user_content.append(
+            {
+                "type": "image_url",
+                "image_url": {"url": f"data:image/png;base64,{b64}"},
+            }
+        )
+
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": user_content},
+        ],
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "invoice_extraction",
+                "strict": True,
+                "schema": EXTRACTION_SCHEMA,
+            },
+        },
+        temperature=0.1,
+    )
+    raw = response.choices[0].message.content
+    if not raw:
+        raise RuntimeError("OpenAI returned empty content")
+    data = json.loads(raw)
+
+    vendor_name = data.get("vendor_name")
+    vendor_rec = refs.resolve_vendor_name(vendor_name)
+    vendor_id = vendor_rec.vendor_id if vendor_rec else None
+    if vendor_name and not vendor_rec:
+        vendor_name = None
+
+    lines: list[LineMatch] = []
+    for row in data.get("lines") or []:
+        qty = float(row.get("quantity") or 0)
+        price = float(row.get("unit_price") or 0)
+        if qty <= 0:
+            continue
+        desc = str(row.get("description_raw") or "")
+        supplier_code = row.get("supplier_item_code") or None
+        read_conf = float(row.get("read_confidence") or 0)
+        inv, match_conf, match_note = refs.match_line(desc, supplier_code)
+        code = inv.item_code if inv else None
+        name = inv.item_name if inv else None
+        conf = min(read_conf, match_conf) if inv else 0.0
+        rationale = str(row.get("rationale") or "")
+        if inv:
+            rationale = f"{rationale}; {match_note}".strip("; ")
+        else:
+            rationale = f"{rationale}; {match_note}".strip("; ")
+        lines.append(
+            LineMatch(
+                description_raw=desc,
+                quantity=qty,
+                unit_price=price,
+                item_code=code or None,
+                item_name=name,
+                item_alternate_name=None,
+                confidence=conf,
+                rationale=rationale,
+            )
+        )
+
+    return ExtractionResult(
+        invoice_date=_parse_date(data.get("invoice_date")),
+        vendor_raw=str(data.get("vendor_raw") or ""),
+        vendor_name=vendor_rec.vendor_name if vendor_rec else vendor_name,
+        vendor_id=vendor_id,
+        vendor_confidence=float(data.get("vendor_confidence") or 0),
+        vendor_rationale=str(data.get("vendor_rationale") or ""),
+        invoice_number_raw=str(data.get("invoice_number_raw") or ""),
+        invoice_total=_parse_total(data.get("invoice_total")),
+        lines=lines,
+    )
+
+
+def collect_review_flags(result: ExtractionResult, threshold: float | None = None) -> list[str]:
+    th = threshold if threshold is not None else confidence_threshold()
+    flags: list[str] = []
+    if not result.vendor_name or result.vendor_confidence < th:
+        flags.append(
+            f"LOW CONFIDENCE VENDOR ({result.vendor_confidence:.2f}):\n"
+            f"  Raw: {result.vendor_raw!r}\n"
+            f"  Matched: {result.vendor_name!r}"
+        )
+    if not result.invoice_date:
+        flags.append("MISSING INVOICE DATE")
+    if result.invoice_total is None:
+        flags.append("MISSING INVOICE TOTAL (column F cannot be reconciled)")
+    for i, line in enumerate(result.lines):
+        if line.confidence < th or (not line.item_code and not line.item_name):
+            flags.append(
+                f"LOW CONFIDENCE LINE ({line.confidence:.2f}) row {10 + i}:\n"
+                f"  Raw: {line.description_raw!r}\n"
+                f"  Matched: ItemCode={line.item_code!r} ItemName={line.item_name!r}"
+            )
+    return flags

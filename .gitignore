@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+exports/
+*.xlsx
+!samples/
+Receipts - Ready/review_dashboard.txt

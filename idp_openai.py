@@ -22,7 +22,11 @@ except ImportError:
 from openai import OpenAI
 
 from idp_paths import confidence_threshold
-from idp_reference import ReferenceData
+from idp_reference import (
+    ReferenceData,
+    _SIZE_STRICT_PRODUCT_HINTS,
+    _product_hint,
+)
 
 
 @dataclass
@@ -74,7 +78,13 @@ EXTRACTION_SCHEMA = {
             "items": {
                 "type": "object",
                 "properties": {
-                    "description_raw": {"type": "string"},
+                    "description_raw": {
+                        "type": "string",
+                        "description": (
+                            "Line description exactly as printed; preserve hyphenated "
+                            "fractional sizes (e.g. 1-1/2 not 1/2 when that is what is printed)"
+                        ),
+                    },
                     "quantity": {"type": "number"},
                     "unit_price": {"type": "number"},
                     "supplier_item_code": {
@@ -120,19 +130,114 @@ def require_openai_key() -> str:
     return key
 
 
+def pdf_render_scale() -> float:
+    """PDF page rasterization scale for vision OCR (default 3 for clearer fractions)."""
+    raw = os.environ.get("IDP_PDF_RENDER_SCALE", "3").strip()
+    try:
+        scale = float(raw)
+    except ValueError:
+        scale = 3.0
+    return max(1.0, min(scale, 4.0))
+
+
 def pdf_to_base64_images(pdf_path: Path, max_pages: int = 10) -> list[str]:
     if fitz is None:
         raise RuntimeError("Install pymupdf: pip install pymupdf")
+    scale = pdf_render_scale()
     doc = fitz.open(pdf_path)
     images: list[str] = []
     try:
+        matrix = fitz.Matrix(scale, scale)
         for i in range(min(len(doc), max_pages)):
             page = doc[i]
-            pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
+            pix = page.get_pixmap(matrix=matrix)
             images.append(base64.b64encode(pix.tobytes("png")).decode("ascii"))
     finally:
         doc.close()
     return images
+
+
+# Common vision misreads of Fowler-style mixed fractions at the start of a line.
+_FRACTION_OCR_FIXES: tuple[tuple[str, str], ...] = (
+    ("1/2", "1-1/2"),
+    ("1/4", "1-1/4"),
+    ("1/8", "1-1/8"),
+)
+
+_LEADING_SIMPLE_FRACTION_RE = re.compile(
+    r"^\s*(\d{1,2})\s*/\s*(\d{1,2})\s*\"",
+    re.IGNORECASE,
+)
+
+
+def _hyphenated_fraction_present(desc: str, hyphenated: str) -> bool:
+    """True if desc already contains the mixed fraction (e.g. 1-1/2)."""
+    parts = hyphenated.split("-", 1)
+    if len(parts) != 2:
+        return False
+    whole, frac = parts[0], parts[1]
+    if re.search(rf"\b{re.escape(hyphenated)}\b", desc, re.IGNORECASE):
+        return True
+    if re.search(
+        rf"\b{re.escape(whole)}\s+{re.escape(frac)}\s*\"",
+        desc,
+        re.IGNORECASE,
+    ):
+        return True
+    return False
+
+
+def maybe_correct_hyphenated_fraction_size(
+    desc: str,
+    refs: ReferenceData,
+    supplier_item_code: str | None = None,
+    *,
+    min_match_conf: float = 0.85,
+) -> tuple[str, str]:
+    """
+    When OCR drops the leading whole number (1/2 vs 1-1/2), retry matching after
+    fixing the leading size if the catalog strongly prefers the hyphenated form.
+    """
+    desc = desc.strip()
+    if not desc:
+        return desc, ""
+    hint = _product_hint(desc)
+    if not hint or hint not in _SIZE_STRICT_PRODUCT_HINTS:
+        return desc, ""
+
+    m = _LEADING_SIMPLE_FRACTION_RE.match(desc)
+    if not m:
+        return desc, ""
+    lead = f"{m.group(1)}/{m.group(2)}"
+
+    for wrong, right in _FRACTION_OCR_FIXES:
+        if lead != wrong:
+            continue
+        if _hyphenated_fraction_present(desc, right):
+            return desc, ""
+        candidate = _LEADING_SIMPLE_FRACTION_RE.sub(
+            f'{right}"',
+            desc,
+            count=1,
+        )
+        if candidate == desc:
+            return desc, ""
+        rec_fix, conf_fix, _ = refs.match_line(candidate, supplier_item_code)
+        if not rec_fix or conf_fix < min_match_conf:
+            return desc, ""
+        rec_orig, conf_orig, _ = refs.match_line(desc, supplier_item_code)
+        note = f"Corrected OCR size {wrong}→{right} in description"
+        if conf_fix > conf_orig or conf_orig < min_match_conf:
+            return candidate, note
+        # Both SKUs match confidently; prefer the hyphenated catalog row.
+        if (
+            rec_orig
+            and rec_fix.item_name != rec_orig.item_name
+            and right in (rec_fix.item_name or "")
+            and wrong in (rec_orig.item_name or "")
+        ):
+            return candidate, note
+    return desc, ""
 
 
 def _parse_total(value) -> float | None:
@@ -183,7 +288,11 @@ def extract_invoice_from_pdf(
         "You extract purchase invoice data from images. "
         "For vendor_name you MUST pick exactly one vendor_name string from the vendor list "
         "or set vendor_name to null if no confident match. "
+        "For H.D. Fowler / HD Fowler invoices always use the Fowler {Turf} vendor from the list, "
+        "never Waterworks or other Fowler variants. "
         "For each line, copy description_raw and supplier_item_code as printed on the invoice. "
+        "Preserve hyphenated fractional inch sizes exactly as printed "
+        "(e.g. 1-1/2 or 1-1/4, not 1/2 or 1/4 when the invoice shows the hyphenated form). "
         "Do not invent catalog codes. unit_price is the pre-tax unit price. "
         "invoice_total is the final invoice grand total (amount due, including tax). "
         "read_confidence is 0.0 to 1.0 for OCR/extraction quality only."
@@ -223,8 +332,9 @@ def extract_invoice_from_pdf(
         raise RuntimeError("OpenAI returned empty content")
     data = json.loads(raw)
 
+    vendor_raw = str(data.get("vendor_raw") or "")
     vendor_name = data.get("vendor_name")
-    vendor_rec = refs.resolve_vendor_name(vendor_name)
+    vendor_rec = refs.resolve_vendor_name(vendor_name, vendor_raw=vendor_raw or None)
     vendor_id = vendor_rec.vendor_id if vendor_rec else None
     if vendor_name and not vendor_rec:
         vendor_name = None
@@ -237,16 +347,20 @@ def extract_invoice_from_pdf(
             continue
         desc = str(row.get("description_raw") or "")
         supplier_code = row.get("supplier_item_code") or None
+        if supplier_code is not None:
+            supplier_code = str(supplier_code).strip() or None
+        desc, size_fix_note = maybe_correct_hyphenated_fraction_size(
+            desc, refs, supplier_code
+        )
         read_conf = float(row.get("read_confidence") or 0)
         inv, match_conf, match_note = refs.match_line(desc, supplier_code)
         code = inv.item_code if inv else None
         name = inv.item_name if inv else None
         conf = min(read_conf, match_conf) if inv else 0.0
         rationale = str(row.get("rationale") or "")
-        if inv:
-            rationale = f"{rationale}; {match_note}".strip("; ")
-        else:
-            rationale = f"{rationale}; {match_note}".strip("; ")
+        if size_fix_note:
+            rationale = f"{rationale}; {size_fix_note}".strip("; ")
+        rationale = f"{rationale}; {match_note}".strip("; ")
         lines.append(
             LineMatch(
                 description_raw=desc,
@@ -262,7 +376,7 @@ def extract_invoice_from_pdf(
 
     return ExtractionResult(
         invoice_date=_parse_date(data.get("invoice_date")),
-        vendor_raw=str(data.get("vendor_raw") or ""),
+        vendor_raw=vendor_raw,
         vendor_name=vendor_rec.vendor_name if vendor_rec else vendor_name,
         vendor_id=vendor_id,
         vendor_confidence=float(data.get("vendor_confidence") or 0),

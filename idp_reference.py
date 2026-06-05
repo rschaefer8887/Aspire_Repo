@@ -10,6 +10,7 @@ from difflib import SequenceMatcher
 from pathlib import Path
 
 from idp_paths import catalog_items_csv_path, catalog_item_type_filter, vendors_csv_path
+from idp_vendor_prefs import exclude_vendor_from_llm_list, resolve_hd_fowler_vendor
 
 
 def _norm(s: str) -> str:
@@ -86,13 +87,111 @@ def _use_supplier_code(code: str, desc: str) -> bool:
     return True
 
 
+def _scrub_desc_for_code_match(desc: str) -> str:
+    """Normalize description so trailing punctuation does not glue to part numbers."""
+    scrubbed = _norm(desc)
+    return re.sub(r"[,;.#]+", " ", scrubbed)
+
+
+def _code_appears_in_description(code: str, desc: str) -> bool:
+    c = re.sub(r"[^\w-]", "", _norm(code))
+    if not c:
+        return False
+    scrubbed = _scrub_desc_for_code_match(desc)
+    return bool(
+        re.search(rf"(?<![a-z0-9]){re.escape(c)}(?![a-z0-9])", scrubbed)
+    )
+
+
+_COLOR_ONLY_WORDS = frozenset(
+    {"blue", "red", "yellow", "green", "silver", "white", "black", "orange"}
+)
+
+
+def _is_tape_line(desc: str) -> bool:
+    """True for real tape lines only (not pipe dope that mentions PTFE)."""
+    if _is_pipe_dope_line(desc):
+        return False
+    d = _norm(desc)
+    if "duct tape" in d:
+        return True
+    if re.search(r"\bthread\s+seal\s+tape\b", d):
+        return True
+    if re.search(r"\btape\b", desc, re.IGNORECASE):
+        return True
+    # Fowler/OCR often drops "tape"; Blue Monster + thread seal or PTFE is still tape.
+    if "blue monster" in d and ("thread seal" in d or "ptfe" in d):
+        return True
+    return False
+
+
+def _is_pipe_dope_line(desc: str) -> bool:
+    d = _norm(desc)
+    if "pipe dope" in d:
+        return True
+    if "weld on" in d or "weld-on" in d:
+        return True
+    if "white seal" in d:
+        return True
+    return False
+
+
+def _skip_inch_size_overlap(desc: str) -> bool:
+    """Tape/supply lines: do not match catalog rows only because of a shared inch size."""
+    if _is_tape_line(desc):
+        return True
+    d = _norm(desc)
+    return bool(re.search(r"\b(yds?|mil)\b", d))
+
+
+def _consumable_blocks_catalog(desc_n: str, name_n: str) -> bool:
+    """Reject fittings/wire nuts when the invoice line is clearly tape/supply."""
+    if not _is_tape_line(desc_n):
+        return False
+    if re.search(r"\bnipple\b", name_n) and not re.search(r"\bnipple\b", desc_n):
+        return True
+    if "wire nut" in name_n and "wire nut" not in desc_n:
+        return True
+    return False
+
+
+def _invoice_excludes_wire_nuts(desc_n: str, name_n: str) -> bool:
+    """One-off: invoice lines with these words are never wire nuts."""
+    if "wire nut" not in name_n:
+        return False
+    if "wire nut" in desc_n:
+        return False
+    if "blue monster" in desc_n:
+        return True
+    if re.search(r"\btape\b", desc_n):
+        return True
+    if "seal" in desc_n:
+        return True
+    return False
+
+
+def _pipe_dope_blocks_catalog(desc_n: str, name_n: str) -> bool:
+    """Reject thread-seal tape SKUs on pipe-dope invoice lines."""
+    if not _is_pipe_dope_line(desc_n):
+        return False
+    if re.search(r"\btape\b", name_n):
+        return True
+    if "blue monster" in name_n and "white seal" in desc_n:
+        return True
+    return False
+
+
 _PRODUCT_HINTS: list[tuple[str, tuple[str, ...]]] = [
     ("coupler", ("coupling", "coupler", "coupl")),
     ("elbow", ("elbow",)),
     ("adapter", ("adapter", "adaptor")),
+    ("bushing", ("bushing",)),
     ("tee", ("tee",)),
+    ("plug", ("plug",)),
     ("valve", ("valve",)),
     ("manifold", ("manifold",)),
+    ("nipple", ("nipple",)),
+    ("pipe dope", ("pipe dope", "weld on", "weld-on", "white seal")),
     ("wire nut", ("wire nut",)),
     ("drip", ("drip", "emitter", "tubing")),
     ("flag", ("flag",)),
@@ -101,14 +200,24 @@ _PRODUCT_HINTS: list[tuple[str, tuple[str, ...]]] = [
 # Product families matched as whole words (avoids substring false positives).
 _PRODUCT_HINT_WORD_RE: dict[str, re.Pattern[str]] = {
     "tee": re.compile(r"\btee\b", re.IGNORECASE),
+    "plug": re.compile(r"\bplug\b", re.IGNORECASE),
+    "bushing": re.compile(r"\bbushing\b", re.IGNORECASE),
+    "nipple": re.compile(r"\bnipple\b", re.IGNORECASE),
 }
 
 # Fittings where invoice sizes must match catalog sizes exactly (not partial overlap).
-_SIZE_STRICT_PRODUCT_HINTS = frozenset({"tee", "elbow", "coupler", "adapter"})
+_SIZE_STRICT_PRODUCT_HINTS = frozenset(
+    {"tee", "elbow", "coupler", "adapter", "bushing", "plug"}
+)
+
+# Shared words that do not count toward per-word catalog scoring (see _pvc_insert_baseline).
+_SCORING_STOPWORDS = frozenset({"pvc", "insert"})
 
 
 def _product_hint(desc: str) -> str | None:
     d = desc.lower()
+    if _is_pipe_dope_line(desc):
+        return "pipe dope"
     for hint, words in _PRODUCT_HINTS:
         word_re = _PRODUCT_HINT_WORD_RE.get(hint)
         if word_re is not None:
@@ -122,6 +231,13 @@ def _product_hint(desc: str) -> str | None:
 
 def _catalog_matches_product_hint(hint: str, catalog_text_norm: str) -> bool:
     """True if catalog name/alt text matches the invoice product family."""
+    if hint == "pipe dope":
+        return bool(
+            "pipe dope" in catalog_text_norm
+            or "white seal" in catalog_text_norm
+            or "weld on" in catalog_text_norm
+            or "weld-on" in catalog_text_norm
+        )
     word_re = _PRODUCT_HINT_WORD_RE.get(hint)
     if word_re is not None:
         return bool(word_re.search(catalog_text_norm))
@@ -130,6 +246,21 @@ def _catalog_matches_product_hint(hint: str, catalog_text_norm: str) -> bool:
             continue
         return any(w.strip() in catalog_text_norm for w in words)
     return hint in catalog_text_norm
+
+
+def _name_words_for_score(name_n: str) -> list[str]:
+    return [
+        w
+        for w in name_n.split()
+        if len(w) > 2 and w not in _SCORING_STOPWORDS and w not in _GENERIC_COMPACT_TOKENS
+    ]
+
+
+def _pvc_insert_baseline(desc_n: str, name_n: str) -> float:
+    """Small bonus when invoice and catalog are both PVC insert (counts once, not per word)."""
+    if "pvc" in desc_n and "insert" in desc_n and "pvc" in name_n and "insert" in name_n:
+        return 0.08
+    return 0.0
 
 
 def _leading_code_token(desc: str) -> str | None:
@@ -181,17 +312,6 @@ def _plain_blob_score(hit_count: int) -> float:
     if hit_count == 2:
         return 0.78
     return 0.90
-
-
-def _code_appears_in_description(code: str, desc: str) -> bool:
-    c = _norm(code)
-    if not c:
-        return False
-    desc_n = _norm(desc)
-    if c not in desc_n:
-        return False
-    words = desc_n.split()
-    return c in words or desc_n.startswith(f"{c} ")
 
 
 # Too generic for substring/compact code matching (e.g. "elbow" inside "rbxffelbow").
@@ -280,7 +400,7 @@ def _sizes_compatible(desc_sizes: set[str], cat_sizes: set[str]) -> bool:
 
 def _fitting_sizes_compatible(desc_sizes: set[str], cat_sizes: set[str]) -> bool:
     """
-    Strict size rules for tees, elbows, couplers, adapters.
+    Strict size rules for tees, elbows, couplers, adapters, bushings.
 
     - Invoice lists 2+ sizes (run x branch): catalog must have the same set.
     - Invoice lists 1 size (equal fitting): catalog must have exactly that size.
@@ -313,6 +433,8 @@ def _size_match_score(desc_sizes: set[str], cat_sizes: set[str]) -> tuple[float,
 def _sizes_match_for_desc(
     desc: str, desc_sizes: set[str], cat_sizes: set[str], *, hint: str | None
 ) -> bool:
+    if _skip_inch_size_overlap(desc):
+        return True
     if not desc_sizes:
         return True
     if not cat_sizes:
@@ -486,16 +608,18 @@ class ReferenceData:
 
     def vendors_for_llm(self, limit: int | None = None) -> list[dict]:
         cap = limit or int(os.environ.get("IDP_VENDORS_LLM_LIMIT", "500"))
-        return [
-            {"vendor_id": v.vendor_id, "vendor_name": v.vendor_name}
-            for v in self.vendors[:cap]
-        ]
+        out: list[dict] = []
+        for v in self.vendors[:cap]:
+            if exclude_vendor_from_llm_list(v.vendor_name):
+                continue
+            out.append({"vendor_id": v.vendor_id, "vendor_name": v.vendor_name})
+        return out
 
     def inventory_for_llm(self, limit: int | None = None) -> list[dict]:
         cap = limit or int(os.environ.get("IDP_CATALOG_LLM_LIMIT", "2500"))
         return [r.for_llm() for r in self.inventory[:cap]]
 
-    def resolve_vendor_name(self, vendor_name: str | None) -> VendorRecord | None:
+    def lookup_vendor_record(self, vendor_name: str | None) -> VendorRecord | None:
         if not vendor_name:
             return None
         exact = {v.vendor_name: v for v in self.vendors}
@@ -506,6 +630,13 @@ class ReferenceData:
             if _norm(v.vendor_name) == key:
                 return v
         return None
+
+    def resolve_vendor_name(
+        self,
+        vendor_name: str | None,
+        vendor_raw: str | None = None,
+    ) -> VendorRecord | None:
+        return resolve_hd_fowler_vendor(self, vendor_name, vendor_raw)
 
     def resolve_inventory(
         self, item_code: str | None, item_name: str | None, item_alternate: str | None
@@ -539,10 +670,18 @@ class ReferenceData:
         name_n = _norm(catalog_text)
         hint = _product_hint(desc)
         material = _material_hint(desc)
-        desc_sizes = _sizes_from_text(desc)
+        desc_sizes = (
+            set() if _skip_inch_size_overlap(desc) else _sizes_from_text(desc)
+        )
         cat_sizes = _sizes_from_text(catalog_text)
         code_in_desc = bool(code and _code_appears_in_description(code, desc))
 
+        if _consumable_blocks_catalog(desc_n, name_n):
+            return 0.0, 0
+        if _invoice_excludes_wire_nuts(desc_n, name_n):
+            return 0.0, 0
+        if _pipe_dope_blocks_catalog(desc_n, name_n):
+            return 0.0, 0
         if hint and not _catalog_matches_product_hint(hint, name_n) and not code_in_desc:
             return 0.0, 0
         if material == "pvc" and "pvc" not in name_n:
@@ -560,7 +699,7 @@ class ReferenceData:
                 return 0.0, 0
 
         score = 0.0
-        if code and _norm(code) in desc_n:
+        if code_in_desc:
             score = max(score, 0.98)
         if name and _norm(name) in desc_n:
             score = max(score, 0.95)
@@ -568,24 +707,43 @@ class ReferenceData:
             score = max(score, 0.93)
 
         ratio = SequenceMatcher(None, desc_n, name_n).ratio()
-        name_words = [w for w in name_n.split() if len(w) > 2]
+        name_words = _name_words_for_score(name_n)
         token_score = 0.0
         if name_words:
             hits = sum(1 for w in name_words if w in desc_n)
             token_score = hits / len(name_words)
+            if (
+                len(name_words) == 1
+                and name_words[0] in _COLOR_ONLY_WORDS
+                and _is_tape_line(desc)
+            ):
+                token_score = 0.0
         score = max(score, ratio, token_score * 0.92)
 
         if desc_sizes and cat_sizes:
             size_bonus, size_tie = _size_match_score(desc_sizes, cat_sizes)
             score += size_bonus
-        if "insert" in desc_n and "insert" in name_n:
-            score += 0.12
+        score += _pvc_insert_baseline(desc_n, name_n)
         if re.search(r"\btee\b", desc_n) and re.search(r"\btee\b", name_n):
             score += 0.20
+        if re.search(r"\bplug\b", desc_n) and re.search(r"\bplug\b", name_n):
+            score += 0.20
+        if re.search(r"\bbushing\b", desc_n) and re.search(r"\bbushing\b", name_n):
+            score += 0.20
+        if _is_pipe_dope_line(desc_n):
+            if (
+                "pipe dope" in name_n
+                or "white seal" in name_n
+                or "weld on" in name_n
+                or "weld-on" in name_n
+            ):
+                score += 0.45
         rare = [
             w
             for w in re.findall(r"[a-z]{5,}", desc_n)
-            if w not in _TOKEN_STOPWORDS and w not in _GENERIC_COMPACT_TOKENS
+            if w not in _TOKEN_STOPWORDS
+            and w not in _GENERIC_COMPACT_TOKENS
+            and w not in _SCORING_STOPWORDS
         ]
         if len(rare) >= 2:
             hits = sum(1 for w in rare if w in name_n)
@@ -626,11 +784,18 @@ class ReferenceData:
     def _match_by_code_in_description(
         self, desc: str
     ) -> tuple[InventoryRecord | None, float, str]:
-        """Exact catalog ItemCode appearing in invoice line text."""
+        """Exact catalog ItemCode appearing in invoice line text (longest code wins)."""
+        best: InventoryRecord | None = None
+        best_code = ""
         for rec in self.inventory:
             code = (rec.item_code or "").strip()
-            if code and _code_appears_in_description(code, desc):
-                return rec, 0.98, f"Item code {code!r} found in description"
+            if not code or not _code_appears_in_description(code, desc):
+                continue
+            if len(code) > len(best_code):
+                best_code = code
+                best = rec
+        if best:
+            return best, 0.98, f"Item code {best_code!r} found in description"
         return None, 0.0, ""
 
     def _match_by_tokens(self, desc: str, tokens: list[str]) -> tuple[InventoryRecord | None, float, str]:
@@ -651,7 +816,11 @@ class ReferenceData:
         desc_key = re.sub(r"[^a-z0-9]", "", key)
         if len(desc_key) < 4:
             return None, 0.0
-        desc_sizes = _sizes_from_text(desc)
+        desc_sizes = (
+            set()
+            if _skip_inch_size_overlap(desc)
+            else _sizes_from_text(desc)
+        )
         best: InventoryRecord | None = None
         best_score = 0.0
         for rec in self.inventory:
@@ -698,6 +867,12 @@ class ReferenceData:
         if rec:
             return rec, 0.95, "Exact catalog name from description"
 
+        if supplier_item_code:
+            sup = str(supplier_item_code).strip()
+            if sup:
+                rec = self._by_code.get(_norm(sup))
+                if rec:
+                    return rec, 0.98, f"Exact supplier item code {sup!r}"
         if supplier_item_code and _use_supplier_code(supplier_item_code, desc):
             rec = self._by_code.get(_norm(supplier_item_code))
             if rec:

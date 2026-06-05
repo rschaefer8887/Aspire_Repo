@@ -182,15 +182,20 @@ def session_to_extraction(session: ReviewSession) -> ExtractionResult:
         for ln in included
     ]
     vendor_id = None
+    vendor_name = session.vendor_name
     refs = ReferenceData()
     refs.load()
     if session.vendor_name:
-        rec = refs.resolve_vendor_name(session.vendor_name)
-        vendor_id = rec.vendor_id if rec else None
+        rec = refs.resolve_vendor_name(
+            session.vendor_name, vendor_raw=session.vendor_raw
+        )
+        if rec:
+            vendor_id = rec.vendor_id
+            vendor_name = rec.vendor_name
     return ExtractionResult(
         invoice_date=inv_date,
         vendor_raw=session.vendor_raw,
-        vendor_name=session.vendor_name,
+        vendor_name=vendor_name,
         vendor_id=vendor_id,
         vendor_confidence=session.vendor_confidence,
         vendor_rationale="",

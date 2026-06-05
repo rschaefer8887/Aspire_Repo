@@ -1,0 +1,36 @@
+---
+description: Ask one-off vs re-engineer before IDP catalog matcher changes
+alwaysApply: true
+---
+
+# IDP catalog matching fixes
+
+When the user reports a wrong catalog match (invoice line → wrong SKU, low confidence, review queue):
+
+1. **Ask first** using AskQuestion (or a direct question if AskQuestion unavailable):
+   - **One-off fix** — targeted block/bonus/code rule + test for this exact line
+   - **Re-engineer match code** — product family, scoring, or broad matcher logic
+
+2. **Default guidance**: For isolated / oddball Fowler lines, recommend **one-off** — same pattern as `_invoice_excludes_wire_nuts()` in `idp_reference.py`.
+
+3. **One-off scope** (typical):
+   - New small helper in `idp_reference.py` (block, boost, or early code match)
+   - Hook in `_score_catalog_record` or `_best_catalog_match` only
+   - One test in `tests/` with the user's exact `description_raw` string
+   - Do NOT refactor unrelated product families
+
+4. **Re-engineer only when** the user explicitly chooses it, or the same bug class hits many SKUs/lines.
+
+5. **Always mention** when relevant:
+   - Confirm **Raw** `description_raw` in review (matcher uses OpenAI text, not the PDF)
+   - Supplier numbers (e.g. `70886`) must be on **ItemCode** in `exports/catalog_items.csv` for 0.98 code match
+   - Re-run `process_invoices.py` after matcher changes (stale review JSON does not re-match)
+
+## Reference patterns in this repo
+
+| Approach | Example |
+|----------|---------|
+| One-off negative rule | `_invoice_excludes_wire_nuts()` in `idp_reference.py` |
+| One-off post-OCR fix | `maybe_correct_hyphenated_fraction_size()` in `idp_openai.py` |
+| Re-engineer family | `_PRODUCT_HINTS` + strict sizes (tee, plug, bushing) |
+| Golden-line test | `tests/test_idp_consumables.py` |

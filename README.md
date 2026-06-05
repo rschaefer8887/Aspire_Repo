@@ -45,7 +45,11 @@ Per-vendor rules for tax and total reconciliation. **`process_invoices.py`** sta
 | `hd_fowler` | H.D. Fowler Company {Turf} (and names containing “fowler”) | ×1.06 | Yes |
 | `default` | Everyone else | None (×1.0) | No |
 
+Catalog matching treats **tee, elbow, coupler, adapter, plug** as product families with strict size rules. **PVC** and **insert** share one small scoring bonus (not two word hits) so **plug** / **tee** / size tokens decide the winner.
+
 Add vendors by extending `HD_FOWLER_PROFILE` / `DEFAULT_PROFILE` or calling `register_vendor_profile()` in `idp_vendor_profiles.py`.
+
+**HD Fowler Turf vs Waterworks:** IDP always maps Fowler invoices to `H.D. Fowler Company {Turf}` (override with `IDP_HD_FOWLER_VENDOR_NAME`). Waterworks is omitted from the OpenAI vendor list and remapped on import if Excel still has the wrong Fowler variant.
 
 ## Setup
 

@@ -6,6 +6,12 @@ from dataclasses import dataclass
 
 from aspire_common import AspireClient, inventory_location_id
 from aspire_excel import ReceiptWorkbook, vendor_invoice_datetime_iso
+from idp_vendor_prefs import (
+    hd_fowler_preferred_vendor_name,
+    is_hd_fowler_vendor,
+    normalize_vendor_key,
+    pick_preferred_vendor_match,
+)
 
 
 def _norm(s: str) -> str:
@@ -181,6 +187,48 @@ class LookupService:
         ids = ", ".join(f"{m[0]} ({m[1]})" for m in matches)
         raise ValueError(f"Ambiguous branch {text!r}: {ids}")
 
+    def _hd_fowler_turf_vendor(self) -> tuple[int, str] | None:
+        pref_key = normalize_vendor_key(hd_fowler_preferred_vendor_name())
+        for v in self._vendors_list():
+            if v.get("Active") is False:
+                continue
+            vid = v.get("VendorID")
+            if vid is None:
+                continue
+            name = str(v.get("VendorName") or "")
+            if normalize_vendor_key(name) == pref_key:
+                return int(vid), name
+        return None
+
+    def _finalize_vendor_matches(
+        self,
+        matches: list[tuple[int, str]],
+        query: str,
+        original_text: str,
+        branch_id: int,
+    ) -> tuple[int, str]:
+        preferred = pick_preferred_vendor_match(matches, query)
+        if preferred is not None:
+            return preferred
+        if is_hd_fowler_vendor(original_text) or any(
+            is_hd_fowler_vendor(name) for _, name in matches
+        ):
+            turf = self._hd_fowler_turf_vendor()
+            if turf is not None:
+                if len(matches) == 1:
+                    if normalize_vendor_key(matches[0][1]) != normalize_vendor_key(
+                        turf[1]
+                    ):
+                        return turf
+                elif all(is_hd_fowler_vendor(name) for _, name in matches):
+                    return turf
+        if len(matches) == 1:
+            return matches[0]
+        if not matches:
+            raise ValueError(f"No vendor matching {original_text!r} (branch ID {branch_id})")
+        ids = ", ".join(f"{m[0]} ({m[1]})" for m in matches)
+        raise ValueError(f"Ambiguous vendor {original_text!r}: {ids}")
+
     def resolve_vendor_id(self, text: str, branch_id: int) -> tuple[int, str]:
         query = _norm(text)
         matches: list[tuple[int, str]] = []
@@ -198,7 +246,7 @@ class LookupService:
             if query in (name, acct) or query in name or name in query:
                 matches.append((int(vid), str(v.get("VendorName") or text)))
         if len(matches) == 1:
-            return matches[0]
+            return self._finalize_vendor_matches(matches, query, text, branch_id)
         if not matches:
             # Retry without branch filter
             for v in self._vendors_list():
@@ -213,12 +261,7 @@ class LookupService:
                     matches.append(
                         (int(vid), str(v.get("VendorName") or text))
                     )
-        if len(matches) == 1:
-            return matches[0]
-        if not matches:
-            raise ValueError(f"No vendor matching {text!r} (branch ID {branch_id})")
-        ids = ", ".join(f"{m[0]} ({m[1]})" for m in matches)
-        raise ValueError(f"Ambiguous vendor {text!r}: {ids}")
+        return self._finalize_vendor_matches(matches, query, text, branch_id)
 
     def resolve_catalog_item(
         self, item_code: str, item_name: str, row: int

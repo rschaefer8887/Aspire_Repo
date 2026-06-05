@@ -15,9 +15,9 @@ def _tax_multiplier_from_env(default: float) -> float:
 
 
 def _norm_key(name: str) -> str:
-    s = str(name).strip().lower()
-    s = re.sub(r"\{[^}]*\}", "", s)
-    return " ".join(s.split())
+    from idp_vendor_prefs import normalize_vendor_key
+
+    return normalize_vendor_key(name)
 
 
 @dataclass(frozen=True)

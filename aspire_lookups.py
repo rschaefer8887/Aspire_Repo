@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 
 from aspire_common import AspireClient, inventory_location_id
@@ -12,6 +13,7 @@ from idp_vendor_prefs import (
     normalize_vendor_key,
     pick_preferred_vendor_match,
 )
+from idp_vendor_profiles import vendor_profile_for
 
 
 def _norm(s: str) -> str:
@@ -51,6 +53,21 @@ def _consolidate_receipt_items(items: list[dict]) -> list[dict]:
             {"InventoryLocationID": loc_id, "ItemQuantity": total_qty}
         ]
     return [merged[cid] for cid in order]
+
+
+def _has_duplicate_catalog_ids(items: list[dict]) -> bool:
+    ids = [int(i["CatalogItemID"]) for i in items]
+    return len(ids) != len(set(ids))
+
+
+def _should_skip_consolidation(vendor_name: str, items: list[dict]) -> bool:
+    if not _has_duplicate_catalog_ids(items):
+        return False
+    env = os.environ.get("IDP_SKIP_RECEIPT_CONSOLIDATION", "").strip().lower()
+    if env in ("1", "true", "yes"):
+        return True
+    profile = vendor_profile_for(vendor_name)
+    return profile.skip_receipt_item_consolidation
 
 
 @dataclass
@@ -318,7 +335,11 @@ class LookupService:
                 }
             )
 
-        receipt_items = _consolidate_receipt_items(receipt_items)
+        skip_consolidation = _should_skip_consolidation(vendor_label, receipt_items)
+        if skip_consolidation:
+            pass
+        else:
+            receipt_items = _consolidate_receipt_items(receipt_items)
 
         payload = {
             "BranchID": branch_id,
@@ -328,6 +349,8 @@ class LookupService:
             "InventoryLocationID": loc_id,
             "ReceiptItems": receipt_items,
         }
+        if wb.receipt_note.strip():
+            payload["ReceiptNote"] = wb.receipt_note.strip()
         payload["_resolved"] = {
             "branch": branch_label,
             "branch_id": branch_id,
@@ -335,6 +358,8 @@ class LookupService:
             "vendor_id": vendor_id,
             "inventory_location_id": loc_id,
             "inventory_location_fixed": True,
+            "consolidation_skipped": skip_consolidation,
+            "excel_line_count": len(wb.lines),
         }
         return payload
 

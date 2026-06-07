@@ -31,6 +31,7 @@ class ReceiptWorkbook:
     branch: str
     vendor_invoice_num: str
     lines: list[ReceiptLine]
+    receipt_note: str = ""
 
 
 def _cell_str(value) -> str:
@@ -113,6 +114,7 @@ def read_receipt_workbook(path: Path) -> ReceiptWorkbook:
         vendor = _cell_str(ws["B2"].value)
         branch = _cell_str(ws["B3"].value)
         vendor_invoice_num = _cell_str(ws["B5"].value)
+        receipt_note = _cell_str(ws["B6"].value)
 
         if not vendor:
             raise ValueError("B2 (Vendor) is empty")
@@ -162,6 +164,7 @@ def read_receipt_workbook(path: Path) -> ReceiptWorkbook:
             branch=branch,
             vendor_invoice_num=vendor_invoice_num,
             lines=lines,
+            receipt_note=receipt_note,
         )
     finally:
         wb.close()

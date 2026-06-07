@@ -16,7 +16,10 @@ from idp_costs import (
 )
 from idp_openai import ExtractionResult, format_invoice_number
 from idp_paths import default_branch, excel_template_path, sanitize_filename_part
-from idp_vendor_profiles import VendorProfile, vendor_profile_for
+from idp_pack_conversion import maybe_convert_box_line, maybe_convert_canister_line
+from idp_roll_conversion import maybe_convert_roll_line
+from idp_sod import SodSplitResult, build_sod_receipt_note
+from idp_vendor_profiles import IDAHO_SOD_PROFILE, VendorProfile, vendor_profile_for
 
 
 def _ensure_template() -> Path:
@@ -43,6 +46,7 @@ def write_invoice_workbook(
     invoice_number: str,
     lines: list[LineOutput],
     invoice_total: float | None = None,
+    receipt_note: str | None = None,
     profile: VendorProfile | None = None,
     sheet_name: str = "Invoice_Import",
     line_start: int = 10,
@@ -61,6 +65,8 @@ def write_invoice_workbook(
     ws["B2"] = vendor_name
     ws["B3"] = branch
     ws["B5"] = invoice_number
+    if receipt_note:
+        ws["B6"] = receipt_note
 
     reconciled = True
     if (
@@ -93,12 +99,33 @@ def extraction_to_lines(
     prof = profile or vendor_profile_for(result.vendor_name, result.vendor_raw)
     out: list[LineOutput] = []
     for line in result.lines:
+        qty, unit_price, _roll_note = maybe_convert_roll_line(
+            line.quantity,
+            line.unit_price,
+            description_raw=line.description_raw,
+            uom_raw=line.uom_raw,
+            item_name=line.item_name,
+        )
+        qty, unit_price, _canister_note = maybe_convert_canister_line(
+            qty,
+            unit_price,
+            description_raw=line.description_raw,
+            item_code=line.item_code,
+            item_name=line.item_name,
+        )
+        qty, unit_price, _box_note = maybe_convert_box_line(
+            qty,
+            unit_price,
+            description_raw=line.description_raw,
+            item_code=line.item_code,
+            item_name=line.item_name,
+        )
         out.append(
             LineOutput(
                 item_code=line.item_code or "",
                 item_name=line.item_name or line.description_raw,
-                quantity=line.quantity,
-                unit_cost=apply_tax(line.unit_price, profile=prof),
+                quantity=qty,
+                unit_cost=apply_tax(unit_price, profile=prof),
             )
         )
     return out
@@ -145,6 +172,22 @@ def write_from_extraction(
     if not lines:
         raise ValueError("No line items to write")
 
+    receipt_note = result.receipt_note
+    if (
+        profile.profile_id == IDAHO_SOD_PROFILE.profile_id
+        and result.invoice_total
+        and isinstance(result.sod_split, SodSplitResult)
+    ):
+        work = [
+            LineOutput(l.item_code, l.item_name, l.quantity, l.unit_cost)
+            for l in lines
+        ]
+        reconcile_line_costs(work, result.invoice_total)
+        lines = work
+        receipt_note = build_sod_receipt_note(
+            result.invoice_total, lines, result.sod_split
+        )
+
     reconciled = write_invoice_workbook(
         template,
         out_path,
@@ -154,6 +197,7 @@ def write_from_extraction(
         invoice_number=inv_num,
         lines=lines,
         invoice_total=result.invoice_total,
+        receipt_note=receipt_note,
         profile=profile,
     )
     col_f_total = round(

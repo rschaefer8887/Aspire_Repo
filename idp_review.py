@@ -18,6 +18,7 @@ from idp_openai import ExtractionResult, LineMatch, format_invoice_number
 from idp_costs import effective_invoice_total
 from idp_paths import ROOT, confidence_threshold, review_pending_dir
 from idp_reference import InventoryRecord, ReferenceData
+from idp_review_triggers import is_pinch_clamp_tool_ct108_line
 
 
 @dataclass
@@ -25,6 +26,7 @@ class ReviewLine:
     description_raw: str
     quantity: float
     unit_price: float
+    uom_raw: str = ""
     item_code: str | None = None
     item_name: str | None = None
     confidence: float = 0.0
@@ -74,6 +76,7 @@ class ReviewSession:
                     description_raw=str(row.get("description_raw") or ""),
                     quantity=float(row.get("quantity") or 0),
                     unit_price=float(row.get("unit_price") or 0),
+                    uom_raw=str(row.get("uom_raw") or ""),
                     item_code=row.get("item_code"),
                     item_name=row.get("item_name"),
                     confidence=float(row.get("confidence") or 0),
@@ -126,13 +129,16 @@ def extraction_to_session(
     lines: list[ReviewLine] = []
     for line in result.lines:
         line_needs = (
-            line.confidence < th or (not line.item_code and not line.item_name)
+            line.confidence < th
+            or (not line.item_code and not line.item_name)
+            or is_pinch_clamp_tool_ct108_line(line.description_raw)
         )
         lines.append(
             ReviewLine(
                 description_raw=line.description_raw,
                 quantity=line.quantity,
                 unit_price=line.unit_price,
+                uom_raw=line.uom_raw,
                 item_code=line.item_code,
                 item_name=line.item_name,
                 confidence=line.confidence,
@@ -174,6 +180,7 @@ def session_to_extraction(session: ReviewSession) -> ExtractionResult:
             description_raw=ln.description_raw,
             quantity=ln.quantity,
             unit_price=ln.unit_price,
+            uom_raw=ln.uom_raw,
             item_code=ln.item_code or None,
             item_name=ln.item_name or None,
             confidence=1.0 if ln.item_code or ln.item_name else ln.confidence,

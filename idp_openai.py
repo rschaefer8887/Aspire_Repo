@@ -22,6 +22,12 @@ except ImportError:
 from openai import OpenAI
 
 from idp_paths import confidence_threshold
+from idp_review_triggers import (
+    is_pinch_clamp_tool_ct108_line,
+    pinch_clamp_tool_ct108_review_flag,
+)
+from idp_sod import transform_idaho_sod_extraction
+from idp_roll_conversion import roll_line_missing_feet_per_roll
 from idp_reference import (
     ReferenceData,
     _SIZE_STRICT_PRODUCT_HINTS,
@@ -34,6 +40,7 @@ class LineMatch:
     description_raw: str
     quantity: float
     unit_price: float
+    uom_raw: str = ""
     item_code: str | None = None
     item_name: str | None = None
     item_alternate_name: str | None = None
@@ -52,6 +59,8 @@ class ExtractionResult:
     invoice_number_raw: str
     invoice_total: float | None = None
     lines: list[LineMatch] = field(default_factory=list)
+    receipt_note: str | None = None
+    sod_split: object | None = field(default=None, repr=False)
 
 
 EXTRACTION_SCHEMA = {
@@ -87,6 +96,13 @@ EXTRACTION_SCHEMA = {
                     },
                     "quantity": {"type": "number"},
                     "unit_price": {"type": "number"},
+                    "uom_raw": {
+                        "type": "string",
+                        "description": (
+                            "Unit of measure as printed on the invoice line "
+                            "(e.g. RL for roll, EA, FT, BX)"
+                        ),
+                    },
                     "supplier_item_code": {
                         "type": ["string", "null"],
                         "description": "Part/catalog number printed on the invoice line, if any",
@@ -101,6 +117,7 @@ EXTRACTION_SCHEMA = {
                     "description_raw",
                     "quantity",
                     "unit_price",
+                    "uom_raw",
                     "supplier_item_code",
                     "read_confidence",
                     "rationale",
@@ -290,11 +307,17 @@ def extract_invoice_from_pdf(
         "or set vendor_name to null if no confident match. "
         "For H.D. Fowler / HD Fowler invoices always use the Fowler {Turf} vendor from the list, "
         "never Waterworks or other Fowler variants. "
-        "For each line, copy description_raw and supplier_item_code as printed on the invoice. "
+        "For each line, copy description_raw, uom_raw (unit of measure column, e.g. RL, EA, FT), "
+        "and supplier_item_code as printed on the invoice. "
         "Preserve hyphenated fractional inch sizes exactly as printed "
         "(e.g. 1-1/2 or 1-1/4, not 1/2 or 1/4 when the invoice shows the hyphenated form). "
         "Do not invent catalog codes. unit_price is the pre-tax unit price. "
         "invoice_total is the final invoice grand total (amount due, including tax). "
+        "For Idaho Sod invoices: invoice_total is the 'Total Due' amount (bottom right). "
+        "The sod material line quantity is square feet (the number before the grass type, "
+        "e.g. Kentucky Bluegrass or RTF). Include delivery, pallet deposit, and fuel "
+        "surcharge as separate lines if printed — they are included in Total Due for pricing. "
+        "Kentucky on the invoice means Kentucky Bluegrass; RTF means Rhizomatous Tall Fescue. "
         "read_confidence is 0.0 to 1.0 for OCR/extraction quality only."
     )
     user_content: list[dict] = [
@@ -346,6 +369,7 @@ def extract_invoice_from_pdf(
         if qty <= 0:
             continue
         desc = str(row.get("description_raw") or "")
+        uom_raw = str(row.get("uom_raw") or "").strip()
         supplier_code = row.get("supplier_item_code") or None
         if supplier_code is not None:
             supplier_code = str(supplier_code).strip() or None
@@ -353,7 +377,12 @@ def extract_invoice_from_pdf(
             desc, refs, supplier_code
         )
         read_conf = float(row.get("read_confidence") or 0)
-        inv, match_conf, match_note = refs.match_line(desc, supplier_code)
+        inv, match_conf, match_note = refs.match_line(
+            desc,
+            supplier_code,
+            vendor_name=vendor_rec.vendor_name if vendor_rec else vendor_name,
+            vendor_raw=vendor_raw or None,
+        )
         code = inv.item_code if inv else None
         name = inv.item_name if inv else None
         conf = min(read_conf, match_conf) if inv else 0.0
@@ -366,6 +395,7 @@ def extract_invoice_from_pdf(
                 description_raw=desc,
                 quantity=qty,
                 unit_price=price,
+                uom_raw=uom_raw,
                 item_code=code or None,
                 item_name=name,
                 item_alternate_name=None,
@@ -374,7 +404,7 @@ def extract_invoice_from_pdf(
             )
         )
 
-    return ExtractionResult(
+    result = ExtractionResult(
         invoice_date=_parse_date(data.get("invoice_date")),
         vendor_raw=vendor_raw,
         vendor_name=vendor_rec.vendor_name if vendor_rec else vendor_name,
@@ -385,6 +415,7 @@ def extract_invoice_from_pdf(
         invoice_total=_parse_total(data.get("invoice_total")),
         lines=lines,
     )
+    return transform_idaho_sod_extraction(result, refs)
 
 
 def collect_review_flags(result: ExtractionResult, threshold: float | None = None) -> list[str]:
@@ -406,5 +437,21 @@ def collect_review_flags(result: ExtractionResult, threshold: float | None = Non
                 f"LOW CONFIDENCE LINE ({line.confidence:.2f}) row {10 + i}:\n"
                 f"  Raw: {line.description_raw!r}\n"
                 f"  Matched: ItemCode={line.item_code!r} ItemName={line.item_name!r}"
+            )
+        if roll_line_missing_feet_per_roll(
+            line.description_raw, line.uom_raw, line.item_name
+        ):
+            flags.append(
+                f"ROLL LINE MISSING LENGTH row {10 + i}:\n"
+                f"  UoM: {line.uom_raw!r}\n"
+                f"  Raw: {line.description_raw!r}\n"
+                f"  Matched: ItemName={line.item_name!r}"
+            )
+        if is_pinch_clamp_tool_ct108_line(line.description_raw):
+            flags.append(
+                pinch_clamp_tool_ct108_review_flag(
+                    line.description_raw,
+                    row=10 + i,
+                )
             )
     return flags

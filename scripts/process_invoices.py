@@ -45,11 +45,37 @@ from idp_paths import (  # noqa: E402
     review_pending_dir,
 )
 from idp_reference import ReferenceData  # noqa: E402
-from idp_vendor_profiles import vendor_profile_for  # noqa: E402
+from idp_vendor_profiles import IDAHO_SOD_PROFILE, vendor_profile_for  # noqa: E402
 
 
-def _prompt_refresh_catalog() -> None:
+def _print_sod_summary(result, profile) -> None:
+    if profile.profile_id != IDAHO_SOD_PROFILE.profile_id:
+        return
+    if not result.invoice_total or not result.lines:
+        return
+    sqft = sum(ln.quantity for ln in result.lines)
+    print(f"  Sod: Total Due ${result.invoice_total:,.2f} / {sqft:,.0f} sq ft")
+    for i, ln in enumerate(result.lines, 1):
+        ext = round(ln.quantity * ln.unit_price, 2)
+        print(
+            f"    Row {i}: {ln.item_name!r} qty={ln.quantity:,.0f} "
+            f"unit=${ln.unit_price:.3f} ext=${ext:,.2f}"
+        )
+    split = getattr(result, "sod_split", None)
+    if split is not None and getattr(split, "line_b", None):
+        q1, u1 = split.line_a
+        q2, u2 = split.line_b
+        print(
+            f"  Manual split (for B6 note): {q1:,.0f} @ ${u1:.3f} + "
+            f"{q2:,.0f} @ ${u2:.3f}"
+        )
+
+
+def _prompt_refresh_catalog(skip: bool = False) -> None:
     """Ask whether to refresh catalog_items.csv from Aspire before IDP."""
+    if skip:
+        print("Using existing exports/catalog_items.csv (--no-catalog-prompt)")
+        return
     while True:
         reply = input(
             "Refresh catalog_items.csv from Aspire before processing? [Y/N]: "
@@ -157,6 +183,7 @@ def process_pdf(
             else ""
         )
     )
+    _print_sod_summary(result, profile)
 
     if dry_run:
         print(f"  Vendor: {vendor!r} ({result.vendor_confidence:.2f})")
@@ -246,6 +273,11 @@ def main() -> None:
         action="store_true",
         help="Do not auto-open Streamlit when invoices are queued for review",
     )
+    parser.add_argument(
+        "--no-catalog-prompt",
+        action="store_true",
+        help="Use existing exports/catalog_items.csv without prompting",
+    )
     args = parser.parse_args()
 
     if args.fresh_dashboard:
@@ -253,7 +285,7 @@ def main() -> None:
         dash.parent.mkdir(parents=True, exist_ok=True)
         dash.write_text("", encoding="utf-8")
 
-    _prompt_refresh_catalog()
+    _prompt_refresh_catalog(skip=args.no_catalog_prompt)
 
     refs = ReferenceData()
     refs.load()

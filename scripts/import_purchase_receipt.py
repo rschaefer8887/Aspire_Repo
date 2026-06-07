@@ -6,6 +6,7 @@ Excel layout (column B unless noted):
   B2  Vendor
   B3  Branch
   B5  Invoice number
+  B6  Receipt note (optional; sent as ReceiptNote on POST /Receipts)
   (InventoryLocationID is fixed — default 1, see ASPIRE_INVENTORY_LOCATION_ID)
   B10+  Item code (optional if C has name); C10+ item name; D10+ qty; E10+ unit cost
   (stop when B and C are both blank)
@@ -104,12 +105,18 @@ def process_file(
 
     payload = lookups.build_receipt_post(wb)
     api_items = payload["ReceiptItems"]
-    if len(api_items) != len(wb.lines):
+    resolved = payload.pop("_resolved", {})
+    excel_lines = resolved.get("excel_line_count", len(wb.lines))
+    if resolved.get("consolidation_skipped"):
+        print(
+            f"  Posting {len(api_items)} receipt line(s) without merging duplicate "
+            f"catalog IDs (sod split; {excel_lines} Excel row(s))"
+        )
+    elif len(api_items) != len(wb.lines):
         print(
             f"  Consolidated to {len(api_items)} receipt line(s) "
-            f"(Aspire does not allow duplicate catalog items per receipt)"
+            f"(duplicate catalog items merged)"
         )
-    resolved = payload.pop("_resolved", {})
     print(
         f"  Resolved: Branch {resolved.get('branch')} (ID {resolved.get('branch_id')}), "
         f"Vendor {resolved.get('vendor')} (ID {resolved.get('vendor_id')}), "

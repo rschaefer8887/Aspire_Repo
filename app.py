@@ -75,6 +75,7 @@ def session_to_dataframe(session: ReviewSession) -> pd.DataFrame:
             {
                 "#": i + 1,
                 "Description": line.description_raw,
+                "UoM": line.uom_raw,
                 "Qty": line.quantity,
                 "Unit Price": line.unit_price,
                 "Confidence": round(line.confidence, 2),
@@ -344,6 +345,11 @@ def main() -> None:
                     "Description",
                     disabled=True,
                     width="large",
+                ),
+                "UoM": st.column_config.TextColumn(
+                    "UoM",
+                    disabled=True,
+                    width="small",
                 ),
                 "Qty": st.column_config.NumberColumn("Qty", min_value=0.0, format="%.2f"),
                 "Unit Price": st.column_config.NumberColumn(

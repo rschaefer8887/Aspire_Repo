@@ -29,6 +29,7 @@ class VendorProfile:
     tax_multiplier: float
     reconcile_to_invoice_total: bool
     unit_prices_are_pre_tax: bool
+    skip_receipt_item_consolidation: bool = False
 
     @property
     def applies_tax(self) -> bool:
@@ -55,12 +56,23 @@ HD_FOWLER_PROFILE = VendorProfile(
     tax_multiplier=_tax_multiplier_from_env(1.06),
     reconcile_to_invoice_total=True,
     unit_prices_are_pre_tax=True,
+    skip_receipt_item_consolidation=False,
+)
+
+IDAHO_SOD_PROFILE = VendorProfile(
+    profile_id="idaho_sod",
+    display_name="Idaho Sod",
+    tax_multiplier=1.0,
+    reconcile_to_invoice_total=True,
+    unit_prices_are_pre_tax=False,
+    skip_receipt_item_consolidation=False,
 )
 
 # Normalized vendor keys (from Aspire VendorName) → profile.
 _VENDOR_PROFILE_BY_KEY: dict[str, VendorProfile] = {
     _norm_key("H.D. Fowler Company {Turf}"): HD_FOWLER_PROFILE,
     _norm_key("H.D. Fowler Company"): HD_FOWLER_PROFILE,
+    _norm_key("Idaho Sod"): IDAHO_SOD_PROFILE,
 }
 
 
@@ -77,6 +89,8 @@ def vendor_profile_for(
             return _VENDOR_PROFILE_BY_KEY[key]
         if "fowler" in key:
             return HD_FOWLER_PROFILE
+        if "idaho" in key and "sod" in key:
+            return IDAHO_SOD_PROFILE
     return DEFAULT_PROFILE
 
 

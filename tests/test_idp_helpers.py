@@ -246,6 +246,13 @@ class TestIdpHelpers(unittest.TestCase):
         self.assertEqual(prof.profile_id, "hd_fowler")
         self.assertTrue(prof.reconcile_to_invoice_total)
         self.assertEqual(prof.tax_multiplier, 1.06)
+        self.assertFalse(prof.skip_receipt_item_consolidation)
+
+    def test_vendor_profile_idaho_sod(self) -> None:
+        prof = vendor_profile_for("Idaho Sod")
+        self.assertEqual(prof.profile_id, "idaho_sod")
+        self.assertTrue(prof.reconcile_to_invoice_total)
+        self.assertFalse(prof.skip_receipt_item_consolidation)
 
     def test_vendor_profile_default_for_unknown(self) -> None:
         prof = vendor_profile_for("Acme Supply Co")

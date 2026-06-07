@@ -10,7 +10,13 @@ from difflib import SequenceMatcher
 from pathlib import Path
 
 from idp_paths import catalog_items_csv_path, catalog_item_type_filter, vendors_csv_path
-from idp_vendor_prefs import exclude_vendor_from_llm_list, resolve_hd_fowler_vendor
+from idp_vendor_prefs import (
+    exclude_vendor_from_llm_list,
+    is_hd_fowler_vendor,
+    is_idaho_sod_vendor,
+    resolve_hd_fowler_vendor,
+    resolve_idaho_sod_vendor,
+)
 
 
 def _norm(s: str) -> str:
@@ -181,6 +187,326 @@ def _pipe_dope_blocks_catalog(desc_n: str, name_n: str) -> bool:
     return False
 
 
+_IRRIGATION_STAPLES_ITEM_NAME = "Irrigation Staples"
+
+# Fowler: 6" staples 11 GA jute matting sold by the box (1000 per box).
+_IRRIGATION_STAPLES_INVOICE_RE = re.compile(
+    r"staples?\s+11\s+ga\s+jute\s+matting|jute\s+matting.*sold\s+by\s+the\s+box",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def is_irrigation_staples_invoice_line(desc: str) -> bool:
+    """True for Fowler jute matting box lines that map to Irrigation Staples."""
+    return bool(_IRRIGATION_STAPLES_INVOICE_RE.search(desc or ""))
+
+
+_CONDUIT_GRAY_CATALOG_PREFIX = "conduit gray"
+
+
+def _fowler_match_context_ok(
+    vendor_name: str | None,
+    vendor_raw: str | None,
+) -> bool:
+    """When vendor is unknown (tests), allow Fowler one-offs on description alone."""
+    if not vendor_name and not vendor_raw:
+        return True
+    return is_hd_fowler_vendor(vendor_name) or is_hd_fowler_vendor(vendor_raw)
+
+
+def is_fowler_gray_pvc_conduit_invoice_line(
+    desc: str,
+    *,
+    vendor_name: str | None = None,
+    vendor_raw: str | None = None,
+) -> bool:
+    """Fowler invoice lines for gray SCH 40 PVC conduit sticks (10' lengths)."""
+    if not _fowler_match_context_ok(vendor_name, vendor_raw):
+        return False
+    d = _norm(desc)
+    if "conduit" not in d:
+        return False
+    if "gray" not in d and "grey" not in d:
+        return False
+    if "pvc" not in d:
+        return False
+    return bool(re.search(r"sch\s*40|schedule\s*40", d))
+
+
+def _gray_pvc_conduit_blocks_catalog(
+    desc: str,
+    name_n: str,
+    *,
+    vendor_name: str | None = None,
+    vendor_raw: str | None = None,
+) -> bool:
+    """On Fowler gray PVC conduit lines, only Conduit Gray catalog rows may score."""
+    if not is_fowler_gray_pvc_conduit_invoice_line(
+        desc, vendor_name=vendor_name, vendor_raw=vendor_raw
+    ):
+        return False
+    return "conduit gray" not in name_n
+
+
+_PRO_TURF_SIDR15_POLY_INVOICE_RE = re.compile(
+    r"pro\s+turf\s+green.*sidr-?\s*15|sidr-?\s*15.*pro\s+turf\s+green",
+    re.IGNORECASE | re.DOTALL,
+)
+
+# Exact Aspire ItemName for Fowler Pro Turf Green SIDR-15 (leading invoice size → catalog).
+_PRO_TURF_GREEN_SIDR15_CATALOG_BY_SIZE: dict[str, str] = {
+    "1": 'Green Poly Pipe - 1" (SIDR 15)',
+    "1-1/4": 'Green Poly Pipe - 1-1/4" (SIDR 15)',
+}
+
+_LEADING_PIPE_SIZE_RE = re.compile(
+    r'^\s*(\d{1,2}-\d{1,2}/\d{1,2}|\d{1,2}/\d{1,2}|\d{1,2})\s*"',
+    re.IGNORECASE,
+)
+
+
+def is_pro_turf_sidr15_poly_pipe_invoice_line(
+    desc: str,
+    *,
+    vendor_name: str | None = None,
+    vendor_raw: str | None = None,
+) -> bool:
+    """Fowler Pro Turf Green SIDR-15 HDPE poly pipe rolls."""
+    if not _fowler_match_context_ok(vendor_name, vendor_raw):
+        return False
+    d = _norm(desc)
+    if "poly" not in d or "pipe" not in d:
+        return False
+    return bool(_PRO_TURF_SIDR15_POLY_INVOICE_RE.search(desc or ""))
+
+
+def _leading_pipe_size_from_desc(desc: str) -> str | None:
+    """Leading inch size on Fowler poly pipe lines (e.g. 1-1/4\")."""
+    match = _LEADING_PIPE_SIZE_RE.match(desc or "")
+    if not match:
+        return None
+    raw = match.group(1)
+    sizes = _sizes_from_text(f'{raw}"')
+    if not sizes:
+        return raw
+    for size in sizes:
+        if "-" in size or "/" in size:
+            return size
+    return next(iter(sizes))
+
+
+def _poly_pipe_sidr_rating(name_n: str) -> int | None:
+    match = re.search(r"sidr-?\s*(\d+)", name_n, re.IGNORECASE)
+    return int(match.group(1)) if match else None
+
+
+def _catalog_is_green_poly_pipe_sidr15(name_n: str) -> bool:
+    return (
+        "green" in name_n
+        and "poly pipe" in name_n
+        and _poly_pipe_sidr_rating(name_n) == 15
+    )
+
+
+def _pro_turf_sidr15_blocks_catalog(
+    desc: str,
+    name_n: str,
+    *,
+    vendor_name: str | None = None,
+    vendor_raw: str | None = None,
+) -> bool:
+    """On Pro Turf SIDR-15 lines, only Green Poly Pipe (SIDR 15) may score."""
+    if not is_pro_turf_sidr15_poly_pipe_invoice_line(
+        desc, vendor_name=vendor_name, vendor_raw=vendor_raw
+    ):
+        return False
+    return not _catalog_is_green_poly_pipe_sidr15(name_n)
+
+
+_BLACK_SIDR15_POLY_INVOICE_RE = re.compile(
+    r"sidr-?\s*15.*poly\s+pipe.*(?:3608|black)|"
+    r"(?:3608|black).*sidr-?\s*15.*poly\s+pipe",
+    re.IGNORECASE | re.DOTALL,
+)
+
+# Fowler black SIDR-15 poly (3608 resin) — invoice size → Aspire ItemName.
+_BLACK_SIDR15_POLY_CATALOG_BY_SIZE: dict[str, str] = {
+    "1-1/2": 'Poly Pipe - 1.5" (SIDR 15)',
+}
+
+
+def is_fowler_black_sidr15_poly_pipe_invoice_line(
+    desc: str,
+    *,
+    vendor_name: str | None = None,
+    vendor_raw: str | None = None,
+) -> bool:
+    """Fowler black SIDR-15 poly pipe rolls (3608 resin; not Pro Turf Green)."""
+    if not _fowler_match_context_ok(vendor_name, vendor_raw):
+        return False
+    d = _norm(desc)
+    if "poly" not in d or "pipe" not in d:
+        return False
+    if "pro turf" in d and "green" in d:
+        return False
+    return bool(_BLACK_SIDR15_POLY_INVOICE_RE.search(desc or ""))
+
+
+def _catalog_is_poly_pipe_sidr15_non_green(name_n: str) -> bool:
+    return (
+        "poly pipe" in name_n
+        and "green" not in name_n
+        and _poly_pipe_sidr_rating(name_n) == 15
+    )
+
+
+def _black_sidr15_poly_blocks_catalog(
+    desc: str,
+    name_n: str,
+    *,
+    vendor_name: str | None = None,
+    vendor_raw: str | None = None,
+) -> bool:
+    """On Fowler black SIDR-15 poly lines, only plain Poly Pipe (SIDR 15) may score."""
+    if not is_fowler_black_sidr15_poly_pipe_invoice_line(
+        desc, vendor_name=vendor_name, vendor_raw=vendor_raw
+    ):
+        return False
+    return not _catalog_is_poly_pipe_sidr15_non_green(name_n)
+
+
+# Fowler HDPE mainline coil — invoice SDR/SIDR 11 + IPS/HDPE → Poly Pipe (SIDR 11).
+_HDPE_SIDR11_PIPE_CATALOG_BY_SIZE: dict[str, str] = {
+    "2": 'Poly Pipe - 2" (SIDR 11)',
+}
+
+
+def is_fowler_hdpe_sidr11_pipe_invoice_line(
+    desc: str,
+    *,
+    vendor_name: str | None = None,
+    vendor_raw: str | None = None,
+) -> bool:
+    """Fowler HDPE IPS mainline coil (SDR/SIDR 11); not fittings or SIDR-15 turf pipe."""
+    if not _fowler_match_context_ok(vendor_name, vendor_raw):
+        return False
+    d = _norm(desc)
+    if not re.search(r"sidr-?\s*11|sdr-?\s*11", desc or "", re.I):
+        return False
+    if "hdpe" not in d and "ips" not in d:
+        return False
+    if "pipe" not in d and "coil" not in d:
+        return False
+    if re.search(r"\b(adapter|reducer|tee|elbow|coupl|union|valve)\b", d):
+        return False
+    if is_pro_turf_sidr15_poly_pipe_invoice_line(
+        desc, vendor_name=vendor_name, vendor_raw=vendor_raw
+    ):
+        return False
+    if is_fowler_black_sidr15_poly_pipe_invoice_line(
+        desc, vendor_name=vendor_name, vendor_raw=vendor_raw
+    ):
+        return False
+    return True
+
+
+def _catalog_is_poly_pipe_sidr11(name_n: str) -> bool:
+    return "poly pipe" in name_n and _poly_pipe_sidr_rating(name_n) == 11
+
+
+def _hdpe_sidr11_pipe_blocks_catalog(
+    desc: str,
+    name_n: str,
+    *,
+    vendor_name: str | None = None,
+    vendor_raw: str | None = None,
+) -> bool:
+    """On Fowler HDPE SIDR-11 pipe lines, only Poly Pipe (SIDR 11) may score."""
+    if not is_fowler_hdpe_sidr11_pipe_invoice_line(
+        desc, vendor_name=vendor_name, vendor_raw=vendor_raw
+    ):
+        return False
+    return not _catalog_is_poly_pipe_sidr11(name_n)
+
+
+_PVC_INSERT_TEE_FIPT_BRANCH_RE = re.compile(
+    r"ixixf(?:ipt|pt)?|\bfipt\b",
+    re.IGNORECASE,
+)
+
+# Equal PVC insert tee with female threaded branch (IxI x FIPT / IxIxF).
+_PVC_INSERT_TEE_FIPT_BRANCH_CATALOG_BY_SIZE: dict[str, str] = {
+    "1-1/2": 'PVC Insert Tee x Female adapter- 1-1/2" (IxIxF)',
+}
+
+
+def is_pvc_insert_tee_fipt_branch_invoice_line(desc: str) -> bool:
+    """PVC insert tee with FIPT / IxIxF female branch (equal size, not reducing)."""
+    d = _norm(desc)
+    if not re.search(r"\btee\b", desc or "", re.I):
+        return False
+    if "pvc" not in d or "insert" not in d:
+        return False
+    if not _PVC_INSERT_TEE_FIPT_BRANCH_RE.search(desc or ""):
+        return False
+    sizes = _sizes_from_text(desc)
+    return len(sizes) < 2
+
+
+def _catalog_is_pvc_insert_tee_ixixf_branch(name_n: str) -> bool:
+    return (
+        "insert tee" in name_n
+        and "female" in name_n
+        and "ixixf" in name_n
+    )
+
+
+def _pvc_insert_tee_fipt_branch_blocks_catalog(desc: str, name_n: str) -> bool:
+    """On IxIxFIPT insert tee lines, only PVC Insert Tee x Female (IxIxF) may score."""
+    if not is_pvc_insert_tee_fipt_branch_invoice_line(desc):
+        return False
+    return not _catalog_is_pvc_insert_tee_ixixf_branch(name_n)
+
+
+def _poly_pipe_sizes_match(desc_sizes: set[str], cat_sizes: set[str]) -> bool:
+    if not desc_sizes or not cat_sizes:
+        return False
+    if desc_sizes == cat_sizes:
+        return True
+    if len(cat_sizes) == 1:
+        return next(iter(cat_sizes)) in desc_sizes
+    return bool(desc_sizes & cat_sizes)
+
+
+def _conduit_gray_sizes(name: str) -> set[str]:
+    """Size tokens from Conduit Gray - {size} catalog names (often without inch mark)."""
+    sizes = _sizes_from_text(name)
+    if sizes:
+        return sizes
+    match = re.search(
+        r"conduit gray\s*-\s*(.+?)(?:\s*\(|$)",
+        _norm(name),
+        re.I,
+    )
+    if not match:
+        return set()
+    token = match.group(1).strip().strip('"').strip()
+    if not token:
+        return set()
+    quoted = _sizes_from_text(f'{token}"')
+    return quoted if quoted else {token}
+
+
+def _conduit_gray_sizes_match(desc_sizes: set[str], cat_sizes: set[str]) -> bool:
+    if not desc_sizes or not cat_sizes:
+        return False
+    if desc_sizes == cat_sizes:
+        return True
+    if len(cat_sizes) == 1:
+        return next(iter(cat_sizes)) in desc_sizes
+    return bool(desc_sizes & cat_sizes)
+
+
 _PRODUCT_HINTS: list[tuple[str, tuple[str, ...]]] = [
     ("coupler", ("coupling", "coupler", "coupl")),
     ("elbow", ("elbow",)),
@@ -191,6 +517,7 @@ _PRODUCT_HINTS: list[tuple[str, tuple[str, ...]]] = [
     ("valve", ("valve",)),
     ("manifold", ("manifold",)),
     ("nipple", ("nipple",)),
+    ("union", ("union",)),
     ("pipe dope", ("pipe dope", "weld on", "weld-on", "white seal")),
     ("wire nut", ("wire nut",)),
     ("drip", ("drip", "emitter", "tubing")),
@@ -203,11 +530,12 @@ _PRODUCT_HINT_WORD_RE: dict[str, re.Pattern[str]] = {
     "plug": re.compile(r"\bplug\b", re.IGNORECASE),
     "bushing": re.compile(r"\bbushing\b", re.IGNORECASE),
     "nipple": re.compile(r"\bnipple\b", re.IGNORECASE),
+    "union": re.compile(r"\bunion\b", re.IGNORECASE),
 }
 
 # Fittings where invoice sizes must match catalog sizes exactly (not partial overlap).
 _SIZE_STRICT_PRODUCT_HINTS = frozenset(
-    {"tee", "elbow", "coupler", "adapter", "bushing", "plug"}
+    {"tee", "elbow", "coupler", "adapter", "bushing", "plug", "union"}
 )
 
 # Shared words that do not count toward per-word catalog scoring (see _pvc_insert_baseline).
@@ -400,7 +728,7 @@ def _sizes_compatible(desc_sizes: set[str], cat_sizes: set[str]) -> bool:
 
 def _fitting_sizes_compatible(desc_sizes: set[str], cat_sizes: set[str]) -> bool:
     """
-    Strict size rules for tees, elbows, couplers, adapters, bushings.
+    Strict size rules for tees, elbows, couplers, adapters, bushings, unions.
 
     - Invoice lists 2+ sizes (run x branch): catalog must have the same set.
     - Invoice lists 1 size (equal fitting): catalog must have exactly that size.
@@ -636,7 +964,15 @@ class ReferenceData:
         vendor_name: str | None,
         vendor_raw: str | None = None,
     ) -> VendorRecord | None:
-        return resolve_hd_fowler_vendor(self, vendor_name, vendor_raw)
+        if is_hd_fowler_vendor(vendor_name) or is_hd_fowler_vendor(vendor_raw):
+            return resolve_hd_fowler_vendor(self, vendor_name, vendor_raw)
+        if is_idaho_sod_vendor(vendor_name) or is_idaho_sod_vendor(vendor_raw):
+            return resolve_idaho_sod_vendor(self, vendor_name, vendor_raw)
+        if vendor_name:
+            return self.lookup_vendor_record(vendor_name)
+        if vendor_raw:
+            return self.lookup_vendor_record(vendor_raw)
+        return None
 
     def resolve_inventory(
         self, item_code: str | None, item_name: str | None, item_alternate: str | None
@@ -656,7 +992,12 @@ class ReferenceData:
         return None
 
     def _score_catalog_record(
-        self, desc: str, rec: InventoryRecord
+        self,
+        desc: str,
+        rec: InventoryRecord,
+        *,
+        vendor_name: str | None = None,
+        vendor_raw: str | None = None,
     ) -> tuple[float, int]:
         """Score one catalog row against invoice text (higher is better)."""
         name = (rec.item_name or "").strip()
@@ -681,6 +1022,24 @@ class ReferenceData:
         if _invoice_excludes_wire_nuts(desc_n, name_n):
             return 0.0, 0
         if _pipe_dope_blocks_catalog(desc_n, name_n):
+            return 0.0, 0
+        if _gray_pvc_conduit_blocks_catalog(
+            desc, name_n, vendor_name=vendor_name, vendor_raw=vendor_raw
+        ):
+            return 0.0, 0
+        if _pro_turf_sidr15_blocks_catalog(
+            desc, name_n, vendor_name=vendor_name, vendor_raw=vendor_raw
+        ):
+            return 0.0, 0
+        if _black_sidr15_poly_blocks_catalog(
+            desc, name_n, vendor_name=vendor_name, vendor_raw=vendor_raw
+        ):
+            return 0.0, 0
+        if _hdpe_sidr11_pipe_blocks_catalog(
+            desc, name_n, vendor_name=vendor_name, vendor_raw=vendor_raw
+        ):
+            return 0.0, 0
+        if _pvc_insert_tee_fipt_branch_blocks_catalog(desc, name_n):
             return 0.0, 0
         if hint and not _catalog_matches_product_hint(hint, name_n) and not code_in_desc:
             return 0.0, 0
@@ -729,6 +1088,8 @@ class ReferenceData:
         if re.search(r"\bplug\b", desc_n) and re.search(r"\bplug\b", name_n):
             score += 0.20
         if re.search(r"\bbushing\b", desc_n) and re.search(r"\bbushing\b", name_n):
+            score += 0.20
+        if re.search(r"\bunion\b", desc_n) and re.search(r"\bunion\b", name_n):
             score += 0.20
         if _is_pipe_dope_line(desc_n):
             if (
@@ -855,7 +1216,12 @@ class ReferenceData:
         return best, best_score
 
     def _best_catalog_match(
-        self, desc: str, supplier_item_code: str | None
+        self,
+        desc: str,
+        supplier_item_code: str | None,
+        *,
+        vendor_name: str | None = None,
+        vendor_raw: str | None = None,
     ) -> tuple[InventoryRecord | None, float, str]:
         """Scan full catalog and return the highest-scoring row."""
         desc = desc.strip()
@@ -891,11 +1257,48 @@ class ReferenceData:
         if rec:
             return rec, conf, note
 
+        rec, conf, note = self._match_irrigation_staples_one_off(desc)
+        if rec:
+            return rec, conf, note
+
+        rec, conf, note = self._match_fowler_gray_pvc_conduit_one_off(
+            desc, vendor_name=vendor_name, vendor_raw=vendor_raw
+        )
+        if rec:
+            return rec, conf, note
+
+        rec, conf, note = self._match_pro_turf_sidr15_poly_pipe_one_off(
+            desc, vendor_name=vendor_name, vendor_raw=vendor_raw
+        )
+        if rec:
+            return rec, conf, note
+
+        rec, conf, note = self._match_black_sidr15_poly_pipe_one_off(
+            desc, vendor_name=vendor_name, vendor_raw=vendor_raw
+        )
+        if rec:
+            return rec, conf, note
+
+        rec, conf, note = self._match_fowler_hdpe_sidr11_pipe_one_off(
+            desc, vendor_name=vendor_name, vendor_raw=vendor_raw
+        )
+        if rec:
+            return rec, conf, note
+
+        rec, conf, note = self._match_pvc_insert_tee_fipt_branch_one_off(desc)
+        if rec:
+            return rec, conf, note
+
         best: InventoryRecord | None = None
         best_score = 0.0
         best_tie = 0
         for rec in self.inventory:
-            score, tie = self._score_catalog_record(desc, rec)
+            score, tie = self._score_catalog_record(
+                desc,
+                rec,
+                vendor_name=vendor_name,
+                vendor_raw=vendor_raw,
+            )
             if score > best_score or (score == best_score and tie > best_tie):
                 best_score = score
                 best_tie = tie
@@ -906,8 +1309,278 @@ class ReferenceData:
             return best, conf, f"Best catalog match ({best_score:.2f})"
         return None, 0.0, "No catalog match"
 
+    def _match_irrigation_staples_one_off(
+        self, desc: str
+    ) -> tuple[InventoryRecord | None, float, str]:
+        """One-off: Fowler jute matting box line → Irrigation Staples catalog row."""
+        if not is_irrigation_staples_invoice_line(desc):
+            return None, 0.0, ""
+        key = _norm(_IRRIGATION_STAPLES_ITEM_NAME)
+        rec = self._by_name.get(key)
+        if not rec:
+            for row in self.inventory:
+                if _norm(row.item_name or "") == key:
+                    rec = row
+                    break
+        if rec:
+            return (
+                rec,
+                0.92,
+                "One-off: Fowler jute matting box → Irrigation Staples",
+            )
+        return None, 0.0, ""
+
+    def _find_conduit_gray_by_size(self, desc: str) -> InventoryRecord | None:
+        desc_sizes = _sizes_from_text(desc)
+        if not desc_sizes:
+            return None
+        for rec in self.inventory:
+            name = rec.item_name or ""
+            if not _norm(name).startswith(_CONDUIT_GRAY_CATALOG_PREFIX):
+                continue
+            cat_sizes = _conduit_gray_sizes(name)
+            if _conduit_gray_sizes_match(desc_sizes, cat_sizes):
+                return rec
+        return None
+
+    def _match_fowler_gray_pvc_conduit_one_off(
+        self,
+        desc: str,
+        *,
+        vendor_name: str | None = None,
+        vendor_raw: str | None = None,
+    ) -> tuple[InventoryRecord | None, float, str]:
+        """One-off: Fowler gray SCH 40 PVC conduit → Conduit Gray - {size}."""
+        if not is_fowler_gray_pvc_conduit_invoice_line(
+            desc, vendor_name=vendor_name, vendor_raw=vendor_raw
+        ):
+            return None, 0.0, ""
+        rec = self._find_conduit_gray_by_size(desc)
+        if rec:
+            return (
+                rec,
+                0.92,
+                "One-off: Fowler gray PVC conduit → Conduit Gray",
+            )
+        return None, 0.0, ""
+
+    def _find_green_poly_pipe_sidr15_by_size(self, desc: str) -> InventoryRecord | None:
+        leading = _leading_pipe_size_from_desc(desc)
+        if leading and leading in _PRO_TURF_GREEN_SIDR15_CATALOG_BY_SIZE:
+            target = _norm(_PRO_TURF_GREEN_SIDR15_CATALOG_BY_SIZE[leading])
+            rec = self._by_name.get(target)
+            if rec:
+                return rec
+            for row in self.inventory:
+                if _norm(row.item_name or "") == target:
+                    return row
+
+        desc_sizes = _sizes_from_text(desc)
+        if not desc_sizes:
+            return None
+        best: InventoryRecord | None = None
+        best_tie = -1
+        for rec in self.inventory:
+            name_n = _norm(rec.item_name or "")
+            if not _catalog_is_green_poly_pipe_sidr15(name_n):
+                continue
+            cat_sizes = _sizes_from_text(rec.item_name or "")
+            if not _poly_pipe_sizes_match(desc_sizes, cat_sizes):
+                continue
+            tie = len(desc_sizes & cat_sizes) * 100
+            if desc_sizes == cat_sizes:
+                tie += 1000
+            if len(cat_sizes) == 1:
+                tie += len(next(iter(cat_sizes)))
+            if tie > best_tie:
+                best_tie = tie
+                best = rec
+        return best
+
+    def _match_pro_turf_sidr15_poly_pipe_one_off(
+        self,
+        desc: str,
+        *,
+        vendor_name: str | None = None,
+        vendor_raw: str | None = None,
+    ) -> tuple[InventoryRecord | None, float, str]:
+        """One-off: Fowler Pro Turf SIDR-15 poly pipe → Green Poly Pipe (SIDR 15)."""
+        if not is_pro_turf_sidr15_poly_pipe_invoice_line(
+            desc, vendor_name=vendor_name, vendor_raw=vendor_raw
+        ):
+            return None, 0.0, ""
+        rec = self._find_green_poly_pipe_sidr15_by_size(desc)
+        if rec:
+            return (
+                rec,
+                0.92,
+                "One-off: Pro Turf SIDR-15 poly pipe → Green Poly Pipe (SIDR 15)",
+            )
+        return None, 0.0, ""
+
+    def _find_poly_pipe_sidr15_non_green_by_size(self, desc: str) -> InventoryRecord | None:
+        leading = _leading_pipe_size_from_desc(desc)
+        if leading and leading in _BLACK_SIDR15_POLY_CATALOG_BY_SIZE:
+            target = _norm(_BLACK_SIDR15_POLY_CATALOG_BY_SIZE[leading])
+            rec = self._by_name.get(target)
+            if rec:
+                return rec
+            for row in self.inventory:
+                if _norm(row.item_name or "") == target:
+                    return row
+
+        desc_sizes = _sizes_from_text(desc)
+        if not desc_sizes:
+            return None
+        best: InventoryRecord | None = None
+        best_tie = -1
+        for rec in self.inventory:
+            name_n = _norm(rec.item_name or "")
+            if not _catalog_is_poly_pipe_sidr15_non_green(name_n):
+                continue
+            cat_sizes = _sizes_from_text(rec.item_name or "")
+            if not _poly_pipe_sizes_match(desc_sizes, cat_sizes):
+                continue
+            tie = len(desc_sizes & cat_sizes) * 100
+            if desc_sizes == cat_sizes:
+                tie += 1000
+            if len(cat_sizes) == 1:
+                tie += len(next(iter(cat_sizes)))
+            if tie > best_tie:
+                best_tie = tie
+                best = rec
+        return best
+
+    def _match_black_sidr15_poly_pipe_one_off(
+        self,
+        desc: str,
+        *,
+        vendor_name: str | None = None,
+        vendor_raw: str | None = None,
+    ) -> tuple[InventoryRecord | None, float, str]:
+        """One-off: Fowler black SIDR-15 poly pipe → Poly Pipe (SIDR 15), non-green."""
+        if not is_fowler_black_sidr15_poly_pipe_invoice_line(
+            desc, vendor_name=vendor_name, vendor_raw=vendor_raw
+        ):
+            return None, 0.0, ""
+        rec = self._find_poly_pipe_sidr15_non_green_by_size(desc)
+        if rec:
+            return (
+                rec,
+                0.92,
+                "One-off: Fowler black SIDR-15 poly pipe → Poly Pipe (SIDR 15)",
+            )
+        return None, 0.0, ""
+
+    def _find_poly_pipe_sidr11_by_size(self, desc: str) -> InventoryRecord | None:
+        leading = _leading_pipe_size_from_desc(desc)
+        if leading and leading in _HDPE_SIDR11_PIPE_CATALOG_BY_SIZE:
+            target = _norm(_HDPE_SIDR11_PIPE_CATALOG_BY_SIZE[leading])
+            rec = self._by_name.get(target)
+            if rec:
+                return rec
+            for row in self.inventory:
+                if _norm(row.item_name or "") == target:
+                    return row
+
+        desc_sizes = _sizes_from_text(desc)
+        if not desc_sizes:
+            return None
+        best: InventoryRecord | None = None
+        best_tie = -1
+        for rec in self.inventory:
+            name_n = _norm(rec.item_name or "")
+            if not _catalog_is_poly_pipe_sidr11(name_n):
+                continue
+            cat_sizes = _sizes_from_text(rec.item_name or "")
+            if not _poly_pipe_sizes_match(desc_sizes, cat_sizes):
+                continue
+            tie = len(desc_sizes & cat_sizes) * 100
+            if desc_sizes == cat_sizes:
+                tie += 1000
+            if len(cat_sizes) == 1:
+                tie += len(next(iter(cat_sizes)))
+            if tie > best_tie:
+                best_tie = tie
+                best = rec
+        return best
+
+    def _match_fowler_hdpe_sidr11_pipe_one_off(
+        self,
+        desc: str,
+        *,
+        vendor_name: str | None = None,
+        vendor_raw: str | None = None,
+    ) -> tuple[InventoryRecord | None, float, str]:
+        """One-off: Fowler HDPE SDR/SIDR 11 mainline coil → Poly Pipe (SIDR 11)."""
+        if not is_fowler_hdpe_sidr11_pipe_invoice_line(
+            desc, vendor_name=vendor_name, vendor_raw=vendor_raw
+        ):
+            return None, 0.0, ""
+        rec = self._find_poly_pipe_sidr11_by_size(desc)
+        if rec:
+            return (
+                rec,
+                0.92,
+                "One-off: Fowler HDPE SIDR-11 mainline → Poly Pipe (SIDR 11)",
+            )
+        return None, 0.0, ""
+
+    def _find_pvc_insert_tee_ixixf_branch_by_size(self, desc: str) -> InventoryRecord | None:
+        leading = _leading_pipe_size_from_desc(desc)
+        if not leading:
+            sizes = _sizes_from_text(desc)
+            leading = next(iter(sizes)) if len(sizes) == 1 else None
+        if leading and leading in _PVC_INSERT_TEE_FIPT_BRANCH_CATALOG_BY_SIZE:
+            target = _norm(_PVC_INSERT_TEE_FIPT_BRANCH_CATALOG_BY_SIZE[leading])
+            rec = self._by_name.get(target)
+            if rec:
+                return rec
+            for row in self.inventory:
+                if _norm(row.item_name or "") == target:
+                    return row
+
+        desc_sizes = _sizes_from_text(desc)
+        if not desc_sizes or len(desc_sizes) >= 2:
+            return None
+        for rec in self.inventory:
+            name_n = _norm(rec.item_name or "")
+            if not _catalog_is_pvc_insert_tee_ixixf_branch(name_n):
+                continue
+            cat_sizes = _sizes_from_text(rec.item_name or "")
+            if desc_sizes == cat_sizes or (
+                len(cat_sizes) == 1 and next(iter(desc_sizes)) in cat_sizes
+            ):
+                return rec
+        return None
+
+    def _match_pvc_insert_tee_fipt_branch_one_off(
+        self, desc: str
+    ) -> tuple[InventoryRecord | None, float, str]:
+        """One-off: PVC insert tee IxIxFIPT → PVC Insert Tee x Female adapter (IxIxF)."""
+        if not is_pvc_insert_tee_fipt_branch_invoice_line(desc):
+            return None, 0.0, ""
+        rec = self._find_pvc_insert_tee_ixixf_branch_by_size(desc)
+        if rec:
+            return (
+                rec,
+                0.92,
+                "One-off: PVC insert tee IxIxFIPT → Insert Tee x Female (IxIxF)",
+            )
+        return None, 0.0, ""
+
     def match_line(
-        self, description_raw: str, supplier_item_code: str | None
+        self,
+        description_raw: str,
+        supplier_item_code: str | None,
+        *,
+        vendor_name: str | None = None,
+        vendor_raw: str | None = None,
     ) -> tuple[InventoryRecord | None, float, str]:
         """Match invoice line text to catalog_items.csv (local, no LLM)."""
-        return self._best_catalog_match(description_raw, supplier_item_code)
+        return self._best_catalog_match(
+            description_raw,
+            supplier_item_code,
+            vendor_name=vendor_name,
+            vendor_raw=vendor_raw,
+        )

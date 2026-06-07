@@ -29,6 +29,7 @@ exports/
 | **B3** | Branch (default from `ASPIRE_DEFAULT_BRANCH`) |
 | **B4** | *(ignored)* |
 | **B5** | Invoice number (IDP appends `-INV`) |
+| **B6** | Receipt note (Idaho Sod variance / manual split instructions) |
 | **B10+** | Item code (optional if C has name) |
 | **C10+** | Item name |
 | **D10+** | Quantity |
@@ -40,12 +41,15 @@ exports/
 
 Per-vendor rules for tax and total reconciliation. **`process_invoices.py`** stays generic; profiles are selected from the matched Aspire vendor name.
 
-| Profile | Vendor | Tax on unit cost | Reconcile ΣF to invoice total |
-|---------|--------|------------------|-------------------------------|
-| `hd_fowler` | H.D. Fowler Company {Turf} (and names containing “fowler”) | ×1.06 | Yes |
-| `default` | Everyone else | None (×1.0) | No |
+| Profile | Vendor | Tax on unit cost | Reconcile ΣF to invoice total | Skip import consolidation |
+|---------|--------|------------------|-------------------------------|---------------------------|
+| `hd_fowler` | H.D. Fowler Company {Turf} (and names containing “fowler”) | ×1.06 | Yes | No |
+| `idaho_sod` | Idaho Sod (Vendor 136) | None (×1.0) | Yes | No |
+| `default` | Everyone else | None (×1.0) | No | No |
 
-Catalog matching treats **tee, elbow, coupler, adapter, plug** as product families with strict size rules. **PVC** and **insert** share one small scoring bonus (not two word hits) so **plug** / **tee** / size tokens decide the winner.
+**Idaho Sod:** Invoices use **Total Due** ÷ **square feet** for unit cost (delivery, pallet deposit, and fuel surcharge are included in Total Due, not separate Aspire lines). Kentucky → Bluegrass Sod; RTF → Rhizomatous Tall Fescue Sod. IDP writes **one import line**; when 3 decimals cannot match Total Due exactly, **B6** documents the variance and a manual two-line split for Aspire UI. Import sends B6 as `ReceiptNote`.
+
+Catalog matching treats **tee, elbow, coupler, adapter, plug** as product families with strict size rules.
 
 Add vendors by extending `HD_FOWLER_PROFILE` / `DEFAULT_PROFILE` or calling `register_vendor_profile()` in `idp_vendor_profiles.py`.
 
@@ -74,6 +78,7 @@ Place PDFs in `Receipts - Ready\Invoices - Ready\`.
 
 ```powershell
 py scripts/process_invoices.py --fresh-dashboard
+py scripts/process_invoices.py --no-catalog-prompt --no-dashboard path/to/invoice.pdf
 ```
 
 - Uses OpenAI vision + structured JSON (`exports/vendors.csv`, `exports/catalog_items.csv`).

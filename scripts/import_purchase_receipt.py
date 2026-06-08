@@ -12,6 +12,7 @@ Excel layout (column B unless noted):
   (stop when B and C are both blank)
 
 Creates via POST /Receipts only (not approved, not received).
+After each successful create, optionally uploads the matching PDF from Invoices - Processed.
 
 Usage:
   python scripts/import_purchase_receipt.py --dry-run path/to/file.xlsx
@@ -36,6 +37,13 @@ from aspire_common import (  # noqa: E402
     AspireClient,
     inventory_location_id,
     require_credentials,
+)
+from aspire_attachments import (  # noqa: E402
+    aspire_invoice_pdf_filename,
+    prompt_upload_pdf,
+    receipt_has_attachment,
+    resolve_invoice_pdf,
+    upload_receipt_attachment,
 )
 from aspire_excel import read_receipt_workbook  # noqa: E402
 from aspire_lookups import LookupService  # noqa: E402
@@ -84,6 +92,42 @@ def _rename_imported(path: Path) -> Path:
     return dest
 
 
+def _maybe_attach_pdf(
+    *,
+    client: AspireClient,
+    receipt_id: int,
+    wb,
+    dry_run: bool,
+    skip_attach_prompt: bool,
+) -> None:
+    pdf_path = resolve_invoice_pdf(wb)
+    display_name = aspire_invoice_pdf_filename(wb.vendor_invoice_num, wb.invoice_date)
+    if pdf_path is None:
+        print(f"  PDF: not found in Invoices - Processed (expected {display_name!r})")
+        return
+    print(f"  PDF: {pdf_path.name}")
+    if dry_run:
+        print(f"  [dry-run] Would prompt to upload {display_name!r}")
+        return
+    if receipt_has_attachment(client, receipt_id, display_name):
+        print(f"  PDF: skip — receipt already has {display_name!r}")
+        return
+    if skip_attach_prompt or prompt_upload_pdf(pdf_path, display_name):
+        if skip_attach_prompt:
+            print(f"  Uploading PDF {display_name!r}...")
+        url = upload_receipt_attachment(
+            client,
+            receipt_id,
+            pdf_path,
+            display_filename=display_name,
+        )
+        print(f"  Attached PDF: {display_name!r}")
+        if url:
+            print(f"  File URL: {url}")
+    else:
+        print("  PDF: skipped (user declined)")
+
+
 def process_file(
     path: Path,
     *,
@@ -92,6 +136,7 @@ def process_file(
     dry_run: bool,
     force: bool,
     skip_duplicate: bool,
+    skip_attach_prompt: bool,
 ) -> bool:
     print(f"\n=== {path.name} ===")
     wb = read_receipt_workbook(path)
@@ -138,6 +183,13 @@ def process_file(
     if dry_run:
         print("  [dry-run] POST /Receipts body:")
         print(json.dumps(api_body, indent=2))
+        _maybe_attach_pdf(
+            client=client,
+            receipt_id=0,
+            wb=wb,
+            dry_run=True,
+            skip_attach_prompt=skip_attach_prompt,
+        )
         return True
 
     try:
@@ -169,6 +221,13 @@ def process_file(
             )
         renamed = _rename_imported(path)
         print(f"  Renamed: {renamed.name}")
+        _maybe_attach_pdf(
+            client=client,
+            receipt_id=int(receipt_id),
+            wb=wb,
+            dry_run=False,
+            skip_attach_prompt=skip_attach_prompt,
+        )
     return True
 
 
@@ -194,6 +253,11 @@ def main() -> None:
         action="store_true",
         help="Do not check for existing receipts before create",
     )
+    parser.add_argument(
+        "--yes-attach",
+        action="store_true",
+        help="Upload matching PDF without prompting (default: prompt Y/N per receipt)",
+    )
     args = parser.parse_args()
 
     paths = _collect_files(args)
@@ -212,6 +276,7 @@ def main() -> None:
                 dry_run=args.dry_run,
                 force=args.force,
                 skip_duplicate=not args.no_skip_duplicate,
+                skip_attach_prompt=args.yes_attach,
             )
         except (ValueError, RuntimeError, FileNotFoundError) as exc:
             print(f"  ERROR: {exc}", file=sys.stderr)

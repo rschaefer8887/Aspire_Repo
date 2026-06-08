@@ -45,6 +45,7 @@ from idp_paths import (  # noqa: E402
     review_pending_dir,
 )
 from idp_reference import ReferenceData  # noqa: E402
+from aspire_attachments import move_to_aspire_pdf_name  # noqa: E402
 from idp_vendor_profiles import IDAHO_SOD_PROFILE, vendor_profile_for  # noqa: E402
 
 
@@ -218,11 +219,23 @@ def process_pdf(
 
     processed = invoices_processed_dir()
     processed.mkdir(parents=True, exist_ok=True)
-    dest = processed / pdf_path.name
-    if dest.exists():
-        dest = processed / f"{pdf_path.stem}_{datetime.now().strftime('%H%M%S')}{pdf_path.suffix}"
-    shutil.move(str(pdf_path), str(dest))
-    print(f"  Moved PDF to: {dest}")
+    if result.invoice_date:
+        dest = processed / pdf_path.name
+        if dest.exists():
+            dest = processed / (
+                f"{pdf_path.stem}_{datetime.now().strftime('%H%M%S')}{pdf_path.suffix}"
+            )
+        shutil.move(str(pdf_path), str(dest))
+        dest = move_to_aspire_pdf_name(dest, inv_display, result.invoice_date, processed_dir=processed)
+    else:
+        dest = processed / pdf_path.name
+        if dest.exists():
+            dest = processed / (
+                f"{pdf_path.stem}_{datetime.now().strftime('%H%M%S')}{pdf_path.suffix}"
+            )
+        shutil.move(str(pdf_path), str(dest))
+        print("  Warning: no invoice date — PDF kept as original filename", file=sys.stderr)
+    print(f"  Moved PDF to: {dest.name}")
 
     if session is not None:
         from idp_review import save_session

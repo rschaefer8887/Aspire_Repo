@@ -23,7 +23,9 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from idp_costs import effective_invoice_total  # noqa: E402
+from aspire_attachments import move_to_aspire_pdf_name  # noqa: E402
 from idp_excel import write_from_extraction  # noqa: E402
+from idp_openai import format_invoice_number  # noqa: E402
 from idp_openai import format_invoice_number  # noqa: E402
 from idp_paths import confidence_threshold, receipts_ready_dir, review_pending_dir  # noqa: E402
 from idp_reference import ReferenceData  # noqa: E402
@@ -408,6 +410,10 @@ def main() -> None:
                         out_path, reconciled, col_f_total = write_from_extraction(
                             extraction, receipts_ready_dir()
                         )
+                        pdf_path = resolve_pdf_path(session)
+                        if pdf_path is not None and extraction.invoice_date:
+                            inv_num = format_invoice_number(extraction.invoice_number_raw)
+                            move_to_aspire_pdf_name(pdf_path, inv_num, extraction.invoice_date)
                         delete_session(session.session_id)
                         adj = session.adjusted_invoice_total()
                         msg = f"Wrote **{out_path.name}** to `{receipts_ready_dir()}`"

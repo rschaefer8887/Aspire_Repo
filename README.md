@@ -101,6 +101,7 @@ py scripts/import_purchase_receipt.py
 - After a successful import, renames the workbook to `{name}-imported.xlsx`.
 - Resolves catalog items by **item code (B)** first, then **item name (C)** if code is empty.
 - Creates receipts only (`POST /Receipts`) — does not approve or receive.
+- After each successful create, prompts **Y/N** to upload the matching PDF from `Invoices - Processed` (`--yes-attach` skips the prompt). PDFs are named `Aspire-{Invoice-INV}__{MMDDYYYY}.pdf`.
 
 ## Environment variables
 
@@ -110,3 +111,4 @@ See [`.env.example`](.env.example) for Aspire, IDP, and path overrides.
 
 - [Aspire API guide](https://guide.youraspire.com/apidocs)
 - [Production Swagger](https://cloud-api.youraspire.com/swagger/index.html)
+- [Attachments API probe notes](docs/aspire_attachments_api.md) — receipt PDF attach flow (WIP)

@@ -12,7 +12,8 @@ Excel layout (column B unless noted):
   (stop when B and C are both blank)
 
 Creates via POST /Receipts only (not approved, not received).
-After each successful create, optionally uploads the matching PDF from Invoices - Processed.
+After each successful create, optionally uploads the matching PDF from Invoices - Processed
+and optionally marks the receipt received (POST /Receipts/Receive; receive date = today).
 
 Usage:
   python scripts/import_purchase_receipt.py --dry-run path/to/file.xlsx
@@ -44,6 +45,12 @@ from aspire_attachments import (  # noqa: E402
     receipt_has_attachment,
     resolve_invoice_pdf,
     upload_receipt_attachment,
+)
+from aspire_receipts import (  # noqa: E402
+    prompt_receive_receipt,
+    receipt_is_received,
+    receive_date_label,
+    receive_receipt,
 )
 from aspire_excel import read_receipt_workbook  # noqa: E402
 from aspire_lookups import LookupService  # noqa: E402
@@ -132,6 +139,48 @@ def _maybe_attach_pdf(
         print("  PDF: skipped (user declined)")
 
 
+def _maybe_receive_receipt(
+    *,
+    client: AspireClient,
+    lookups: LookupService,
+    receipt_id: int,
+    vendor_invoice_num: str,
+    dry_run: bool,
+    skip_receive_prompt: bool,
+) -> None:
+    label = receive_date_label()
+    if dry_run:
+        print(
+            f"  [dry-run] Would prompt to receive receipt {receipt_id} "
+            f"({vendor_invoice_num!r}, date {label})"
+        )
+        return
+
+    verified = lookups.verify_receipt(int(receipt_id))
+    if receipt_is_received(verified):
+        print(
+            f"  Receive: skip — already received "
+            f"(status={verified.get('ReceiptStatusName')!r}, "
+            f"ReceivedDate={verified.get('ReceivedDate')})"
+        )
+        return
+
+    if skip_receive_prompt or prompt_receive_receipt(
+        int(receipt_id),
+        vendor_invoice_num=vendor_invoice_num,
+    ):
+        if skip_receive_prompt:
+            print(f"  Receiving receipt {receipt_id} (date {label})...")
+        receive_receipt(client, int(receipt_id))
+        verified = lookups.verify_receipt(int(receipt_id))
+        print(
+            f"  Received: status={verified.get('ReceiptStatusName')!r} | "
+            f"ReceivedDate={verified.get('ReceivedDate')}"
+        )
+    else:
+        print("  Receive: skipped (user declined)")
+
+
 def process_file(
     path: Path,
     *,
@@ -141,6 +190,7 @@ def process_file(
     force: bool,
     skip_duplicate: bool,
     skip_attach_prompt: bool,
+    skip_receive_prompt: bool,
 ) -> bool:
     print(f"\n=== {path.name} ===")
     wb = read_receipt_workbook(path)
@@ -194,6 +244,14 @@ def process_file(
             dry_run=True,
             skip_attach_prompt=skip_attach_prompt,
         )
+        _maybe_receive_receipt(
+            client=client,
+            lookups=lookups,
+            receipt_id=0,
+            vendor_invoice_num=wb.vendor_invoice_num,
+            dry_run=True,
+            skip_receive_prompt=skip_receive_prompt,
+        )
         return True
 
     try:
@@ -232,6 +290,14 @@ def process_file(
             dry_run=False,
             skip_attach_prompt=skip_attach_prompt,
         )
+        _maybe_receive_receipt(
+            client=client,
+            lookups=lookups,
+            receipt_id=int(receipt_id),
+            vendor_invoice_num=wb.vendor_invoice_num,
+            dry_run=False,
+            skip_receive_prompt=skip_receive_prompt,
+        )
     return True
 
 
@@ -262,6 +328,11 @@ def main() -> None:
         action="store_true",
         help="Upload matching PDF without prompting (default: prompt Y/N per receipt)",
     )
+    parser.add_argument(
+        "--yes-receive",
+        action="store_true",
+        help="Mark receipt received without prompting (default: prompt Y/N per receipt)",
+    )
     args = parser.parse_args()
 
     paths = _collect_files(args)
@@ -281,6 +352,7 @@ def main() -> None:
                 force=args.force,
                 skip_duplicate=not args.no_skip_duplicate,
                 skip_attach_prompt=args.yes_attach,
+                skip_receive_prompt=args.yes_receive,
             )
         except (ValueError, RuntimeError, FileNotFoundError) as exc:
             print(f"  ERROR: {exc}", file=sys.stderr)

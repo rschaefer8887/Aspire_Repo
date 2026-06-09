@@ -212,6 +212,43 @@ def is_worm_clamp_invoice_line(desc: str) -> bool:
     return bool(_WORM_DRIVE_HOSE_CLAMP_RE.search(desc or ""))
 
 
+_VAN_NOZZLE_ITEM_NAME = "Rain Bird (VAN) Nozzle - All (or Hunter)"
+_RAIN_BIRD_VAN_NOZZLE_RE = re.compile(
+    r"\bvan\b.*variable\s+arc.*nozzle"
+    r"|\brain\s+bird\b.*\bvan\b.*(?:variable\s+arc|nozzle)"
+    r"|\bvan\b.*variable\s+arc.*nozzle.*\brain\s+bird\b",
+    re.IGNORECASE,
+)
+_HUNTER_ADJUSTABLE_ARC_NOZZLE_RE = re.compile(
+    r"adjustable\s+arc\s+nozzle.*\bhunter\b"
+    r"|\bhunter\b.*adjustable\s+arc\s+nozzle"
+    r"|\b\d{1,2}-A\b.*adjustable\s+arc\s+nozzle",
+    re.IGNORECASE,
+)
+
+
+def is_van_nozzle_invoice_line(desc: str) -> bool:
+    """Rain Bird VAN or Hunter adjustable arc nozzles → single catch-all catalog row."""
+    d = desc or ""
+    return bool(
+        _RAIN_BIRD_VAN_NOZZLE_RE.search(d)
+        or _HUNTER_ADJUSTABLE_ARC_NOZZLE_RE.search(d)
+    )
+
+
+def _catalog_is_van_nozzle_catch_all(name_n: str) -> bool:
+    return _norm(_VAN_NOZZLE_ITEM_NAME) == name_n or (
+        "van" in name_n and "nozzle" in name_n and "all" in name_n
+    )
+
+
+def _van_nozzle_blocks_catalog(desc: str, name_n: str) -> bool:
+    """On VAN nozzle invoice lines, only the catch-all catalog row may score."""
+    if not is_van_nozzle_invoice_line(desc):
+        return False
+    return not _catalog_is_van_nozzle_catch_all(name_n)
+
+
 _CONDUIT_GRAY_CATALOG_PREFIX = "conduit gray"
 
 
@@ -480,6 +517,39 @@ def _pvc_insert_tee_fipt_branch_blocks_catalog(desc: str, name_n: str) -> bool:
     return not _catalog_is_pvc_insert_tee_female_branch(name_n)
 
 
+_PVC_INSERT_ELBOW_IXFIPT_RE = re.compile(r"\bixf(?:ipt|pt)?\b", re.IGNORECASE)
+
+# Reducing PVC insert 90° elbow with female threaded branch (IxFIPT on invoice).
+_PVC_INSERT_ELBOW_IXF_REDUCING_CATALOG: dict[frozenset[str], str] = {
+    frozenset({"1-1/4", "3/4"}): 'PVC Insert Elbow (90) Reducing - 1-1/4" x 3/4" (IxF)',
+    frozenset({"1-1/2", "1"}): 'PVC Insert Elbow (90) Reducing - 1-1/2" x 1" (IxF)',
+    frozenset({"2", "1-1/2"}): 'PVC Insert Elbow (90) Reducing - 2" x 1-1/2" (IxF)',
+}
+
+
+def is_pvc_insert_elbow_ixfipt_line(desc: str) -> bool:
+    """PVC insert 90° elbow with IxFIPT female branch (not IXIXFIPT tee)."""
+    d = _norm(desc)
+    if not re.search(r"\belbow\b", desc or "", re.I):
+        return False
+    if "pvc" not in d or "insert" not in d:
+        return False
+    if not re.search(r"\b90\b", desc or ""):
+        return False
+    return bool(_PVC_INSERT_ELBOW_IXFIPT_RE.search(desc or ""))
+
+
+def _catalog_is_pvc_insert_elbow_ixf(name_n: str) -> bool:
+    return "insert elbow" in name_n and "ixf" in name_n
+
+
+def _pvc_insert_elbow_ixfipt_blocks_catalog(desc: str, name_n: str) -> bool:
+    """On IxFIPT insert elbow lines, only PVC Insert Elbow (IxF) may score."""
+    if not is_pvc_insert_elbow_ixfipt_line(desc):
+        return False
+    return not _catalog_is_pvc_insert_elbow_ixf(name_n)
+
+
 def _poly_pipe_sizes_match(desc_sizes: set[str], cat_sizes: set[str]) -> bool:
     if not desc_sizes or not cat_sizes:
         return False
@@ -707,6 +777,41 @@ def _sizes_from_text(text: str) -> set[str]:
             return
         consumed.append(span)
         found.add(size)
+
+    def _consume_pair(span: tuple[int, int], size_a: str, size_b: str) -> None:
+        if _overlaps(span):
+            return
+        consumed.append(span)
+        found.add(size_a)
+        found.add(size_b)
+
+    # Compact reducing sizes (e.g. 1-1/2"x1", 2"x1-1/2") — run before standalone inch passes.
+    for m in re.finditer(
+        r'(\d{1,2}-\d{1,2}/\d{1,2})"\s*x\s*(\d{1,2})"',
+        text,
+        re.I,
+    ):
+        _consume_pair(m.span(), m.group(1), m.group(2))
+    for m in re.finditer(
+        r'(\d{1,2})"\s*x\s*(\d{1,2}-\d{1,2}/\d{1,2})"',
+        text,
+        re.I,
+    ):
+        _consume_pair(m.span(), m.group(1), m.group(2))
+    for m in re.finditer(
+        r'(\d{1,2}-\d{1,2}/\d{1,2})"\s*x\s*(\d{1,2}/\d{1,2})"',
+        text,
+        re.I,
+    ):
+        a, b = m.group(2).split("/")
+        _consume_pair(m.span(), m.group(1), f"{a}/{b}")
+        found.add(f"{a}-{b}/{b}")
+    for m in re.finditer(
+        r'(?<!\d-)(\d{1,2})"\s*x\s*(\d{1,2})"(?!/)',
+        text,
+        re.I,
+    ):
+        _consume_pair(m.span(), m.group(1), m.group(2))
 
     for m in re.finditer(
         r"(?:^|\s)(\d{1,2})\s*-\s*(\d{1,2})\s*/\s*(\d{1,2})\s*\"",
@@ -1053,6 +1158,10 @@ class ReferenceData:
             return 0.0, 0
         if _pvc_insert_tee_fipt_branch_blocks_catalog(desc, name_n):
             return 0.0, 0
+        if _pvc_insert_elbow_ixfipt_blocks_catalog(desc, name_n):
+            return 0.0, 0
+        if _van_nozzle_blocks_catalog(desc, name_n):
+            return 0.0, 0
         if hint and not _catalog_matches_product_hint(hint, name_n) and not code_in_desc:
             return 0.0, 0
         if material == "pvc" and "pvc" not in name_n:
@@ -1256,6 +1365,10 @@ class ReferenceData:
             if rec:
                 return rec, 0.98, f"Exact item code {supplier_item_code!r}"
 
+        rec, conf, note = self._match_van_nozzle_one_off(desc)
+        if rec:
+            return rec, conf, note
+
         rec, conf, note = self._match_by_code_in_description(desc)
         if rec:
             return rec, conf, note
@@ -1302,6 +1415,10 @@ class ReferenceData:
             return rec, conf, note
 
         rec, conf, note = self._match_pvc_insert_tee_fipt_branch_one_off(desc)
+        if rec:
+            return rec, conf, note
+
+        rec, conf, note = self._match_pvc_insert_elbow_ixfipt_one_off(desc)
         if rec:
             return rec, conf, note
 
@@ -1364,6 +1481,28 @@ class ReferenceData:
                 rec,
                 0.92,
                 "One-off: Worm drive hose clamp → Worm Clamp",
+            )
+        return None, 0.0, ""
+
+    def _match_van_nozzle_one_off(
+        self, desc: str
+    ) -> tuple[InventoryRecord | None, float, str]:
+        """One-off: Rain Bird VAN / Hunter adjustable arc nozzle (size/color ignored)."""
+        if not is_van_nozzle_invoice_line(desc):
+            return None, 0.0, ""
+        key = _norm(_VAN_NOZZLE_ITEM_NAME)
+        rec = self._by_name.get(key)
+        if not rec:
+            for row in self.inventory:
+                if _norm(row.item_name or "") == key:
+                    rec = row
+                    break
+        if rec:
+            return (
+                rec,
+                0.92,
+                "One-off: VAN / Hunter adjustable arc nozzle → "
+                "Rain Bird (VAN) Nozzle - All (or Hunter)",
             )
         return None, 0.0, ""
 
@@ -1629,6 +1768,55 @@ class ReferenceData:
                 rec,
                 0.92,
                 f"One-off: PVC insert tee IxIxFIPT → {label}Insert Tee x Female",
+            )
+        return None, 0.0, ""
+
+    def _find_pvc_insert_elbow_ixf_by_size(self, desc: str) -> InventoryRecord | None:
+        desc_sizes = _sizes_from_text(desc)
+        if len(desc_sizes) >= 2:
+            target_name = _PVC_INSERT_ELBOW_IXF_REDUCING_CATALOG.get(
+                frozenset(desc_sizes)
+            )
+            if target_name:
+                rec = self._find_catalog_by_item_name(target_name)
+                if rec:
+                    return rec
+            for rec in self.inventory:
+                name_n = _norm(rec.item_name or "")
+                if not _catalog_is_pvc_insert_elbow_ixf(name_n):
+                    continue
+                cat_sizes = _sizes_from_text(rec.item_name or "")
+                if desc_sizes == cat_sizes:
+                    return rec
+            return None
+
+        if not desc_sizes:
+            return None
+        for rec in self.inventory:
+            name_n = _norm(rec.item_name or "")
+            if not _catalog_is_pvc_insert_elbow_ixf(name_n):
+                continue
+            cat_sizes = _sizes_from_text(rec.item_name or "")
+            if desc_sizes == cat_sizes or (
+                len(cat_sizes) == 1 and next(iter(desc_sizes)) in cat_sizes
+            ):
+                return rec
+        return None
+
+    def _match_pvc_insert_elbow_ixfipt_one_off(
+        self, desc: str
+    ) -> tuple[InventoryRecord | None, float, str]:
+        """One-off: PVC insert 90° elbow IxFIPT → Insert Elbow (IxF)."""
+        if not is_pvc_insert_elbow_ixfipt_line(desc):
+            return None, 0.0, ""
+        rec = self._find_pvc_insert_elbow_ixf_by_size(desc)
+        if rec:
+            sizes = _sizes_from_text(desc)
+            label = "reducing " if len(sizes) >= 2 else ""
+            return (
+                rec,
+                0.92,
+                f"One-off: PVC insert elbow IxFIPT → {label}Insert Elbow (IxF)",
             )
         return None, 0.0, ""
 

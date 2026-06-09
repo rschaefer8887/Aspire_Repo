@@ -40,6 +40,24 @@ class TestFittingSizeHelpers(unittest.TestCase):
         sizes = _sizes_from_text('1-1/2" x 1" PVC INSERT TEE')
         self.assertEqual(sizes, {"1-1/2", "1"})
 
+    def test_sizes_from_text_compact_fraction_x_inch(self) -> None:
+        sizes = _sizes_from_text(
+            'PVC Insert Elbow (90) Reducing - 1-1/2"x1" (IxF)'
+        )
+        self.assertEqual(sizes, {"1-1/2", "1"})
+
+    def test_sizes_from_text_compact_inch_x_fraction(self) -> None:
+        sizes = _sizes_from_text('Reducing - 2"x1-1/2" (IxF)')
+        self.assertEqual(sizes, {"2", "1-1/2"})
+
+    def test_sizes_from_text_compact_fraction_x_fraction(self) -> None:
+        sizes = _sizes_from_text('Reducing - 1-1/4"x3/4" (IxF)')
+        self.assertEqual(sizes, {"1-1/4", "3/4", "3-4/4"})
+
+    def test_sizes_from_text_compact_inch_x_inch(self) -> None:
+        sizes = _sizes_from_text('PVC Insert Tee x Female Adapter - 2"x1"')
+        self.assertEqual(sizes, {"2", "1"})
+
     def test_fitting_strict_rejects_partial_overlap(self) -> None:
         desc = {"1-1/2", "1"}
         equal_tee = {"1-1/2"}
@@ -55,6 +73,34 @@ class TestFittingSizeHelpers(unittest.TestCase):
         partial_score, partial_tie = _size_match_score({"1-1/2", "1"}, {"1-1/2"})
         self.assertGreater(exact_score, partial_score)
         self.assertGreater(exact_tie, partial_tie)
+
+
+class TestCompactReducingElbowMatch(unittest.TestCase):
+    def test_ixfipt_elbow_matches_compact_catalog_name(self) -> None:
+        refs = ReferenceData()
+        refs.inventory = [
+            InventoryRecord(
+                "1406-015",
+                'PVC Insert Elbow (90) - 1-1/2" (IxI)',
+                "",
+                "Material",
+            ),
+            InventoryRecord(
+                "1407-211",
+                'PVC Insert Elbow (90) Reducing - 1-1/2"x1" (IxF)',
+                "",
+                "Material",
+            ),
+        ]
+        for rec in refs.inventory:
+            if rec.item_code:
+                refs._by_code[rec.item_code] = rec
+        desc = '1-1/2" X 1" PVC Insert 90 Elbow IXFIPT'
+        rec, conf, note = refs.match_line(desc, None)
+        self.assertIsNotNone(rec)
+        self.assertEqual(rec.item_code, "1407-211")
+        self.assertGreaterEqual(conf, 0.90)
+        self.assertIn("One-off", note or "")
 
 
 class TestFittingCatalogMatch(unittest.TestCase):

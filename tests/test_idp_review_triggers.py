@@ -116,6 +116,22 @@ class TestReviewToolTriggers(unittest.TestCase):
             )
         )
 
+    def test_detector_matches_ct112_by_code(self) -> None:
+        self.assertTrue(
+            is_review_tool_line(
+                item_code="CT112",
+                item_name="PINCH CLAMP TOOL LARGE CT112",
+            )
+        )
+
+    def test_detector_matches_ct112_in_description(self) -> None:
+        self.assertTrue(
+            is_review_tool_line(
+                item_code=None,
+                description_raw="PINCH CLAMP TOOL LARGE CT112",
+            )
+        )
+
     def test_detector_matches_rotortool_in_description(self) -> None:
         self.assertTrue(
             is_review_tool_line(
@@ -166,6 +182,30 @@ class TestReviewToolTriggers(unittest.TestCase):
         self.assertTrue(any("TOOL row" in flag and "ROTORTOOL" in flag for flag in flags))
         self.assertFalse(any("LOW CONFIDENCE LINE" in flag for flag in flags))
 
+    def test_collect_review_flags_queues_invoice_for_ct112(self) -> None:
+        result = ExtractionResult(
+            invoice_date=None,
+            vendor_raw="H.D. Fowler",
+            vendor_name="H.D. Fowler Company {Turf}",
+            vendor_id=1,
+            vendor_confidence=1.0,
+            vendor_rationale="",
+            invoice_number_raw="12345",
+            invoice_total=100.0,
+            lines=[
+                LineMatch(
+                    description_raw="PINCH CLAMP TOOL LARGE CT112",
+                    quantity=1.0,
+                    unit_price=15.0,
+                    item_code="CT112",
+                    item_name="PINCH CLAMP TOOL LARGE CT112",
+                    confidence=0.98,
+                ),
+            ],
+        )
+        flags = collect_review_flags(result)
+        self.assertTrue(any("TOOL row" in flag and "CT112" in flag for flag in flags))
+
     def test_extraction_to_session_marks_only_tool_line(self) -> None:
         result = ExtractionResult(
             invoice_date=None,
@@ -203,6 +243,36 @@ class TestReviewToolTriggers(unittest.TestCase):
         )
         self.assertTrue(session.lines[0].needs_review)
         self.assertFalse(session.lines[1].needs_review)
+
+    def test_extraction_to_session_marks_ct112_line(self) -> None:
+        result = ExtractionResult(
+            invoice_date=None,
+            vendor_raw="H.D. Fowler",
+            vendor_name="H.D. Fowler Company {Turf}",
+            vendor_id=1,
+            vendor_confidence=1.0,
+            vendor_rationale="",
+            invoice_number_raw="12345",
+            invoice_total=100.0,
+            lines=[
+                LineMatch(
+                    description_raw="PINCH CLAMP TOOL LARGE CT112",
+                    quantity=1.0,
+                    unit_price=15.0,
+                    item_code="CT112",
+                    item_name="PINCH CLAMP TOOL LARGE CT112",
+                    confidence=0.98,
+                )
+            ],
+        )
+        flags = collect_review_flags(result)
+        session = extraction_to_session(
+            result,
+            Path("invoice.pdf"),
+            flags=flags,
+        )
+        self.assertTrue(session.lines[0].needs_review)
+        self.assertFalse(session.lines[0].excluded)
 
 
 if __name__ == "__main__":

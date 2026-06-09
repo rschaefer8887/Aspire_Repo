@@ -12,22 +12,41 @@ sys.path.insert(0, str(ROOT))
 
 from aspire_attachments import (  # noqa: E402
     aspire_invoice_pdf_filename,
+    aspire_pdf_vendor_label,
     resolve_invoice_pdf,
 )
 from aspire_excel import ReceiptLine, ReceiptWorkbook  # noqa: E402
 
 
 class TestAspireAttachments(unittest.TestCase):
+    def test_aspire_pdf_vendor_label_hd_fowler(self) -> None:
+        self.assertEqual(
+            aspire_pdf_vendor_label("H.D. Fowler Company {Turf}"),
+            "HD Fowler",
+        )
+
     def test_aspire_invoice_pdf_filename(self) -> None:
-        name = aspire_invoice_pdf_filename("1314-INV", date(2026, 6, 4))
-        self.assertEqual(name, "Aspire-1314-INV__06042026.pdf")
+        name = aspire_invoice_pdf_filename(
+            "1314-INV",
+            date(2026, 6, 4),
+            vendor_name="Idaho Sod",
+        )
+        self.assertEqual(name, "Aspire-Idaho Sod-1314-INV__06042026.pdf")
+
+    def test_aspire_invoice_pdf_filename_hd_fowler(self) -> None:
+        name = aspire_invoice_pdf_filename(
+            "I7331698-INV",
+            date(2026, 6, 4),
+            vendor_name="H.D. Fowler Company {Turf}",
+        )
+        self.assertEqual(name, "Aspire-HD Fowler-I7331698-INV__06042026.pdf")
 
     def test_resolve_invoice_pdf_by_expected_name(self) -> None:
         import tempfile
 
         with tempfile.TemporaryDirectory() as tmp:
             folder = Path(tmp)
-            pdf = folder / "Aspire-999-INV__01022026.pdf"
+            pdf = folder / "Aspire-Vendor-999-INV__01022026.pdf"
             pdf.write_bytes(b"%PDF-1.4")
             wb = ReceiptWorkbook(
                 path=Path("Vendor_999-INV.xlsx"),

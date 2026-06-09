@@ -24,7 +24,9 @@ from openai import OpenAI
 from idp_paths import confidence_threshold
 from idp_review_triggers import (
     is_pinch_clamp_tool_ct108_line,
+    is_review_tool_line,
     pinch_clamp_tool_ct108_review_flag,
+    review_tool_flag,
 )
 from idp_sod import transform_idaho_sod_extraction
 from idp_roll_conversion import roll_line_missing_feet_per_roll
@@ -439,7 +441,10 @@ def collect_review_flags(result: ExtractionResult, threshold: float | None = Non
                 f"  Matched: ItemCode={line.item_code!r} ItemName={line.item_name!r}"
             )
         if roll_line_missing_feet_per_roll(
-            line.description_raw, line.uom_raw, line.item_name
+            line.description_raw,
+            line.uom_raw,
+            line.item_name,
+            item_code=line.item_code,
         ):
             flags.append(
                 f"ROLL LINE MISSING LENGTH row {10 + i}:\n"
@@ -451,6 +456,19 @@ def collect_review_flags(result: ExtractionResult, threshold: float | None = Non
             flags.append(
                 pinch_clamp_tool_ct108_review_flag(
                     line.description_raw,
+                    row=10 + i,
+                )
+            )
+        if is_review_tool_line(
+            item_code=line.item_code,
+            item_name=line.item_name,
+            description_raw=line.description_raw,
+        ):
+            flags.append(
+                review_tool_flag(
+                    item_code=line.item_code,
+                    item_name=line.item_name,
+                    description_raw=line.description_raw,
                     row=10 + i,
                 )
             )

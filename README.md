@@ -101,7 +101,7 @@ py scripts/import_purchase_receipt.py
 - After a successful import, renames the workbook to `{name}-imported.xlsx`.
 - Resolves catalog items by **item code (B)** first, then **item name (C)** if code is empty.
 - Creates receipts only (`POST /Receipts`) — does not approve or receive.
-- After each successful create, prompts **Y/N** to upload the matching PDF from `Invoices - Processed` (`--yes-attach` skips the prompt). PDFs are named `Aspire-{Invoice-INV}__{MMDDYYYY}.pdf`.
+- After each successful create, prompts **Y/N** to upload the matching PDF from `Invoices - Processed` (`--yes-attach` skips the prompt). PDFs are named `Aspire-{Vendor}-{Invoice-INV}__{MMDDYYYY}.pdf` (e.g. `Aspire-HD Fowler-I7331698-INV__06042026.pdf`).
 
 ## Environment variables
 

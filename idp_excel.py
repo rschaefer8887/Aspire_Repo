@@ -105,6 +105,7 @@ def extraction_to_lines(
             description_raw=line.description_raw,
             uom_raw=line.uom_raw,
             item_name=line.item_name,
+            item_code=line.item_code,
         )
         qty, unit_price, _canister_note = maybe_convert_canister_line(
             qty,

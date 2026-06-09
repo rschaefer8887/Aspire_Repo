@@ -18,7 +18,7 @@ from idp_openai import ExtractionResult, LineMatch, format_invoice_number
 from idp_costs import effective_invoice_total
 from idp_paths import ROOT, confidence_threshold, review_pending_dir
 from idp_reference import InventoryRecord, ReferenceData
-from idp_review_triggers import is_pinch_clamp_tool_ct108_line
+from idp_review_triggers import is_pinch_clamp_tool_ct108_line, is_review_tool_line
 
 
 @dataclass
@@ -132,6 +132,11 @@ def extraction_to_session(
             line.confidence < th
             or (not line.item_code and not line.item_name)
             or is_pinch_clamp_tool_ct108_line(line.description_raw)
+            or is_review_tool_line(
+                item_code=line.item_code,
+                item_name=line.item_name,
+                description_raw=line.description_raw,
+            )
         )
         lines.append(
             ReviewLine(

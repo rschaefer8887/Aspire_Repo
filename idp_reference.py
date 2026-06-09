@@ -189,6 +189,12 @@ def _pipe_dope_blocks_catalog(desc_n: str, name_n: str) -> bool:
 
 _IRRIGATION_STAPLES_ITEM_NAME = "Irrigation Staples"
 
+_WORM_CLAMP_ITEM_NAME = "Worm Clamp"
+_WORM_DRIVE_HOSE_CLAMP_RE = re.compile(
+    r"worm\s+drive\s+hose\s+clamp",
+    re.IGNORECASE,
+)
+
 # Fowler: 6" staples 11 GA jute matting sold by the box (1000 per box).
 _IRRIGATION_STAPLES_INVOICE_RE = re.compile(
     r"staples?\s+11\s+ga\s+jute\s+matting|jute\s+matting.*sold\s+by\s+the\s+box",
@@ -199,6 +205,11 @@ _IRRIGATION_STAPLES_INVOICE_RE = re.compile(
 def is_irrigation_staples_invoice_line(desc: str) -> bool:
     """True for Fowler jute matting box lines that map to Irrigation Staples."""
     return bool(_IRRIGATION_STAPLES_INVOICE_RE.search(desc or ""))
+
+
+def is_worm_clamp_invoice_line(desc: str) -> bool:
+    """True for worm drive hose clamp lines (size ignored → Worm Clamp)."""
+    return bool(_WORM_DRIVE_HOSE_CLAMP_RE.search(desc or ""))
 
 
 _CONDUIT_GRAY_CATALOG_PREFIX = "conduit gray"
@@ -439,33 +450,34 @@ _PVC_INSERT_TEE_FIPT_BRANCH_CATALOG_BY_SIZE: dict[str, str] = {
     "1-1/2": 'PVC Insert Tee x Female adapter- 1-1/2" (IxIxF)',
 }
 
+# Reducing PVC insert tee with female threaded branch (IxIxFIPT on invoice).
+_PVC_INSERT_TEE_FIPT_REDUCING_CATALOG: dict[frozenset[str], str] = {
+    frozenset({"1-1/4", "1"}): 'PVC Insert Tee x Female Adapter - 1-1/4"x1"',
+    frozenset({"1-1/2", "1"}): 'PVC Insert Tee x Female Adapter - 1-1/2"x1"',
+    frozenset({"2", "1"}): 'PVC Insert Tee x Female Adapter - 2"x1"',
+    frozenset({"2", "1-1/2"}): 'PVC Insert Tee x Female Adapter - 2"x1-1/2"',
+}
+
 
 def is_pvc_insert_tee_fipt_branch_invoice_line(desc: str) -> bool:
-    """PVC insert tee with FIPT / IxIxF female branch (equal size, not reducing)."""
+    """PVC insert tee with FIPT / IxIxF female branch (IxIxFIPT on invoice)."""
     d = _norm(desc)
     if not re.search(r"\btee\b", desc or "", re.I):
         return False
     if "pvc" not in d or "insert" not in d:
         return False
-    if not _PVC_INSERT_TEE_FIPT_BRANCH_RE.search(desc or ""):
-        return False
-    sizes = _sizes_from_text(desc)
-    return len(sizes) < 2
+    return bool(_PVC_INSERT_TEE_FIPT_BRANCH_RE.search(desc or ""))
 
 
-def _catalog_is_pvc_insert_tee_ixixf_branch(name_n: str) -> bool:
-    return (
-        "insert tee" in name_n
-        and "female" in name_n
-        and "ixixf" in name_n
-    )
+def _catalog_is_pvc_insert_tee_female_branch(name_n: str) -> bool:
+    return "insert tee" in name_n and "female" in name_n
 
 
 def _pvc_insert_tee_fipt_branch_blocks_catalog(desc: str, name_n: str) -> bool:
-    """On IxIxFIPT insert tee lines, only PVC Insert Tee x Female (IxIxF) may score."""
+    """On IxIxFIPT insert tee lines, only PVC Insert Tee x Female adapter may score."""
     if not is_pvc_insert_tee_fipt_branch_invoice_line(desc):
         return False
-    return not _catalog_is_pvc_insert_tee_ixixf_branch(name_n)
+    return not _catalog_is_pvc_insert_tee_female_branch(name_n)
 
 
 def _poly_pipe_sizes_match(desc_sizes: set[str], cat_sizes: set[str]) -> bool:
@@ -1261,6 +1273,10 @@ class ReferenceData:
         if rec:
             return rec, conf, note
 
+        rec, conf, note = self._match_worm_clamp_one_off(desc)
+        if rec:
+            return rec, conf, note
+
         rec, conf, note = self._match_fowler_gray_pvc_conduit_one_off(
             desc, vendor_name=vendor_name, vendor_raw=vendor_raw
         )
@@ -1327,6 +1343,27 @@ class ReferenceData:
                 rec,
                 0.92,
                 "One-off: Fowler jute matting box → Irrigation Staples",
+            )
+        return None, 0.0, ""
+
+    def _match_worm_clamp_one_off(
+        self, desc: str
+    ) -> tuple[InventoryRecord | None, float, str]:
+        """One-off: worm drive hose clamp → Worm Clamp (size ignored)."""
+        if not is_worm_clamp_invoice_line(desc):
+            return None, 0.0, ""
+        key = _norm(_WORM_CLAMP_ITEM_NAME)
+        rec = self._by_name.get(key)
+        if not rec:
+            for row in self.inventory:
+                if _norm(row.item_name or "") == key:
+                    rec = row
+                    break
+        if rec:
+            return (
+                rec,
+                0.92,
+                "One-off: Worm drive hose clamp → Worm Clamp",
             )
         return None, 0.0, ""
 
@@ -1526,26 +1563,50 @@ class ReferenceData:
             )
         return None, 0.0, ""
 
+    def _find_catalog_by_item_name(self, target_name: str) -> InventoryRecord | None:
+        key = _norm(target_name)
+        rec = self._by_name.get(key)
+        if rec:
+            return rec
+        for row in self.inventory:
+            if _norm(row.item_name or "") == key:
+                return row
+        return None
+
     def _find_pvc_insert_tee_ixixf_branch_by_size(self, desc: str) -> InventoryRecord | None:
+        desc_sizes = _sizes_from_text(desc)
+
+        if len(desc_sizes) >= 2:
+            target_name = _PVC_INSERT_TEE_FIPT_REDUCING_CATALOG.get(
+                frozenset(desc_sizes)
+            )
+            if target_name:
+                rec = self._find_catalog_by_item_name(target_name)
+                if rec:
+                    return rec
+            for rec in self.inventory:
+                name_n = _norm(rec.item_name or "")
+                if not _catalog_is_pvc_insert_tee_female_branch(name_n):
+                    continue
+                cat_sizes = _sizes_from_text(rec.item_name or "")
+                if desc_sizes == cat_sizes:
+                    return rec
+            return None
+
         leading = _leading_pipe_size_from_desc(desc)
         if not leading:
-            sizes = _sizes_from_text(desc)
-            leading = next(iter(sizes)) if len(sizes) == 1 else None
+            leading = next(iter(desc_sizes)) if len(desc_sizes) == 1 else None
         if leading and leading in _PVC_INSERT_TEE_FIPT_BRANCH_CATALOG_BY_SIZE:
-            target = _norm(_PVC_INSERT_TEE_FIPT_BRANCH_CATALOG_BY_SIZE[leading])
-            rec = self._by_name.get(target)
+            target = _PVC_INSERT_TEE_FIPT_BRANCH_CATALOG_BY_SIZE[leading]
+            rec = self._find_catalog_by_item_name(target)
             if rec:
                 return rec
-            for row in self.inventory:
-                if _norm(row.item_name or "") == target:
-                    return row
 
-        desc_sizes = _sizes_from_text(desc)
-        if not desc_sizes or len(desc_sizes) >= 2:
+        if not desc_sizes:
             return None
         for rec in self.inventory:
             name_n = _norm(rec.item_name or "")
-            if not _catalog_is_pvc_insert_tee_ixixf_branch(name_n):
+            if not _catalog_is_pvc_insert_tee_female_branch(name_n):
                 continue
             cat_sizes = _sizes_from_text(rec.item_name or "")
             if desc_sizes == cat_sizes or (
@@ -1557,15 +1618,17 @@ class ReferenceData:
     def _match_pvc_insert_tee_fipt_branch_one_off(
         self, desc: str
     ) -> tuple[InventoryRecord | None, float, str]:
-        """One-off: PVC insert tee IxIxFIPT → PVC Insert Tee x Female adapter (IxIxF)."""
+        """One-off: PVC insert tee IxIxFIPT → PVC Insert Tee x Female adapter."""
         if not is_pvc_insert_tee_fipt_branch_invoice_line(desc):
             return None, 0.0, ""
         rec = self._find_pvc_insert_tee_ixixf_branch_by_size(desc)
         if rec:
+            sizes = _sizes_from_text(desc)
+            label = "reducing " if len(sizes) >= 2 else ""
             return (
                 rec,
                 0.92,
-                "One-off: PVC insert tee IxIxFIPT → Insert Tee x Female (IxIxF)",
+                f"One-off: PVC insert tee IxIxFIPT → {label}Insert Tee x Female",
             )
         return None, 0.0, ""
 

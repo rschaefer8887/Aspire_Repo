@@ -30,6 +30,16 @@ _INVOICE_SPX_FLEX_SWING_PIPE_RE = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 
+# Rain Bird XFDE emitter tubing — 500' rolls, Fowler UoM often EA; catalog XFDE612500.
+_INVOICE_XFDE_EMITTER_ROLL_RE = re.compile(
+    r"xfde\s+17mm.*500\s*'?\s*roll.*emitter\s+tubing",
+    re.IGNORECASE | re.DOTALL,
+)
+
+ROLL_ITEMS_BY_CODE: dict[str, int] = {
+    "XFDE612500": 500,
+}
+
 # Pro Turf / Fowler SIDR-15 poly — Fowler qty/UoM is feet; do not treat 300' ROLL as roll count.
 _SIDR15_POLY_NO_ROLL_CONVERSION_RE = re.compile(
     r"pro\s+turf\s+green.*sidr-?\s*15|sidr-?\s*15.*pro\s+turf\s+green|"
@@ -48,6 +58,25 @@ _EXPLICIT_FEET_RE = re.compile(
 )
 
 _ROLL_LENGTH_WHITELIST_RE = re.compile(r"\b(250|500|1000|2000)\b")
+
+
+def _normalize_item_code(item_code: str | None) -> str:
+    if not item_code:
+        return ""
+    return str(item_code).strip().lstrip("#").upper()
+
+
+def _item_code_roll_feet(description_raw: str, item_code: str | None) -> int | None:
+    """One-off roll lines keyed by catalog item code + invoice description."""
+    code = _normalize_item_code(item_code)
+    feet_per_roll = ROLL_ITEMS_BY_CODE.get(code)
+    if feet_per_roll is None:
+        return None
+    if code == "XFDE612500" and not _INVOICE_XFDE_EMITTER_ROLL_RE.search(
+        description_raw or ""
+    ):
+        return None
+    return feet_per_roll_from_description(description_raw) or feet_per_roll
 
 
 def normalize_uom(uom: str | None) -> str:
@@ -72,10 +101,14 @@ def _should_convert_as_roll(
     uom_raw: str | None,
     item_name: str | None,
     description_raw: str = "",
+    *,
+    item_code: str | None = None,
 ) -> bool:
     if is_roll_uom(uom_raw):
         return True
     if item_name and item_name in ROLL_ITEMS_EA_MEANS_ROLL:
+        return True
+    if _item_code_roll_feet(description_raw, item_code) is not None:
         return True
     return _invoice_description_means_roll(description_raw) is not None
 
@@ -127,11 +160,14 @@ def resolve_feet_per_roll(
     uom_raw: str | None,
     *,
     item_name: str | None = None,
+    item_code: str | None = None,
 ) -> tuple[int | None, str | None]:
     """
     Return (feet_per_roll, source) where source is 'description' or 'catalog'.
     """
-    if not _should_convert_as_roll(uom_raw, item_name, description_raw):
+    if not _should_convert_as_roll(
+        uom_raw, item_name, description_raw, item_code=item_code
+    ):
         return None, None
 
     feet = feet_per_roll_from_description(description_raw)
@@ -141,6 +177,10 @@ def resolve_feet_per_roll(
     feet = feet_per_roll_whitelist(description_raw)
     if feet:
         return feet, "description"
+
+    feet = _item_code_roll_feet(description_raw, item_code)
+    if feet:
+        return feet, "item_code"
 
     feet = _catalog_fallback_feet(item_name)
     if feet:
@@ -157,12 +197,16 @@ def roll_line_missing_feet_per_roll(
     description_raw: str,
     uom_raw: str | None,
     item_name: str | None = None,
+    *,
+    item_code: str | None = None,
 ) -> bool:
     """True when line should convert as roll but feet per roll cannot be determined."""
-    if not _should_convert_as_roll(uom_raw, item_name, description_raw):
+    if not _should_convert_as_roll(
+        uom_raw, item_name, description_raw, item_code=item_code
+    ):
         return False
     feet, _ = resolve_feet_per_roll(
-        description_raw, uom_raw, item_name=item_name
+        description_raw, uom_raw, item_name=item_name, item_code=item_code
     )
     return feet is None
 
@@ -174,6 +218,7 @@ def maybe_convert_roll_line(
     description_raw: str,
     uom_raw: str | None,
     item_name: str | None = None,
+    item_code: str | None = None,
 ) -> tuple[float, float, str | None]:
     """
     When UoM is RL, convert roll qty/price to feet qty and per-foot pre-tax price.
@@ -186,7 +231,7 @@ def maybe_convert_roll_line(
         return quantity, unit_price, None
 
     feet, source = resolve_feet_per_roll(
-        description_raw, uom_raw, item_name=item_name
+        description_raw, uom_raw, item_name=item_name, item_code=item_code
     )
     if not feet:
         return quantity, unit_price, None

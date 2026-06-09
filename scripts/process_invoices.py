@@ -226,7 +226,14 @@ def process_pdf(
                 f"{pdf_path.stem}_{datetime.now().strftime('%H%M%S')}{pdf_path.suffix}"
             )
         shutil.move(str(pdf_path), str(dest))
-        dest = move_to_aspire_pdf_name(dest, inv_display, result.invoice_date, processed_dir=processed)
+        dest = move_to_aspire_pdf_name(
+            dest,
+            inv_display,
+            result.invoice_date,
+            vendor_name=result.vendor_name,
+            vendor_raw=result.vendor_raw,
+            processed_dir=processed,
+        )
     else:
         dest = processed / pdf_path.name
         if dest.exists():

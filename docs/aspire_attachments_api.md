@@ -183,7 +183,7 @@ import_purchase_receipt.py
 
 **AttachmentTypeId:** `20` (`Vendor Invoice`), overridable via `ASPIRE_ATTACHMENT_TYPE_ID`.
 
-**PDF naming:** `Aspire-{VendorInvoiceNum}__{MMDDYYYY}.pdf` (e.g. `Aspire-1314-INV__06042026.pdf`).
+**PDF naming:** `Aspire-{Vendor}-{VendorInvoiceNum}__{MMDDYYYY}.pdf` (e.g. `Aspire-HD Fowler-I7331698-INV__06042026.pdf`).
 
 **Idempotency:** Skips upload if `OriginalFileName` already exists on the receipt.
 

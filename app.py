@@ -413,7 +413,13 @@ def main() -> None:
                         pdf_path = resolve_pdf_path(session)
                         if pdf_path is not None and extraction.invoice_date:
                             inv_num = format_invoice_number(extraction.invoice_number_raw)
-                            move_to_aspire_pdf_name(pdf_path, inv_num, extraction.invoice_date)
+                            move_to_aspire_pdf_name(
+                                pdf_path,
+                                inv_num,
+                                extraction.invoice_date,
+                                vendor_name=extraction.vendor_name,
+                                vendor_raw=extraction.vendor_raw,
+                            )
                         delete_session(session.session_id)
                         adj = session.adjusted_invoice_total()
                         msg = f"Wrote **{out_path.name}** to `{receipts_ready_dir()}`"

@@ -17,17 +17,20 @@ from idp_reference import (  # noqa: E402
 )
 
 _INVOICE_DESC = '1-1/2" PVC Insert Tee IXIXFIPT'
+_REDUCING_INVOICE_DESC = '1-1/2" x 1" PVC INSERT TEE IXIXFIPT'
 TARGET = 'PVC Insert Tee x Female adapter- 1-1/2" (IxIxF)'
-PLAIN = 'PVC Insert Tee - 1-1/2"'
+PLAIN = 'PVC Insert Tee - 1-1/2" x 1"'
+PLAIN_EQUAL = 'PVC Insert Tee - 1-1/2"'
 REDUCING = 'PVC Insert Tee x Female Adapter - 1-1/2"x1"'
 
 
 def _refs_fixture() -> ReferenceData:
     refs = ReferenceData()
     refs.inventory = [
-        InventoryRecord("", PLAIN, "", "Material"),
+        InventoryRecord("1401-211", PLAIN, "", "Material"),
         InventoryRecord("1402-015", TARGET, "", "Material"),
         InventoryRecord("", REDUCING, "", "Material"),
+        InventoryRecord("", PLAIN_EQUAL, "", "Material"),
         InventoryRecord("", 'PVC Insert Tee - 1"', "", "Material"),
     ]
     for rec in refs.inventory:
@@ -44,7 +47,7 @@ class TestPvcInsertTeeFiptBranchHelpers(unittest.TestCase):
         self.assertFalse(
             is_pvc_insert_tee_fipt_branch_invoice_line('1-1/2" PVC INSERT TEE IXI')
         )
-        self.assertFalse(
+        self.assertTrue(
             is_pvc_insert_tee_fipt_branch_invoice_line(
                 '1-1/2" x 1" PVC INSERT TEE IXIXFIPT'
             )
@@ -63,11 +66,28 @@ class TestPvcInsertTeeFiptBranchMatch(unittest.TestCase):
         self.assertNotEqual(rec.item_name, PLAIN)
         self.assertNotEqual(rec.item_name, REDUCING)
 
+    def test_reducing_ixixfipt_matches_female_adapter_not_plain_tee(self) -> None:
+        refs = _refs_fixture()
+        rec, conf, note = refs.match_line(_REDUCING_INVOICE_DESC, None)
+        self.assertIsNotNone(rec)
+        self.assertEqual(rec.item_name, REDUCING)
+        self.assertGreaterEqual(conf, 0.90)
+        self.assertIn("One-off", note)
+        self.assertNotEqual(rec.item_name, PLAIN)
+
+    def test_plain_ixi_still_matches_reducing_tee(self) -> None:
+        refs = _refs_fixture()
+        rec, _, note = refs.match_line('1-1/2" x 1" PVC INSERT TEE IXI', None)
+        self.assertIsNotNone(rec)
+        self.assertEqual(rec.item_name, PLAIN)
+        if note:
+            self.assertNotIn("One-off: PVC insert tee IxIxFIPT", note)
+
     def test_plain_ixi_still_matches_equal_tee(self) -> None:
         refs = _refs_fixture()
         rec, _, note = refs.match_line('1-1/2" PVC INSERT TEE IXI', None)
         self.assertIsNotNone(rec)
-        self.assertEqual(rec.item_name, PLAIN)
+        self.assertEqual(rec.item_name, PLAIN_EQUAL)
         if note:
             self.assertNotIn("One-off: PVC insert tee IxIxFIPT", note)
 
@@ -90,6 +110,18 @@ class TestPvcInsertTeeFiptBranchCatalogIntegration(unittest.TestCase):
         rec, conf, note = self.refs.match_line(_INVOICE_DESC, None)
         self.assertIsNotNone(rec)
         self.assertEqual(rec.item_name, TARGET)
+        self.assertGreaterEqual(conf, 0.90)
+        self.assertIn("One-off", note)
+        self.assertNotEqual(rec.item_name, PLAIN_EQUAL)
+
+    def test_real_catalog_reducing_ixixfipt_line(self) -> None:
+        if self.refs is None:
+            self.skipTest("exports/catalog_items.csv not present")
+        if not any(r.item_name == REDUCING for r in self.refs.inventory):
+            self.skipTest(f"{REDUCING} not in catalog export")
+        rec, conf, note = self.refs.match_line(_REDUCING_INVOICE_DESC, None)
+        self.assertIsNotNone(rec)
+        self.assertEqual(rec.item_name, REDUCING)
         self.assertGreaterEqual(conf, 0.90)
         self.assertIn("One-off", note)
         self.assertNotEqual(rec.item_name, PLAIN)

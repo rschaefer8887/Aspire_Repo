@@ -101,7 +101,11 @@ def _maybe_attach_pdf(
     skip_attach_prompt: bool,
 ) -> None:
     pdf_path = resolve_invoice_pdf(wb)
-    display_name = aspire_invoice_pdf_filename(wb.vendor_invoice_num, wb.invoice_date)
+    display_name = aspire_invoice_pdf_filename(
+        wb.vendor_invoice_num,
+        wb.invoice_date,
+        vendor_name=wb.vendor,
+    )
     if pdf_path is None:
         print(f"  PDF: not found in Invoices - Processed (expected {display_name!r})")
         return

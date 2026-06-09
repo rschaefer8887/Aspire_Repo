@@ -9,7 +9,8 @@ from pathlib import Path
 
 from aspire_common import AspireClient
 from aspire_excel import ReceiptWorkbook
-from idp_paths import invoices_processed_dir
+from idp_paths import invoices_processed_dir, sanitize_filename_part
+from idp_vendor_prefs import is_hd_fowler_vendor, is_idaho_sod_vendor
 
 DEFAULT_ATTACHMENT_TYPE_ID = 20  # Vendor Invoice (GET /AttachmentTypes)
 
@@ -27,11 +28,42 @@ def default_attachment_type_id() -> int:
     return value
 
 
-def aspire_invoice_pdf_filename(vendor_invoice_num: str, invoice_date: date) -> str:
-    """Aspire-{VendorInvoiceNum}__{MMDDYYYY}.pdf"""
+def aspire_pdf_vendor_label(
+    vendor_name: str | None,
+    vendor_raw: str | None = None,
+) -> str:
+    """Short vendor label for processed PDF filenames."""
+    for candidate in (vendor_name, vendor_raw):
+        if is_hd_fowler_vendor(candidate):
+            return "HD Fowler"
+        if is_idaho_sod_vendor(candidate):
+            return "Idaho Sod"
+    raw = (vendor_name or vendor_raw or "Vendor").strip()
+    label = sanitize_filename_part(raw, max_len=40).replace("_", " ")
+    return label or "Vendor"
+
+
+def aspire_invoice_pdf_filename(
+    vendor_invoice_num: str,
+    invoice_date: date,
+    *,
+    vendor_name: str | None = None,
+    vendor_raw: str | None = None,
+) -> str:
+    """Aspire-{Vendor}-{Invoice-INV}__{MMDDYYYY}.pdf"""
     inv = str(vendor_invoice_num).strip()
     if not inv:
         raise ValueError("vendor_invoice_num is empty")
+    vendor = aspire_pdf_vendor_label(vendor_name, vendor_raw)
+    return f"Aspire-{vendor}-{inv}__{invoice_date.strftime('%m%d%Y')}.pdf"
+
+
+def legacy_aspire_invoice_pdf_filename(
+    vendor_invoice_num: str,
+    invoice_date: date,
+) -> str:
+    """Pre-vendor prefix naming: Aspire-{Invoice-INV}__{MMDDYYYY}.pdf"""
+    inv = str(vendor_invoice_num).strip()
     return f"Aspire-{inv}__{invoice_date.strftime('%m%d%Y')}.pdf"
 
 
@@ -40,12 +72,19 @@ def move_to_aspire_pdf_name(
     vendor_invoice_num: str,
     invoice_date: date,
     *,
+    vendor_name: str | None = None,
+    vendor_raw: str | None = None,
     processed_dir: Path | None = None,
 ) -> Path:
     """Rename/move a PDF in Invoices - Processed to the Aspire attachment naming convention."""
     folder = processed_dir or invoices_processed_dir()
     folder.mkdir(parents=True, exist_ok=True)
-    dest = folder / aspire_invoice_pdf_filename(vendor_invoice_num, invoice_date)
+    dest = folder / aspire_invoice_pdf_filename(
+        vendor_invoice_num,
+        invoice_date,
+        vendor_name=vendor_name,
+        vendor_raw=vendor_raw,
+    )
     source = pdf_path.resolve()
     if dest.resolve() == source:
         return dest
@@ -66,9 +105,19 @@ def resolve_invoice_pdf(
     if not folder.is_dir():
         return None
 
-    expected = folder / aspire_invoice_pdf_filename(wb.vendor_invoice_num, wb.invoice_date)
-    if expected.is_file():
-        return expected
+    candidates = [
+        folder
+        / aspire_invoice_pdf_filename(
+            wb.vendor_invoice_num,
+            wb.invoice_date,
+            vendor_name=wb.vendor,
+        ),
+        folder
+        / legacy_aspire_invoice_pdf_filename(wb.vendor_invoice_num, wb.invoice_date),
+    ]
+    for expected in candidates:
+        if expected.is_file():
+            return expected
 
     inv = wb.vendor_invoice_num.strip()
     if inv:

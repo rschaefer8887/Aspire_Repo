@@ -131,6 +131,39 @@ class TestRollConversion(unittest.TestCase):
         self.assertIn("EA→roll", note or "")
         self.assertAlmostEqual(qty * price, 170.0)
 
+    def test_xfde_emitter_tubing_efde612500_500ft_roll_ea_uom(self) -> None:
+        desc = (
+            'XFDE 17MM.6 GPH 12" SPACING 500\' ROLL EMITTER TUBING RAIN BIRD'
+        )
+        self.assertEqual(feet_per_roll_from_description(desc), 500)
+        qty, price, note = maybe_convert_roll_line(
+            2,
+            125.0,
+            description_raw=desc,
+            uom_raw="EA",
+            item_code="XFDE612500",
+            item_name="Emitter Tubing - 17mm 0.6 GPH 12in spacing 500ft",
+        )
+        self.assertEqual(qty, 1000)
+        self.assertAlmostEqual(price, 0.25)
+        self.assertIn("EA→roll", note or "")
+        self.assertAlmostEqual(qty * price, 250.0)
+
+    def test_xfde_emitter_tubing_wrong_item_code_does_not_convert(self) -> None:
+        desc = (
+            'XFDE 17MM.6 GPH 12" SPACING 500\' ROLL EMITTER TUBING RAIN BIRD'
+        )
+        qty, price, note = maybe_convert_roll_line(
+            2,
+            125.0,
+            description_raw=desc,
+            uom_raw="EA",
+            item_code="OTHER",
+        )
+        self.assertEqual(qty, 2)
+        self.assertEqual(price, 125.0)
+        self.assertIsNone(note)
+
     def test_spx_flex_swing_pipe_with_rl_uom(self) -> None:
         desc = 'SPX-FLEX 1/2" DIAMETER SWING PIPE 100\' ROLL RAIN BIRD'
         qty, price, note = maybe_convert_roll_line(

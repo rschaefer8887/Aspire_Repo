@@ -101,8 +101,9 @@ py scripts/import_purchase_receipt.py
 - After a successful import, renames the workbook to `{name}-imported.xlsx`.
 - Resolves catalog items by **item code (B)** first, then **item name (C)** if code is empty.
 - Creates receipts only (`POST /Receipts`) — does not approve or receive.
-- After each successful create, prompts **Y/N** to upload the matching PDF from `Invoices - Processed` (`--yes-attach` skips the prompt). PDFs are named `Aspire-{Vendor}-{Invoice-INV}__{MMDDYYYY}.pdf` (e.g. `Aspire-HD Fowler-I7331698-INV__06042026.pdf`).
-- Optionally prompts **Y/N** to mark the receipt **received** via `POST /Receipts/Receive` (`--yes-receive` skips the prompt). Receive date is set by Aspire to today when you run import (not approved).
+- After each successful create, prompts **Y/N** to upload the matching PDF from `Invoices - Processed` (`--yes-attach` / `--no-attach` skip the prompt). PDFs are named `Aspire-{Vendor}-{Invoice-INV}__{MMDDYYYY}.pdf` (e.g. `Aspire-HD Fowler-I7331698-INV__06042026.pdf`).
+- Optionally prompts **Y/N** to mark the receipt **received** via `POST /Receipts/Receive` (`--yes-receive` / `--no-receive` skip the prompt). Receive date is set by Aspire to today when you run import (not approved).
+- **Bulk import** (2+ files): attach and receive are asked **once** for the whole run. Use `--per-receipt-prompt` to restore per-file prompts.
 
 ## Environment variables
 

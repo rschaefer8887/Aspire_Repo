@@ -193,3 +193,51 @@ def prompt_upload_pdf(pdf_path: Path, display_filename: str) -> bool:
         if reply in ("N", "NO"):
             return False
         print("Please enter Y or N.")
+
+
+def prompt_batch_upload_pdfs(receipt_count: int) -> bool:
+    """Ask once whether to attach PDFs for every receipt in a bulk import."""
+    while True:
+        reply = input(
+            f"Attach matching PDFs for all {receipt_count} receipts in this run? [Y/N]: "
+        ).strip().upper()
+        if reply in ("Y", "YES"):
+            return True
+        if reply in ("N", "NO"):
+            return False
+        print("Please enter Y or N.")
+
+
+def resolve_batch_attach_decision(
+    file_count: int,
+    *,
+    dry_run: bool,
+    yes: bool,
+    no: bool,
+    bulk_mode: bool,
+) -> bool | None:
+    """
+    Return attach decision for an import run.
+
+    None  — prompt per receipt (single-file default).
+    True  — attach without prompting.
+    False — skip attach without prompting.
+    """
+    if yes:
+        return True
+    if no:
+        return False
+    if not bulk_mode:
+        return None
+    if dry_run:
+        print(
+            f"\n[dry-run] Would prompt: Attach matching PDFs for all "
+            f"{file_count} receipts? [Y/N]"
+        )
+        return True
+    decision = prompt_batch_upload_pdfs(file_count)
+    if decision:
+        print(f"  PDF attach: enabled for all {file_count} receipts in this run.")
+    else:
+        print("  PDF attach: declined for all receipts in this run.")
+    return decision

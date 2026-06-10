@@ -14,6 +14,7 @@ Excel layout (column B unless noted):
 Creates via POST /Receipts only (not approved, not received).
 After each successful create, optionally uploads the matching PDF from Invoices - Processed
 and optionally marks the receipt received (POST /Receipts/Receive; receive date = today).
+Bulk runs (2+ files) prompt once for attach and once for receive unless --per-receipt-prompt.
 
 Usage:
   python scripts/import_purchase_receipt.py --dry-run path/to/file.xlsx
@@ -43,6 +44,7 @@ from aspire_attachments import (  # noqa: E402
     aspire_invoice_pdf_filename,
     prompt_upload_pdf,
     receipt_has_attachment,
+    resolve_batch_attach_decision,
     resolve_invoice_pdf,
     upload_receipt_attachment,
 )
@@ -51,6 +53,7 @@ from aspire_receipts import (  # noqa: E402
     receipt_is_received,
     receive_date_label,
     receive_receipt,
+    resolve_batch_receive_decision,
 )
 from aspire_excel import read_receipt_workbook  # noqa: E402
 from aspire_lookups import LookupService  # noqa: E402
@@ -105,8 +108,10 @@ def _maybe_attach_pdf(
     receipt_id: int,
     wb,
     dry_run: bool,
-    skip_attach_prompt: bool,
+    attach_decision: bool | None,
 ) -> None:
+    if attach_decision is False:
+        return
     pdf_path = resolve_invoice_pdf(wb)
     display_name = aspire_invoice_pdf_filename(
         wb.vendor_invoice_num,
@@ -118,13 +123,17 @@ def _maybe_attach_pdf(
         return
     print(f"  PDF: {pdf_path.name}")
     if dry_run:
-        print(f"  [dry-run] Would prompt to upload {display_name!r}")
+        print(f"  [dry-run] Would upload {display_name!r}")
         return
     if receipt_has_attachment(client, receipt_id, display_name):
         print(f"  PDF: skip — receipt already has {display_name!r}")
         return
-    if skip_attach_prompt or prompt_upload_pdf(pdf_path, display_name):
-        if skip_attach_prompt:
+    if attach_decision is None:
+        do_attach = prompt_upload_pdf(pdf_path, display_name)
+    else:
+        do_attach = attach_decision
+    if do_attach:
+        if attach_decision is True:
             print(f"  Uploading PDF {display_name!r}...")
         url = upload_receipt_attachment(
             client,
@@ -146,12 +155,14 @@ def _maybe_receive_receipt(
     receipt_id: int,
     vendor_invoice_num: str,
     dry_run: bool,
-    skip_receive_prompt: bool,
+    receive_decision: bool | None,
 ) -> None:
+    if receive_decision is False:
+        return
     label = receive_date_label()
     if dry_run:
         print(
-            f"  [dry-run] Would prompt to receive receipt {receipt_id} "
+            f"  [dry-run] Would receive receipt {receipt_id} "
             f"({vendor_invoice_num!r}, date {label})"
         )
         return
@@ -165,11 +176,15 @@ def _maybe_receive_receipt(
         )
         return
 
-    if skip_receive_prompt or prompt_receive_receipt(
-        int(receipt_id),
-        vendor_invoice_num=vendor_invoice_num,
-    ):
-        if skip_receive_prompt:
+    if receive_decision is None:
+        do_receive = prompt_receive_receipt(
+            int(receipt_id),
+            vendor_invoice_num=vendor_invoice_num,
+        )
+    else:
+        do_receive = receive_decision
+    if do_receive:
+        if receive_decision is True:
             print(f"  Receiving receipt {receipt_id} (date {label})...")
         receive_receipt(client, int(receipt_id))
         verified = lookups.verify_receipt(int(receipt_id))
@@ -189,8 +204,8 @@ def process_file(
     dry_run: bool,
     force: bool,
     skip_duplicate: bool,
-    skip_attach_prompt: bool,
-    skip_receive_prompt: bool,
+    attach_decision: bool | None,
+    receive_decision: bool | None,
 ) -> bool:
     print(f"\n=== {path.name} ===")
     wb = read_receipt_workbook(path)
@@ -242,7 +257,7 @@ def process_file(
             receipt_id=0,
             wb=wb,
             dry_run=True,
-            skip_attach_prompt=skip_attach_prompt,
+            attach_decision=attach_decision,
         )
         _maybe_receive_receipt(
             client=client,
@@ -250,7 +265,7 @@ def process_file(
             receipt_id=0,
             vendor_invoice_num=wb.vendor_invoice_num,
             dry_run=True,
-            skip_receive_prompt=skip_receive_prompt,
+            receive_decision=receive_decision,
         )
         return True
 
@@ -288,7 +303,7 @@ def process_file(
             receipt_id=int(receipt_id),
             wb=wb,
             dry_run=False,
-            skip_attach_prompt=skip_attach_prompt,
+            attach_decision=attach_decision,
         )
         _maybe_receive_receipt(
             client=client,
@@ -296,7 +311,7 @@ def process_file(
             receipt_id=int(receipt_id),
             vendor_invoice_num=wb.vendor_invoice_num,
             dry_run=False,
-            skip_receive_prompt=skip_receive_prompt,
+            receive_decision=receive_decision,
         )
     return True
 
@@ -326,16 +341,55 @@ def main() -> None:
     parser.add_argument(
         "--yes-attach",
         action="store_true",
-        help="Upload matching PDF without prompting (default: prompt Y/N per receipt)",
+        help="Upload matching PDFs without prompting",
+    )
+    parser.add_argument(
+        "--no-attach",
+        action="store_true",
+        help="Skip PDF upload without prompting",
     )
     parser.add_argument(
         "--yes-receive",
         action="store_true",
-        help="Mark receipt received without prompting (default: prompt Y/N per receipt)",
+        help="Mark receipts received without prompting",
+    )
+    parser.add_argument(
+        "--no-receive",
+        action="store_true",
+        help="Skip receive without prompting",
+    )
+    parser.add_argument(
+        "--per-receipt-prompt",
+        action="store_true",
+        help="Prompt Y/N for each receipt even when importing multiple files",
     )
     args = parser.parse_args()
 
+    if args.yes_attach and args.no_attach:
+        parser.error("cannot use --yes-attach and --no-attach together")
+    if args.yes_receive and args.no_receive:
+        parser.error("cannot use --yes-receive and --no-receive together")
+
     paths = _collect_files(args)
+    bulk_mode = len(paths) > 1 and not args.per_receipt_prompt
+    if bulk_mode:
+        print(f"\nBulk import: {len(paths)} receipt(s).")
+
+    attach_decision = resolve_batch_attach_decision(
+        len(paths),
+        dry_run=args.dry_run,
+        yes=args.yes_attach,
+        no=args.no_attach,
+        bulk_mode=bulk_mode,
+    )
+    receive_decision = resolve_batch_receive_decision(
+        len(paths),
+        dry_run=args.dry_run,
+        yes=args.yes_receive,
+        no=args.no_receive,
+        bulk_mode=bulk_mode,
+    )
+
     client_id, secret = require_credentials()
     client = AspireClient(client_id, secret)
     client.authenticate()
@@ -351,8 +405,8 @@ def main() -> None:
                 dry_run=args.dry_run,
                 force=args.force,
                 skip_duplicate=not args.no_skip_duplicate,
-                skip_attach_prompt=args.yes_attach,
-                skip_receive_prompt=args.yes_receive,
+                attach_decision=attach_decision,
+                receive_decision=receive_decision,
             )
         except (ValueError, RuntimeError, FileNotFoundError) as exc:
             print(f"  ERROR: {exc}", file=sys.stderr)

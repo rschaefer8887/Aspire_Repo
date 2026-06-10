@@ -201,23 +201,10 @@ def format_sod_receipt_note(
     import_ext = line_total_cost(sqft, import_unit)
     variance = round(target - import_ext, 2)
 
-    if abs(variance) < 0.005 and split.line_b is None:
+    if abs(variance) < 0.005:
         return None
 
-    parts = [
-        f"Invoice Total Due ${target:,.2f}; 1-line import ${import_ext:,.2f} "
-        f"({sqft:,.0f} sf @ ${import_unit:.3f}); variance ${variance:+,.2f} "
-        f"(3-decimal limit)."
-    ]
-    if split.line_b is not None:
-        q1, u1 = split.line_a
-        q2, u2 = split.line_b
-        manual_total = round(line_total_cost(q1, u1) + line_total_cost(q2, u2), 2)
-        parts.append(
-            f"Manual split in Aspire: {q1:,.0f} sf @ ${u1:.3f} + "
-            f"{q2:,.0f} sf @ ${u2:.3f} = ${manual_total:,.2f}."
-        )
-    return " ".join(parts)
+    return f"Variance {variance:+,.2f} (3-decimal limit)."
 
 
 def build_sod_receipt_note(

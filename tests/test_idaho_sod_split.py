@@ -9,7 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from idp_sod import compute_sod_price_split  # noqa: E402
+from idp_costs import line_total_cost
+from idp_sod import SodSplitResult, compute_sod_price_split, format_sod_receipt_note  # noqa: E402
 
 
 def _ext(qty: float, unit: float) -> float:
@@ -43,6 +44,24 @@ class TestIdahoSodSplit(unittest.TestCase):
             lines.append(split.line_b)
         for _q, u in lines:
             self.assertEqual(u, round(u, 3))
+
+
+class TestSodReceiptNote(unittest.TestCase):
+    def test_no_note_when_variance_zero(self) -> None:
+        split = SodSplitResult(True, (100, 1.0), None, note="")
+        self.assertIsNone(format_sod_receipt_note(100.0, 100, 1.0, split))
+
+    def test_short_variance_note_only(self) -> None:
+        total = 5432.17
+        sqft = 3450.0
+        unit = round(total / sqft, 3)
+        split = compute_sod_price_split(total, sqft)
+        note = format_sod_receipt_note(total, sqft, unit, split)
+        self.assertIsNotNone(note)
+        variance = round(total - line_total_cost(sqft, unit), 2)
+        self.assertEqual(note, f"Variance {variance:+,.2f} (3-decimal limit).")
+        self.assertNotIn("Invoice Total Due", note or "")
+        self.assertNotIn("Manual split", note or "")
 
 
 if __name__ == "__main__":

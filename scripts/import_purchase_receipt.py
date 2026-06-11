@@ -123,7 +123,10 @@ def _maybe_attach_pdf(
         return
     print(f"  PDF: {pdf_path.name}")
     if dry_run:
-        print(f"  [dry-run] Would upload {display_name!r}")
+        if attach_decision is None:
+            print(f"  [dry-run] Would prompt to upload {display_name!r}")
+        else:
+            print(f"  [dry-run] Would upload {display_name!r}")
         return
     if receipt_has_attachment(client, receipt_id, display_name):
         print(f"  PDF: skip — receipt already has {display_name!r}")
@@ -161,10 +164,16 @@ def _maybe_receive_receipt(
         return
     label = receive_date_label()
     if dry_run:
-        print(
-            f"  [dry-run] Would receive receipt {receipt_id} "
-            f"({vendor_invoice_num!r}, date {label})"
-        )
+        if receive_decision is None:
+            print(
+                f"  [dry-run] Would prompt to receive receipt {receipt_id} "
+                f"({vendor_invoice_num!r}, date {label})"
+            )
+        else:
+            print(
+                f"  [dry-run] Would receive receipt {receipt_id} "
+                f"({vendor_invoice_num!r}, date {label})"
+            )
         return
 
     verified = lookups.verify_receipt(int(receipt_id))

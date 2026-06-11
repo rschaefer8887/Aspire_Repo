@@ -51,7 +51,7 @@ def prompt_batch_receive_receipts(
     while True:
         reply = input(
             f"Mark all {receipt_count} receipts in this run as received "
-            f"(receive date: {label})? [Y/N]: "
+            f"(receive date: {label})? [Y/N] (Y=all, N=ask each): "
         ).strip().upper()
         if reply in ("Y", "YES"):
             return True
@@ -71,9 +71,9 @@ def resolve_batch_receive_decision(
     """
     Return receive decision for an import run.
 
-    None  — prompt per receipt (single-file default).
-    True  — receive without prompting.
-    False — skip receive without prompting.
+    None  — prompt per receipt (single-file default, or bulk answer N).
+    True  — receive without prompting (bulk answer Y, or --yes-receive).
+    False — skip receive without prompting (--no-receive only).
     """
     if yes:
         return True
@@ -85,18 +85,18 @@ def resolve_batch_receive_decision(
         label = receive_date_label()
         print(
             f"\n[dry-run] Would prompt: Mark all {file_count} receipts as received "
-            f"(date {label})? [Y/N]"
+            f"(date {label})? [Y/N] (Y=all, N=ask each)"
         )
-        return True
+        return None
     decision = prompt_batch_receive_receipts(file_count)
     if decision:
         print(
             f"  Receive: enabled for all {file_count} receipts in this run "
             f"(date {receive_date_label()})."
         )
-    else:
-        print("  Receive: declined for all receipts in this run.")
-    return decision
+        return True
+    print("  Receive: will prompt for each receipt.")
+    return None
 
 
 def receive_receipt(client: AspireClient, receipt_id: int) -> None:

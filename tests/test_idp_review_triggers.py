@@ -132,6 +132,22 @@ class TestReviewToolTriggers(unittest.TestCase):
             )
         )
 
+    def test_detector_matches_nh7020_by_code(self) -> None:
+        self.assertTrue(
+            is_review_tool_line(
+                item_code="7020",
+                item_name="NO HUB TORQUE WRENCH #NH7020 CHRISTYS",
+            )
+        )
+
+    def test_detector_matches_nh7020_in_description(self) -> None:
+        self.assertTrue(
+            is_review_tool_line(
+                item_code=None,
+                description_raw="NO HUB TORQUE WRENCH #NH7020 CHRISTYS",
+            )
+        )
+
     def test_detector_matches_rotortool_in_description(self) -> None:
         self.assertTrue(
             is_review_tool_line(
@@ -205,6 +221,30 @@ class TestReviewToolTriggers(unittest.TestCase):
         )
         flags = collect_review_flags(result)
         self.assertTrue(any("TOOL row" in flag and "CT112" in flag for flag in flags))
+
+    def test_collect_review_flags_queues_invoice_for_nh7020(self) -> None:
+        result = ExtractionResult(
+            invoice_date=None,
+            vendor_raw="H.D. Fowler",
+            vendor_name="H.D. Fowler Company {Turf}",
+            vendor_id=1,
+            vendor_confidence=1.0,
+            vendor_rationale="",
+            invoice_number_raw="12345",
+            invoice_total=100.0,
+            lines=[
+                LineMatch(
+                    description_raw="NO HUB TORQUE WRENCH #NH7020 CHRISTYS",
+                    quantity=1.0,
+                    unit_price=42.0,
+                    item_code="7020",
+                    item_name="NO HUB TORQUE WRENCH #NH7020 CHRISTYS",
+                    confidence=0.98,
+                ),
+            ],
+        )
+        flags = collect_review_flags(result)
+        self.assertTrue(any("TOOL row" in flag and "NH7020" in flag for flag in flags))
 
     def test_extraction_to_session_marks_only_tool_line(self) -> None:
         result = ExtractionResult(

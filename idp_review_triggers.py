@@ -14,6 +14,8 @@ _REVIEW_TOOL_BY_CODE: dict[str, str] = {
     "ROTORTOOL": "Rain Bird Universal Rotor Tool Green",
     "SS200": "Dawn SS200 Large PVC Cutter",
     "CT112": "PINCH CLAMP TOOL LARGE CT112",
+    "7020": "NO HUB TORQUE WRENCH #NH7020 CHRISTYS",
+    "NH7020": "NO HUB TORQUE WRENCH #NH7020 CHRISTYS",
 }
 
 

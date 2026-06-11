@@ -103,7 +103,7 @@ py scripts/import_purchase_receipt.py
 - Creates receipts only (`POST /Receipts`) — does not approve or receive.
 - After each successful create, prompts **Y/N** to upload the matching PDF from `Invoices - Processed` (`--yes-attach` / `--no-attach` skip the prompt). PDFs are named `Aspire-{Vendor}-{Invoice-INV}__{MMDDYYYY}.pdf` (e.g. `Aspire-HD Fowler-I7331698-INV__06042026.pdf`).
 - Optionally prompts **Y/N** to mark the receipt **received** via `POST /Receipts/Receive` (`--yes-receive` / `--no-receive` skip the prompt). Receive date is set by Aspire to today when you run import (not approved).
-- **Bulk import** (2+ files): attach and receive are asked **once** for the whole run. Use `--per-receipt-prompt` to restore per-file prompts.
+- **Bulk import** (2+ files): attach and receive are asked **once** for the whole run (`Y` = all, `N` = ask for each receipt). Use `--per-receipt-prompt` to skip the batch question. Use `--no-attach` / `--no-receive` to skip entirely.
 
 ## Environment variables
 

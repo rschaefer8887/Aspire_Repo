@@ -249,6 +249,38 @@ def _van_nozzle_blocks_catalog(desc: str, name_n: str) -> bool:
     return not _catalog_is_van_nozzle_catch_all(name_n)
 
 
+_STEEL_LOCK_NUT_INVOICE_RE = re.compile(
+    r"steel\s+lock\s+nut|lock\s+nut.*\bsteel\b",
+    re.IGNORECASE,
+)
+
+
+def is_steel_lock_nut_invoice_line(desc: str) -> bool:
+    """Invoice lines for Lock Nut, Steel (size from description)."""
+    return bool(_STEEL_LOCK_NUT_INVOICE_RE.search(desc or ""))
+
+
+def _catalog_is_steel_lock_nut(name_n: str) -> bool:
+    return "lock nut" in name_n and "steel" in name_n
+
+
+def _steel_lock_nut_blocks_catalog(desc: str, name_n: str) -> bool:
+    """On steel lock nut lines, only Lock Nut, Steel catalog rows may score."""
+    if not is_steel_lock_nut_invoice_line(desc):
+        return False
+    return not _catalog_is_steel_lock_nut(name_n)
+
+
+def _steel_lock_nut_sizes_match(desc_sizes: set[str], cat_sizes: set[str]) -> bool:
+    if not desc_sizes or not cat_sizes:
+        return False
+    if desc_sizes == cat_sizes:
+        return True
+    if len(cat_sizes) == 1:
+        return next(iter(cat_sizes)) in desc_sizes
+    return bool(desc_sizes & cat_sizes)
+
+
 _CONDUIT_GRAY_CATALOG_PREFIX = "conduit gray"
 
 
@@ -1162,6 +1194,8 @@ class ReferenceData:
             return 0.0, 0
         if _van_nozzle_blocks_catalog(desc, name_n):
             return 0.0, 0
+        if _steel_lock_nut_blocks_catalog(desc, name_n):
+            return 0.0, 0
         if hint and not _catalog_matches_product_hint(hint, name_n) and not code_in_desc:
             return 0.0, 0
         if material == "pvc" and "pvc" not in name_n:
@@ -1390,6 +1424,10 @@ class ReferenceData:
         if rec:
             return rec, conf, note
 
+        rec, conf, note = self._match_steel_lock_nut_one_off(desc)
+        if rec:
+            return rec, conf, note
+
         rec, conf, note = self._match_fowler_gray_pvc_conduit_one_off(
             desc, vendor_name=vendor_name, vendor_raw=vendor_raw
         )
@@ -1481,6 +1519,34 @@ class ReferenceData:
                 rec,
                 0.92,
                 "One-off: Worm drive hose clamp → Worm Clamp",
+            )
+        return None, 0.0, ""
+
+    def _find_steel_lock_nut_by_size(self, desc: str) -> InventoryRecord | None:
+        desc_sizes = _sizes_from_text(desc)
+        if not desc_sizes:
+            return None
+        for rec in self.inventory:
+            name_n = _norm(rec.item_name or "")
+            if not _catalog_is_steel_lock_nut(name_n):
+                continue
+            cat_sizes = _sizes_from_text(rec.item_name or "")
+            if _steel_lock_nut_sizes_match(desc_sizes, cat_sizes):
+                return rec
+        return None
+
+    def _match_steel_lock_nut_one_off(
+        self, desc: str
+    ) -> tuple[InventoryRecord | None, float, str]:
+        """One-off: steel lock nut → Lock Nut, Steel - {size}."""
+        if not is_steel_lock_nut_invoice_line(desc):
+            return None, 0.0, ""
+        rec = self._find_steel_lock_nut_by_size(desc)
+        if rec:
+            return (
+                rec,
+                0.92,
+                f"One-off: Steel lock nut → {rec.item_name}",
             )
         return None, 0.0, ""
 

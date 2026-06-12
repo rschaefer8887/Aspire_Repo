@@ -46,6 +46,7 @@ class LineMatch:
     item_code: str | None = None
     item_name: str | None = None
     item_alternate_name: str | None = None
+    supplier_item_code: str | None = None
     confidence: float = 0.0
     rationale: str = ""
 
@@ -401,6 +402,7 @@ def extract_invoice_from_pdf(
                 item_code=code or None,
                 item_name=name,
                 item_alternate_name=None,
+                supplier_item_code=supplier_code,
                 confidence=conf,
                 rationale=rationale,
             )

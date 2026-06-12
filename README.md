@@ -84,7 +84,8 @@ py scripts/process_invoices.py --no-catalog-prompt --no-dashboard path/to/invoic
 - Uses OpenAI vision + structured JSON (`exports/vendors.csv`, `exports/catalog_items.csv`).
 - Writes `{Vendor}_{Invoice-INV}.xlsx` into `Receipts - Ready\`.
 - Moves PDFs to `Invoices - Processed\`.
-- Appends review notes to `review_dashboard.txt` when confidence is below `IDP_CONFIDENCE_THRESHOLD` (default 0.85).
+- **HD Fowler only:** appends each matched line to `exports/HD Fowler Item Match Log.csv` (auto path, or on Streamlit approve after review).
+- Backfill archived Fowler PDFs: `py scripts/backfill_fowler_match_log.py` (no Excel / no Aspire).
 
 ## 2) Review dashboard
 

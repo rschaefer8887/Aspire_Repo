@@ -29,6 +29,7 @@ class ReviewLine:
     uom_raw: str = ""
     item_code: str | None = None
     item_name: str | None = None
+    supplier_item_code: str | None = None
     confidence: float = 0.0
     rationale: str = ""
     needs_review: bool = False
@@ -79,6 +80,7 @@ class ReviewSession:
                     uom_raw=str(row.get("uom_raw") or ""),
                     item_code=row.get("item_code"),
                     item_name=row.get("item_name"),
+                    supplier_item_code=row.get("supplier_item_code"),
                     confidence=float(row.get("confidence") or 0),
                     rationale=str(row.get("rationale") or ""),
                     needs_review=bool(row.get("needs_review", False)),
@@ -146,6 +148,7 @@ def extraction_to_session(
                 uom_raw=line.uom_raw,
                 item_code=line.item_code,
                 item_name=line.item_name,
+                supplier_item_code=line.supplier_item_code,
                 confidence=line.confidence,
                 rationale=line.rationale,
                 needs_review=line_needs or vendor_needs,
@@ -188,6 +191,7 @@ def session_to_extraction(session: ReviewSession) -> ExtractionResult:
             uom_raw=ln.uom_raw,
             item_code=ln.item_code or None,
             item_name=ln.item_name or None,
+            supplier_item_code=ln.supplier_item_code,
             confidence=1.0 if ln.item_code or ln.item_name else ln.confidence,
             rationale=ln.rationale,
         )

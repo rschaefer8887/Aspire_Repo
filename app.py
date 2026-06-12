@@ -25,7 +25,7 @@ if str(ROOT) not in sys.path:
 from idp_costs import effective_invoice_total  # noqa: E402
 from aspire_attachments import move_to_aspire_pdf_name  # noqa: E402
 from idp_excel import write_from_extraction  # noqa: E402
-from idp_openai import format_invoice_number  # noqa: E402
+from idp_match_log import append_hd_fowler_match_log_from_extraction  # noqa: E402
 from idp_openai import format_invoice_number  # noqa: E402
 from idp_paths import confidence_threshold, receipts_ready_dir, review_pending_dir  # noqa: E402
 from idp_reference import ReferenceData  # noqa: E402
@@ -407,6 +407,11 @@ def main() -> None:
                     except ValueError as exc:
                         st.error(str(exc))
                     else:
+                        n_logged = append_hd_fowler_match_log_from_extraction(
+                            extraction,
+                            pdf_name=session.pdf_name,
+                            source="review",
+                        )
                         out_path, reconciled, col_f_total = write_from_extraction(
                             extraction, receipts_ready_dir()
                         )
@@ -423,6 +428,8 @@ def main() -> None:
                         delete_session(session.session_id)
                         adj = session.adjusted_invoice_total()
                         msg = f"Wrote **{out_path.name}** to `{receipts_ready_dir()}`"
+                        if n_logged:
+                            msg += f" · {n_logged} line(s) logged to HD Fowler Item Match Log"
                         if adj is not None:
                             msg += (
                                 f" · Column F sum ${col_f_total:,.2f}"

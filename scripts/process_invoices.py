@@ -44,6 +44,7 @@ from idp_paths import (  # noqa: E402
     review_dashboard_path,
     review_pending_dir,
 )
+from idp_match_log import append_hd_fowler_match_log_from_extraction  # noqa: E402
 from idp_reference import ReferenceData  # noqa: E402
 from aspire_attachments import move_to_aspire_pdf_name  # noqa: E402
 from idp_vendor_profiles import IDAHO_SOD_PROFILE, vendor_profile_for  # noqa: E402
@@ -196,6 +197,14 @@ def process_pdf(
         return True, bool(flags)
 
     flags = collect_review_flags(result)
+    if not flags:
+        n_logged = append_hd_fowler_match_log_from_extraction(
+            result,
+            pdf_name=pdf_path.name,
+            source="auto",
+        )
+        if n_logged:
+            print(f"  Match log: {n_logged} line(s) → HD Fowler Item Match Log.csv")
     out_path: Path | None = None
     reconciled = True
     col_f_total = 0.0

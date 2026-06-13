@@ -17,7 +17,7 @@ from aspire_lookups import CatalogItem, LookupService  # noqa: E402
 
 class TestItemAllocations(unittest.TestCase):
     @patch.object(LookupService, "resolve_branch_id", return_value=(2, "Main"))
-    @patch.object(LookupService, "resolve_vendor_id", return_value=(347, "Vendor"))
+    @patch.object(LookupService, "resolve_vendor_id", return_value=(99, "Vendor"))
     @patch.object(LookupService, "resolve_catalog_item")
     @patch("aspire_lookups.inventory_location_id", return_value=1)
     def test_build_receipt_post_includes_item_allocations(

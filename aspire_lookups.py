@@ -10,6 +10,7 @@ from aspire_excel import ReceiptWorkbook, vendor_invoice_datetime_iso
 from idp_vendor_prefs import (
     hd_fowler_preferred_vendor_name,
     is_hd_fowler_vendor,
+    is_md_internal_vendor_id,
     normalize_vendor_key,
     pick_preferred_vendor_match,
 )
@@ -309,16 +310,55 @@ class LookupService:
             "(no match by ItemCode or ItemName)"
         )
 
+    def resolve_catalog_item_by_code_only(
+        self, item_code: str, row: int, *, vendor_label: str
+    ) -> CatalogItem:
+        """
+        Match catalog rows by ItemCode only (MD Internal / retail POS imports).
+        Column C (item name) is ignored.
+        """
+        code = str(item_code or "").strip()
+        if not code:
+            raise ValueError(
+                f"Row {row}: This invoice is for {vendor_label!r}. "
+                f"Every line must have an Item Code in Excel column B. "
+                f"Row {row} is missing an Item Code — add the Aspire catalog code "
+                f"in column B and try again."
+            )
+
+        self._build_catalog_indexes()
+        code_key = _norm(code)
+        if code_key and self._catalog_by_code:
+            item = self._catalog_by_code.get(code_key)
+            if item:
+                return item
+        api = self._catalog_from_api_code(code)
+        if api:
+            return api
+
+        raise ValueError(
+            f"Row {row}: Item Code {code!r} in column B was not found in Aspire "
+            f"for {vendor_label!r}. Check that the code matches your catalog exactly "
+            f"(spelling, spaces, and punctuation). Item names in column C are not "
+            f"used for this vendor."
+        )
+
     def build_receipt_post(self, wb: ReceiptWorkbook) -> dict:
         branch_id, branch_label = self.resolve_branch_id(wb.branch)
         vendor_id, vendor_label = self.resolve_vendor_id(wb.vendor, branch_id)
         loc_id = inventory_location_id()
+        code_only = is_md_internal_vendor_id(vendor_id)
 
         receipt_items = []
         for line in wb.lines:
-            cat = self.resolve_catalog_item(
-                line.item_code, line.item_name, line.row_number
-            )
+            if code_only:
+                cat = self.resolve_catalog_item_by_code_only(
+                    line.item_code, line.row_number, vendor_label=vendor_label
+                )
+            else:
+                cat = self.resolve_catalog_item(
+                    line.item_code, line.item_name, line.row_number
+                )
             receipt_items.append(
                 {
                     "CatalogItemID": cat.catalog_item_id,
@@ -360,6 +400,7 @@ class LookupService:
             "inventory_location_fixed": True,
             "consolidation_skipped": skip_consolidation,
             "excel_line_count": len(wb.lines),
+            "catalog_match_code_only": code_only,
         }
         return payload
 

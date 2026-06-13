@@ -201,10 +201,9 @@ def process_pdf(
         n_logged = append_hd_fowler_match_log_from_extraction(
             result,
             pdf_name=pdf_path.name,
-            source="auto",
         )
         if n_logged:
-            print(f"  Match log: {n_logged} line(s) → HD Fowler Item Match Log.csv")
+            print(f"  Match log: {n_logged} line(s) → HD Fowler Item Match Log.xlsx")
     out_path: Path | None = None
     reconciled = True
     col_f_total = 0.0

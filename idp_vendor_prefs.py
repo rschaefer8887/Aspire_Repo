@@ -11,6 +11,8 @@ if TYPE_CHECKING:
 
 _DEFAULT_HD_FOWLER_VENDOR = "H.D. Fowler Company {Turf}"
 _DEFAULT_IDAHO_SOD_VENDOR = "Idaho Sod"
+_DEFAULT_MD_INTERNAL_VENDOR = "MD Internal Vendor"
+_DEFAULT_MD_INTERNAL_VENDOR_ID = 347
 
 
 def hd_fowler_preferred_vendor_name() -> str:
@@ -45,6 +47,39 @@ def is_hd_fowler_vendor(name: str | None) -> bool:
     if not name:
         return False
     return "fowler" in normalize_vendor_key(name)
+
+
+def md_internal_vendor_name() -> str:
+    return (
+        os.environ.get("ASPIRE_MD_INTERNAL_VENDOR_NAME", "").strip()
+        or _DEFAULT_MD_INTERNAL_VENDOR
+    )
+
+
+def md_internal_vendor_id() -> int:
+    raw = os.environ.get("ASPIRE_MD_INTERNAL_VENDOR_ID", "").strip()
+    if raw:
+        try:
+            return int(raw)
+        except ValueError:
+            pass
+    return _DEFAULT_MD_INTERNAL_VENDOR_ID
+
+
+def is_md_internal_vendor(name: str | None) -> bool:
+    if not name:
+        return False
+    key = normalize_vendor_key(name)
+    pref = normalize_vendor_key(md_internal_vendor_name())
+    if key == pref:
+        return True
+    return "md internal" in key
+
+
+def is_md_internal_vendor_id(vendor_id: int | None) -> bool:
+    if vendor_id is None:
+        return False
+    return int(vendor_id) == md_internal_vendor_id()
 
 
 def exclude_vendor_from_llm_list(vendor_name: str) -> bool:

@@ -84,8 +84,8 @@ py scripts/process_invoices.py --no-catalog-prompt --no-dashboard path/to/invoic
 - Uses OpenAI vision + structured JSON (`exports/vendors.csv`, `exports/catalog_items.csv`).
 - Writes `{Vendor}_{Invoice-INV}.xlsx` into `Receipts - Ready\`.
 - Moves PDFs to `Invoices - Processed\`.
-- **HD Fowler only:** appends each matched line to `exports/HD Fowler Item Match Log.csv` (auto path, or on Streamlit approve after review).
-- Backfill archived Fowler PDFs: `py scripts/backfill_fowler_match_log.py` (no Excel / no Aspire).
+- **HD Fowler only:** appends each matched line to `exports/HD Fowler Item Match Log.xlsx` (auto path, or on Streamlit approve after review). Uses **xlwings** so your Excel formatting is preserved; Microsoft Excel must be installed and the log file should be closed while IDP runs.
+- Backfill archived Fowler PDFs: `py scripts/backfill_fowler_match_log.py` (no Aspire import).
 
 ## 2) Review dashboard
 

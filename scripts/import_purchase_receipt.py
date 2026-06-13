@@ -245,6 +245,11 @@ def process_file(
         f"Vendor {resolved.get('vendor')} (ID {resolved.get('vendor_id')}), "
         f"InventoryLocationID {resolved.get('inventory_location_id')} (fixed)"
     )
+    if resolved.get("catalog_match_code_only"):
+        print(
+            "  Catalog match: Item Code only (column B) — "
+            "item names in column C are ignored for this vendor"
+        )
 
     vendor_id = int(payload["VendorID"])
     if skip_duplicate and not force:

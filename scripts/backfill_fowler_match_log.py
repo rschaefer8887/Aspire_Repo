@@ -1,13 +1,14 @@
 """
-Backfill exports/HD Fowler Item Match Log.csv from archived Fowler PDFs.
+Backfill exports/HD Fowler Item Match Log.xlsx from archived Fowler PDFs.
 
-Extracts with OpenAI and logs line → catalog matches only (no Excel, no Aspire).
+Extracts with OpenAI and logs line → catalog matches only (no Excel import, no Aspire).
+Requires Microsoft Excel (xlwings). Close the match log workbook before running.
 
 Usage:
   py scripts/backfill_fowler_match_log.py
   py scripts/backfill_fowler_match_log.py --folder "Receipts - Ready/Invoices - Processed/Complete"
   py scripts/backfill_fowler_match_log.py --dry-run
-  py scripts/backfill_fowler_match_log.py --force   (re-log invoices already in CSV)
+  py scripts/backfill_fowler_match_log.py --force   (re-log invoices already in workbook)
 """
 
 from __future__ import annotations
@@ -113,7 +114,6 @@ def main() -> None:
         n = append_hd_fowler_match_log_from_extraction(
             result,
             pdf_name=pdf.name,
-            source="backfill",
         )
         print(f"  Logged {n} line(s) for invoice {inv_display!r}")
         existing.add(inv_display)

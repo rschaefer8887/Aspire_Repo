@@ -410,7 +410,6 @@ def main() -> None:
                         n_logged = append_hd_fowler_match_log_from_extraction(
                             extraction,
                             pdf_name=session.pdf_name,
-                            source="review",
                         )
                         out_path, reconciled, col_f_total = write_from_extraction(
                             extraction, receipts_ready_dir()

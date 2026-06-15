@@ -29,11 +29,12 @@ from idp_match_log import (  # noqa: E402
     should_log_hd_fowler,
 )
 from idp_openai import extract_invoice_from_pdf, format_invoice_number  # noqa: E402
+from idp_paths import invoices_processed_dir  # noqa: E402
 from idp_reference import ReferenceData  # noqa: E402
 
 
 def _default_folder() -> Path:
-    return ROOT / "Receipts - Ready" / "Invoices - Processed" / "Complete"
+    return invoices_processed_dir()
 
 
 def _collect_pdfs(folder: Path) -> list[Path]:

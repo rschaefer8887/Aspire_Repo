@@ -14,7 +14,8 @@ Receipts - Ready/
   review_dashboard.txt      # Low-confidence extractions for review
   *.xlsx                    # Generated import files (one receipt each)
   Invoices - Ready/         # Drop PDF invoices here
-  Invoices - Processed/     # PDFs after IDP
+  Invoices - Processed/
+    Complete/               # PDFs after IDP (default processed folder)
 exports/
   vendors.csv               # Vendor list for IDP matching
   catalog_items.csv         # Catalog for IDP (A–F: ID, Code, Name, AlternateName, Type, Active)
@@ -83,7 +84,7 @@ py scripts/process_invoices.py --no-catalog-prompt --no-dashboard path/to/invoic
 
 - Uses OpenAI vision + structured JSON (`exports/vendors.csv`, `exports/catalog_items.csv`).
 - Writes `{Vendor}_{Invoice-INV}.xlsx` into `Receipts - Ready\`.
-- Moves PDFs to `Invoices - Processed\`.
+- Moves PDFs to `Invoices - Processed\Complete\`.
 - **HD Fowler only:** appends each matched line to `exports/HD Fowler Item Match Log.xlsx` (auto path, or on Streamlit approve after review). Uses **xlwings** so your Excel formatting is preserved; Microsoft Excel must be installed and the log file should be closed while IDP runs.
 - Backfill archived Fowler PDFs: `py scripts/backfill_fowler_match_log.py` (no Aspire import).
 
@@ -102,7 +103,7 @@ py scripts/import_purchase_receipt.py
 - After a successful import, renames the workbook to `{name}-imported.xlsx`.
 - Resolves catalog items by **item code (B)** first, then **item name (C)** if code is empty.
 - Creates receipts only (`POST /Receipts`) — does not approve or receive.
-- After each successful create, prompts **Y/N** to upload the matching PDF from `Invoices - Processed` (`--yes-attach` / `--no-attach` skip the prompt). PDFs are named `Aspire-{Vendor}-{Invoice-INV}__{MMDDYYYY}.pdf` (e.g. `Aspire-HD Fowler-I7331698-INV__06042026.pdf`).
+- After each successful create, prompts **Y/N** to upload the matching PDF from `Invoices - Processed\Complete` (`--yes-attach` / `--no-attach` skip the prompt). PDFs are named `Aspire-{Vendor}-{Invoice-INV}__{MMDDYYYY}.pdf` (e.g. `Aspire-HD Fowler-I7331698-INV__06042026.pdf`).
 - Optionally prompts **Y/N** to mark the receipt **received** via `POST /Receipts/Receive` (`--yes-receive` / `--no-receive` skip the prompt). Receive date is set by Aspire to today when you run import (not approved).
 - **Bulk import** (2+ files): attach and receive are asked **once** for the whole run (`Y` = all, `N` = ask for each receipt). Use `--per-receipt-prompt` to skip the batch question. Use `--no-attach` / `--no-receive` to skip entirely.
 

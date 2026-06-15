@@ -76,7 +76,7 @@ def move_to_aspire_pdf_name(
     vendor_raw: str | None = None,
     processed_dir: Path | None = None,
 ) -> Path:
-    """Rename/move a PDF in Invoices - Processed to the Aspire attachment naming convention."""
+    """Rename/move a PDF in Invoices - Processed/Complete to the Aspire attachment naming convention."""
     folder = processed_dir or invoices_processed_dir()
     folder.mkdir(parents=True, exist_ok=True)
     dest = folder / aspire_invoice_pdf_filename(

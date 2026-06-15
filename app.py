@@ -295,7 +295,7 @@ def main() -> None:
     with left:
         st.markdown("#### Invoice image")
         if pdf_path is None:
-            st.error("PDF not found. Check Invoices - Processed folder.")
+            st.error("PDF not found. Check Invoices - Processed/Complete folder.")
         else:
             page_count = pdf_page_count(pdf_path)
             img_controls = st.columns(2)

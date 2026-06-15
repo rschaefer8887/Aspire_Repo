@@ -12,7 +12,7 @@ Excel layout (column B unless noted):
   (stop when B and C are both blank)
 
 Creates via POST /Receipts only (not approved, not received).
-After each successful create, optionally uploads the matching PDF from Invoices - Processed
+After each successful create, optionally uploads the matching PDF from Invoices - Processed/Complete
 and optionally marks the receipt received (POST /Receipts/Receive; receive date = today).
 Bulk runs (2+ files) prompt once for attach and once for receive unless --per-receipt-prompt.
 
@@ -119,7 +119,7 @@ def _maybe_attach_pdf(
         vendor_name=wb.vendor,
     )
     if pdf_path is None:
-        print(f"  PDF: not found in Invoices - Processed (expected {display_name!r})")
+        print(f"  PDF: not found in Invoices - Processed/Complete (expected {display_name!r})")
         return
     print(f"  PDF: {pdf_path.name}")
     if dry_run:

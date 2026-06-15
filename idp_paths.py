@@ -27,7 +27,7 @@ def invoices_processed_dir() -> Path:
     env = os.environ.get("IDP_INVOICES_PROCESSED", "").strip()
     if env:
         return Path(env)
-    return receipts_ready_dir() / "Invoices - Processed"
+    return receipts_ready_dir() / "Invoices - Processed" / "Complete"
 
 
 def review_dashboard_path() -> Path:

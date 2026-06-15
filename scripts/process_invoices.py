@@ -5,7 +5,7 @@ Process PDF invoices with OpenAI vision and write Aspire import workbooks.
 2. Extract + match vendors (exports/vendors.csv) and catalog (exports/catalog_items.csv)
 3. Write .xlsx to Receipts - Ready for import_purchase_receipt.py
    (flagged invoices are queued for Streamlit review first — see app.py)
-4. Move PDFs to Invoices - Processed
+4. Move PDFs to Invoices - Processed/Complete
 5. Append low-confidence items to review_dashboard.txt
 
 Usage:

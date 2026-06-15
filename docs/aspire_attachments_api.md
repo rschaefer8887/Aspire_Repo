@@ -173,7 +173,7 @@ All probes returned **HTTP 500 Internal Server Error**. Treat as **not required*
 ```text
 process_invoices.py
   → Excel: Receipts - Ready/{Vendor}_{Invoice-INV}.xlsx
-  → PDF:   Invoices - Processed/Aspire-{Invoice-INV}__{MMDDYYYY}.pdf
+  → PDF:   Invoices - Processed/Complete/Aspire-{Invoice-INV}__{MMDDYYYY}.pdf
 
 import_purchase_receipt.py
   → POST /Receipts

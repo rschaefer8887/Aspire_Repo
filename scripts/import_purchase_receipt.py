@@ -55,6 +55,10 @@ from aspire_receipts import (  # noqa: E402
     receive_receipt,
     resolve_batch_receive_decision,
 )
+from aspire_catalog_refresh import (  # noqa: E402
+    MdInternalCatalogState,
+    maybe_refresh_catalog_for_md_internal,
+)
 from aspire_excel import read_receipt_workbook  # noqa: E402
 from aspire_lookups import LookupService  # noqa: E402
 from idp_paths import is_import_excluded_xlsx  # noqa: E402
@@ -215,6 +219,10 @@ def process_file(
     skip_duplicate: bool,
     attach_decision: bool | None,
     receive_decision: bool | None,
+    md_internal_catalog_state: MdInternalCatalogState,
+    no_catalog_prompt: bool,
+    yes_refresh_catalog: bool,
+    no_refresh_catalog: bool,
 ) -> bool:
     print(f"\n=== {path.name} ===")
     wb = read_receipt_workbook(path)
@@ -225,6 +233,19 @@ def process_file(
     )
     print(f"  Inventory location: ID {loc_id} (fixed)")
     print(f"  Lines: {len(wb.lines)} item(s)")
+
+    branch_id, _branch_label = lookups.resolve_branch_id(wb.branch)
+    vendor_id, _vendor_label = lookups.resolve_vendor_id(wb.vendor, branch_id)
+    maybe_refresh_catalog_for_md_internal(
+        client,
+        lookups,
+        vendor_id=vendor_id,
+        state=md_internal_catalog_state,
+        dry_run=dry_run,
+        no_catalog_prompt=no_catalog_prompt,
+        yes_refresh_catalog=yes_refresh_catalog,
+        no_refresh_catalog=no_refresh_catalog,
+    )
 
     payload = lookups.build_receipt_post(wb)
     api_items = payload["ReceiptItems"]
@@ -377,12 +398,29 @@ def main() -> None:
         action="store_true",
         help="Prompt Y/N for each receipt even when importing multiple files",
     )
+    parser.add_argument(
+        "--no-catalog-prompt",
+        action="store_true",
+        help="For MD Internal Vendor: do not ask to refresh catalog_items.csv",
+    )
+    parser.add_argument(
+        "--yes-refresh-catalog",
+        action="store_true",
+        help="For MD Internal Vendor: refresh catalog_items.csv without prompting",
+    )
+    parser.add_argument(
+        "--no-refresh-catalog",
+        action="store_true",
+        help="For MD Internal Vendor: skip catalog refresh without prompting",
+    )
     args = parser.parse_args()
 
     if args.yes_attach and args.no_attach:
         parser.error("cannot use --yes-attach and --no-attach together")
     if args.yes_receive and args.no_receive:
         parser.error("cannot use --yes-receive and --no-receive together")
+    if args.yes_refresh_catalog and args.no_refresh_catalog:
+        parser.error("cannot use --yes-refresh-catalog and --no-refresh-catalog together")
 
     paths = _collect_files(args)
     bulk_mode = len(paths) > 1 and not args.per_receipt_prompt
@@ -408,6 +446,7 @@ def main() -> None:
     client = AspireClient(client_id, secret)
     client.authenticate()
     lookups = LookupService(client)
+    md_internal_catalog_state = MdInternalCatalogState()
 
     ok = True
     for path in paths:
@@ -421,6 +460,10 @@ def main() -> None:
                 skip_duplicate=not args.no_skip_duplicate,
                 attach_decision=attach_decision,
                 receive_decision=receive_decision,
+                md_internal_catalog_state=md_internal_catalog_state,
+                no_catalog_prompt=args.no_catalog_prompt,
+                yes_refresh_catalog=args.yes_refresh_catalog,
+                no_refresh_catalog=args.no_refresh_catalog,
             )
         except (ValueError, RuntimeError, FileNotFoundError) as exc:
             print(f"  ERROR: {exc}", file=sys.stderr)

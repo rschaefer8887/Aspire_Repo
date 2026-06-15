@@ -53,7 +53,14 @@ def export_catalog_items(out_dir: Path | str = "exports") -> Path:
     client_id, secret = require_credentials()
     client = AspireClient(client_id, secret)
     client.authenticate()
+    return export_catalog_items_with_client(client, out_dir)
 
+
+def export_catalog_items_with_client(
+    client: AspireClient, out_dir: Path | str = "exports"
+) -> Path:
+    """Write catalog_items.csv using an authenticated Aspire client."""
+    out_dir = Path(out_dir)
     filename, path, fields, params = CATALOG_ITEMS_EXPORT
     rows = client.fetch_all(path, extra_params=params)
     dest = out_dir / filename

@@ -69,6 +69,29 @@ class TestMdInternalCatalogMatch(unittest.TestCase):
         self.assertIn("not found in Aspire", msg)
         self.assertIn("column C are not used", msg)
 
+    def test_leading_zero_excel_code_matches_catalog(self) -> None:
+        """Excel drops leading zero: 47985305027 should match 047985305027."""
+        self.svc._catalog_by_code = {
+            "047985305027": CatalogItem(99, "Retail Item", "Material"),
+        }
+        with patch.object(self.svc, "_catalog_from_api_code", return_value=None):
+            rec = self.svc.resolve_catalog_item_by_code_only(
+                "47985305027", 10, vendor_label="MD Internal Vendor"
+            )
+        self.assertEqual(rec.catalog_item_id, 99)
+        self.assertEqual(rec.item_name, "Retail Item")
+
+    def test_ambiguous_leading_zero_codes_fail(self) -> None:
+        self.svc._catalog_by_code = {
+            "0123": CatalogItem(1, "Item A", "Material"),
+            "00123": CatalogItem(2, "Item B", "Material"),
+        }
+        with patch.object(self.svc, "_catalog_from_api_code", return_value=None):
+            with self.assertRaises(ValueError):
+                self.svc.resolve_catalog_item_by_code_only(
+                    "123", 10, vendor_label="MD Internal Vendor"
+                )
+
     def test_name_only_line_does_not_match_for_md_internal(self) -> None:
         wb = ReceiptWorkbook(
             path=Path("test.xlsx"),

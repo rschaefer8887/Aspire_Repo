@@ -25,6 +25,14 @@ def _escape_odata_string(s: str) -> str:
     return s.replace("'", "''")
 
 
+def _numeric_item_code_key(code: str) -> str | None:
+    """Normalize digit-only codes for leading-zero tolerant matching."""
+    s = str(code).strip()
+    if not s.isdigit():
+        return None
+    return s.lstrip("0") or "0"
+
+
 def _consolidate_receipt_items(items: list[dict]) -> list[dict]:
     """
     Aspire rejects duplicate CatalogItemID on one receipt.
@@ -104,15 +112,9 @@ class LookupService:
             )
         return self._vendors
 
-    def _build_catalog_indexes(self) -> None:
-        if self._catalog_by_code is not None:
-            return
-        rows = self.client.fetch_all(
-            "/CatalogItems",
-            extra_params={
-                "$select": "CatalogItemID,ItemCode,ItemName,ItemType,Active"
-            },
-        )
+    def _catalog_indexes_from_rows(
+        self, rows: list[dict]
+    ) -> tuple[dict[str, CatalogItem], dict[str, CatalogItem]]:
         by_code: dict[str, CatalogItem] = {}
         by_name: dict[str, CatalogItem] = {}
         for row in rows:
@@ -137,6 +139,33 @@ class LookupService:
                 nkey = _norm(name)
                 if nkey not in by_name:
                     by_name[nkey] = cat
+        return by_code, by_name
+
+    def clear_catalog_indexes(self) -> None:
+        self._catalog_by_code = None
+        self._catalog_by_name = None
+
+    def fetch_catalog_rows(self) -> list[dict]:
+        return self.client.fetch_all(
+            "/CatalogItems",
+            extra_params={
+                "$select": "CatalogItemID,ItemCode,ItemName,ItemType,Active"
+            },
+        )
+
+    def refresh_catalog_indexes(self) -> int:
+        """Reload in-memory catalog indexes from Aspire (for import matching)."""
+        rows = self.fetch_catalog_rows()
+        by_code, by_name = self._catalog_indexes_from_rows(rows)
+        self._catalog_by_code = by_code
+        self._catalog_by_name = by_name
+        return len(by_code)
+
+    def _build_catalog_indexes(self) -> None:
+        if self._catalog_by_code is not None:
+            return
+        rows = self.fetch_catalog_rows()
+        by_code, by_name = self._catalog_indexes_from_rows(rows)
         self._catalog_by_code = by_code
         self._catalog_by_name = by_name
 
@@ -310,6 +339,27 @@ class LookupService:
             "(no match by ItemCode or ItemName)"
         )
 
+    def _catalog_item_ignore_leading_zeros(self, code: str) -> CatalogItem | None:
+        """
+        Match a digit-only Excel code to a unique catalog ItemCode when Excel
+        dropped leading zeros (e.g. 47985305027 vs 047985305027).
+        """
+        needle = _numeric_item_code_key(code)
+        if needle is None or not self._catalog_by_code:
+            return None
+        matches: list[CatalogItem] = []
+        seen_ids: set[int] = set()
+        for key, item in self._catalog_by_code.items():
+            if _numeric_item_code_key(key) != needle:
+                continue
+            if item.catalog_item_id in seen_ids:
+                continue
+            matches.append(item)
+            seen_ids.add(item.catalog_item_id)
+        if len(matches) == 1:
+            return matches[0]
+        return None
+
     def resolve_catalog_item_by_code_only(
         self, item_code: str, row: int, *, vendor_label: str
     ) -> CatalogItem:
@@ -332,6 +382,9 @@ class LookupService:
             item = self._catalog_by_code.get(code_key)
             if item:
                 return item
+        item = self._catalog_item_ignore_leading_zeros(code)
+        if item:
+            return item
         api = self._catalog_from_api_code(code)
         if api:
             return api

@@ -102,6 +102,7 @@ py scripts/import_purchase_receipt.py
 - Skips `*Template*.xlsx` and `*-imported.xlsx` files.
 - After a successful import, renames the workbook to `{name}-imported.xlsx`.
 - Resolves catalog items by **item code (B)** first, then **item name (C)** if code is empty.
+- **MD Internal Vendor (347):** prompts to refresh `exports/catalog_items.csv` from Aspire before matching (`--yes-refresh-catalog` / `--no-refresh-catalog` / `--no-catalog-prompt` to control).
 - Creates receipts only (`POST /Receipts`) — does not approve or receive.
 - After each successful create, prompts **Y/N** to upload the matching PDF from `Invoices - Processed\Complete` (`--yes-attach` / `--no-attach` skip the prompt). PDFs are named `Aspire-{Vendor}-{Invoice-INV}__{MMDDYYYY}.pdf` (e.g. `Aspire-HD Fowler-I7331698-INV__06042026.pdf`).
 - Optionally prompts **Y/N** to mark the receipt **received** via `POST /Receipts/Receive` (`--yes-receive` / `--no-receive` skip the prompt). Receive date is set by Aspire to today when you run import (not approved).

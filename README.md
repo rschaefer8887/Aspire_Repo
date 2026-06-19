@@ -45,6 +45,8 @@ Per-vendor rules for tax and total reconciliation. **`process_invoices.py`** sta
 | Profile | Vendor | Tax on unit cost | Reconcile ΣF to invoice total | Skip import consolidation |
 |---------|--------|------------------|-------------------------------|---------------------------|
 | `hd_fowler` | H.D. Fowler Company {Turf} (and names containing “fowler”) | ×1.06 | Yes | No |
+
+**HD Fowler freight:** `INBOUND FRT / BILLABLE` lines are not imported as catalog items. Taxed freight (×1.06) is summed and added **per material unit** to each line’s unit cost (total freight ÷ total material quantity).
 | `idaho_sod` | Idaho Sod (Vendor 136) | None (×1.0) | Yes | No |
 | `default` | Everyone else | None (×1.0) | No | No |
 

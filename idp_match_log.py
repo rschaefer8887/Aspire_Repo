@@ -9,6 +9,7 @@ from pathlib import Path
 
 import xlwings as xw
 
+from idp_fowler_freight import is_fowler_inbound_freight_line
 from idp_openai import ExtractionResult, LineMatch, format_invoice_number
 from idp_paths import ROOT
 from idp_vendor_prefs import is_hd_fowler_vendor
@@ -218,7 +219,10 @@ def append_hd_fowler_match_log_from_extraction(
             pdf_name=pdf_name,
         )
         for line in result.lines
+        if not is_fowler_inbound_freight_line(line.description_raw)
     ]
+    if not rows:
+        return 0
 
     _append_values_with_xlwings(
         log_path,

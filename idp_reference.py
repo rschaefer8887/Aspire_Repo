@@ -281,6 +281,61 @@ def _steel_lock_nut_sizes_match(desc_sizes: set[str], cat_sizes: set[str]) -> bo
     return bool(desc_sizes & cat_sizes)
 
 
+def is_conduit_terminal_adapter_invoice_line(desc: str) -> bool:
+    """Invoice lines for Conduit Terminal Adapter (size from description)."""
+    return "conduit terminal adapter" in _norm(desc or "")
+
+
+def _catalog_is_conduit_terminal_adapter(name_n: str, alt_n: str = "") -> bool:
+    blob = f"{name_n} {alt_n}".strip()
+    return "conduit terminal adapter" in blob
+
+
+def _conduit_terminal_adapter_blocks_catalog(desc: str, name_n: str) -> bool:
+    """On conduit terminal adapter lines, only matching catalog rows may score."""
+    if not is_conduit_terminal_adapter_invoice_line(desc):
+        return False
+    return not _catalog_is_conduit_terminal_adapter(name_n)
+
+
+def _conduit_terminal_adapter_sizes_match(
+    desc_sizes: set[str], cat_sizes: set[str]
+) -> bool:
+    return _steel_lock_nut_sizes_match(desc_sizes, cat_sizes)
+
+
+_721_BLUE_CEMENT_ITEM_CODE = "721"
+
+
+def is_721_blue_cement_weld_on_invoice_line(
+    desc: str,
+    supplier_item_code: str | None = None,
+) -> bool:
+    """Fowler 721 Blue Cement 1/2 pint weld-on (not White Seal / other pipe dope)."""
+    d = _norm(desc or "")
+    if "blue cement" not in d or "weld" not in d:
+        return False
+    if re.search(r"\b721\b", desc or ""):
+        return True
+    if _norm(supplier_item_code or "") == _norm(_721_BLUE_CEMENT_ITEM_CODE):
+        return True
+    # Fowler often drops leading 721 from description; pint size is distinctive.
+    return "pint" in d
+
+
+def _catalog_is_721_blue_cement(name_n: str) -> bool:
+    if re.search(rf"(?<![a-z0-9]){_721_BLUE_CEMENT_ITEM_CODE}(?![a-z0-9])", name_n):
+        return True
+    return "blue cement" in name_n
+
+
+def _721_blue_cement_blocks_catalog(desc: str, name_n: str) -> bool:
+    """On 721 Blue Cement lines, block generic Weld On / pipe dope catalog rows."""
+    if not is_721_blue_cement_weld_on_invoice_line(desc):
+        return False
+    return not _catalog_is_721_blue_cement(name_n)
+
+
 _CONDUIT_GRAY_CATALOG_PREFIX = "conduit gray"
 
 
@@ -819,13 +874,19 @@ def _sizes_from_text(text: str) -> set[str]:
 
     # Compact reducing sizes (e.g. 1-1/2"x1", 2"x1-1/2") — run before standalone inch passes.
     for m in re.finditer(
+        r'(\d{1,2}-\d{1,2}/\d{1,2})"\s*x\s*(\d{1,2}-\d{1,2}/\d{1,2})"',
+        text,
+        re.I,
+    ):
+        _consume_pair(m.span(), m.group(1), m.group(2))
+    for m in re.finditer(
         r'(\d{1,2}-\d{1,2}/\d{1,2})"\s*x\s*(\d{1,2})"',
         text,
         re.I,
     ):
         _consume_pair(m.span(), m.group(1), m.group(2))
     for m in re.finditer(
-        r'(\d{1,2})"\s*x\s*(\d{1,2}-\d{1,2}/\d{1,2})"',
+        r'(?<!\d-)(\d{1,2})"\s*x\s*(\d{1,2}-\d{1,2}/\d{1,2})"',
         text,
         re.I,
     ):
@@ -1196,6 +1257,10 @@ class ReferenceData:
             return 0.0, 0
         if _steel_lock_nut_blocks_catalog(desc, name_n):
             return 0.0, 0
+        if _conduit_terminal_adapter_blocks_catalog(desc, name_n):
+            return 0.0, 0
+        if _721_blue_cement_blocks_catalog(desc, name_n):
+            return 0.0, 0
         if hint and not _catalog_matches_product_hint(hint, name_n) and not code_in_desc:
             return 0.0, 0
         if material == "pvc" and "pvc" not in name_n:
@@ -1388,16 +1453,23 @@ class ReferenceData:
         if rec:
             return rec, 0.95, "Exact catalog name from description"
 
-        if supplier_item_code:
-            sup = str(supplier_item_code).strip()
-            if sup:
-                rec = self._by_code.get(_norm(sup))
+        rec, conf, note = self._match_721_blue_cement_one_off(
+            desc, supplier_item_code=supplier_item_code
+        )
+        if rec:
+            return rec, conf, note
+
+        if not is_721_blue_cement_weld_on_invoice_line(desc, supplier_item_code):
+            if supplier_item_code:
+                sup = str(supplier_item_code).strip()
+                if sup:
+                    rec = self._by_code.get(_norm(sup))
+                    if rec:
+                        return rec, 0.98, f"Exact supplier item code {sup!r}"
+            if supplier_item_code and _use_supplier_code(supplier_item_code, desc):
+                rec = self._by_code.get(_norm(supplier_item_code))
                 if rec:
-                    return rec, 0.98, f"Exact supplier item code {sup!r}"
-        if supplier_item_code and _use_supplier_code(supplier_item_code, desc):
-            rec = self._by_code.get(_norm(supplier_item_code))
-            if rec:
-                return rec, 0.98, f"Exact item code {supplier_item_code!r}"
+                    return rec, 0.98, f"Exact item code {supplier_item_code!r}"
 
         rec, conf, note = self._match_van_nozzle_one_off(desc)
         if rec:
@@ -1425,6 +1497,10 @@ class ReferenceData:
             return rec, conf, note
 
         rec, conf, note = self._match_steel_lock_nut_one_off(desc)
+        if rec:
+            return rec, conf, note
+
+        rec, conf, note = self._match_conduit_terminal_adapter_one_off(desc)
         if rec:
             return rec, conf, note
 
@@ -1549,6 +1625,81 @@ class ReferenceData:
                 f"One-off: Steel lock nut → {rec.item_name}",
             )
         return None, 0.0, ""
+
+    def _find_conduit_terminal_adapter_by_size(self, desc: str) -> InventoryRecord | None:
+        desc_sizes = _sizes_from_text(desc)
+        if not desc_sizes:
+            return None
+        for rec in self.inventory:
+            name = rec.item_name or ""
+            alt = rec.item_alternate_name or ""
+            if not _catalog_is_conduit_terminal_adapter(_norm(name), _norm(alt)):
+                continue
+            cat_sizes = _sizes_from_text(name or alt)
+            if _conduit_terminal_adapter_sizes_match(desc_sizes, cat_sizes):
+                return rec
+        return None
+
+    def _match_conduit_terminal_adapter_one_off(
+        self, desc: str
+    ) -> tuple[InventoryRecord | None, float, str]:
+        """One-off: Conduit Terminal Adapter → Conduit Terminal Adapter - {size}."""
+        if not is_conduit_terminal_adapter_invoice_line(desc):
+            return None, 0.0, ""
+        rec = self._find_conduit_terminal_adapter_by_size(desc)
+        if rec:
+            return (
+                rec,
+                0.92,
+                f"One-off: Conduit terminal adapter → {rec.item_name}",
+            )
+        return None, 0.0, ""
+
+    def _find_721_blue_cement_record(self, desc: str) -> InventoryRecord | None:
+        """ItemCode 721, or catalog name/alt for Fowler Blue Cement weld-on."""
+        code_key = _norm(_721_BLUE_CEMENT_ITEM_CODE)
+        rec = self._by_code.get(code_key)
+        if rec:
+            return rec
+
+        desc_key = _norm(desc)
+        for row in self.inventory:
+            if _norm(row.item_code or "") == code_key:
+                return row
+
+        for row in self.inventory:
+            name = _norm(row.item_name or "")
+            alt = _norm(row.item_alternate_name or "")
+            blob = " ".join(
+                p for p in (name, alt, _norm(row.item_code or "")) if p
+            )
+            if not _catalog_is_721_blue_cement(blob):
+                continue
+            if desc_key in (name, alt):
+                return row
+            if alt and (alt.endswith(desc_key) or desc_key.endswith(alt)):
+                return row
+        return None
+
+    def _match_721_blue_cement_one_off(
+        self,
+        desc: str,
+        *,
+        supplier_item_code: str | None = None,
+    ) -> tuple[InventoryRecord | None, float, str]:
+        """One-off: Fowler 721 Blue Cement weld-on → catalog ItemCode 721."""
+        if not is_721_blue_cement_weld_on_invoice_line(desc, supplier_item_code):
+            return None, 0.0, ""
+        rec = self._find_721_blue_cement_record(desc)
+        if not rec:
+            return None, 0.0, ""
+        desc_key = _norm(desc)
+        alt = _norm(rec.item_alternate_name or "")
+        if desc_key == alt or (alt and alt.endswith(desc_key)):
+            note = "One-off: 721 Blue Cement (catalog alternate match)"
+        else:
+            note = f"One-off: 721 Blue Cement → {rec.item_name}"
+        return rec, 0.92, note
 
     def _match_van_nozzle_one_off(
         self, desc: str

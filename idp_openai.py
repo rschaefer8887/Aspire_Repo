@@ -21,6 +21,7 @@ except ImportError:
 
 from openai import OpenAI
 
+from idp_fowler_freight import is_fowler_inbound_freight_line
 from idp_paths import confidence_threshold
 from idp_review_triggers import (
     is_pinch_clamp_tool_ct108_line,
@@ -436,6 +437,8 @@ def collect_review_flags(result: ExtractionResult, threshold: float | None = Non
     if result.invoice_total is None:
         flags.append("MISSING INVOICE TOTAL (column F cannot be reconciled)")
     for i, line in enumerate(result.lines):
+        if is_fowler_inbound_freight_line(line.description_raw):
+            continue
         if line.confidence < th or (not line.item_code and not line.item_name):
             flags.append(
                 f"LOW CONFIDENCE LINE ({line.confidence:.2f}) row {10 + i}:\n"

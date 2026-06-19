@@ -14,12 +14,47 @@ from idp_costs import (
     line_total_cost,
     reconcile_line_costs,
 )
+from idp_fowler_freight import (
+    allocate_fowler_freight_per_unit,
+    is_fowler_inbound_freight_line,
+)
 from idp_openai import ExtractionResult, format_invoice_number
 from idp_paths import default_branch, excel_template_path, sanitize_filename_part
 from idp_pack_conversion import maybe_convert_box_line, maybe_convert_canister_line
 from idp_roll_conversion import maybe_convert_roll_line
 from idp_sod import SodSplitResult, build_sod_receipt_note
-from idp_vendor_profiles import IDAHO_SOD_PROFILE, VendorProfile, vendor_profile_for
+from idp_vendor_profiles import HD_FOWLER_PROFILE, IDAHO_SOD_PROFILE, VendorProfile, vendor_profile_for
+
+
+def _line_to_output(line, *, prof: VendorProfile) -> LineOutput:
+    qty, unit_price, _roll_note = maybe_convert_roll_line(
+        line.quantity,
+        line.unit_price,
+        description_raw=line.description_raw,
+        uom_raw=line.uom_raw,
+        item_name=line.item_name,
+        item_code=line.item_code,
+    )
+    qty, unit_price, _canister_note = maybe_convert_canister_line(
+        qty,
+        unit_price,
+        description_raw=line.description_raw,
+        item_code=line.item_code,
+        item_name=line.item_name,
+    )
+    qty, unit_price, _box_note = maybe_convert_box_line(
+        qty,
+        unit_price,
+        description_raw=line.description_raw,
+        item_code=line.item_code,
+        item_name=line.item_name,
+    )
+    return LineOutput(
+        item_code=line.item_code or "",
+        item_name=line.item_name or line.description_raw,
+        quantity=qty,
+        unit_cost=apply_tax(unit_price, profile=prof),
+    )
 
 
 def _ensure_template() -> Path:
@@ -97,38 +132,19 @@ def extraction_to_lines(
     profile: VendorProfile | None = None,
 ) -> list[LineOutput]:
     prof = profile or vendor_profile_for(result.vendor_name, result.vendor_raw)
+    freight_rows: list[tuple[float, float]] = []
     out: list[LineOutput] = []
     for line in result.lines:
-        qty, unit_price, _roll_note = maybe_convert_roll_line(
-            line.quantity,
-            line.unit_price,
-            description_raw=line.description_raw,
-            uom_raw=line.uom_raw,
-            item_name=line.item_name,
-            item_code=line.item_code,
-        )
-        qty, unit_price, _canister_note = maybe_convert_canister_line(
-            qty,
-            unit_price,
-            description_raw=line.description_raw,
-            item_code=line.item_code,
-            item_name=line.item_name,
-        )
-        qty, unit_price, _box_note = maybe_convert_box_line(
-            qty,
-            unit_price,
-            description_raw=line.description_raw,
-            item_code=line.item_code,
-            item_name=line.item_name,
-        )
-        out.append(
-            LineOutput(
-                item_code=line.item_code or "",
-                item_name=line.item_name or line.description_raw,
-                quantity=qty,
-                unit_cost=apply_tax(unit_price, profile=prof),
-            )
-        )
+        if (
+            prof.profile_id == HD_FOWLER_PROFILE.profile_id
+            and is_fowler_inbound_freight_line(line.description_raw)
+        ):
+            freight_rows.append((float(line.quantity), float(line.unit_price)))
+            continue
+        out.append(_line_to_output(line, prof=prof))
+
+    if freight_rows:
+        allocate_fowler_freight_per_unit(out, freight_rows, profile=prof)
     return out
 
 

@@ -13,6 +13,7 @@ from idp_reference import (  # noqa: E402
     InventoryRecord,
     ReferenceData,
     _fitting_sizes_compatible,
+    _norm,
     _size_match_score,
     _sizes_from_text,
 )
@@ -57,6 +58,16 @@ class TestFittingSizeHelpers(unittest.TestCase):
     def test_sizes_from_text_compact_inch_x_inch(self) -> None:
         sizes = _sizes_from_text('PVC Insert Tee x Female Adapter - 2"x1"')
         self.assertEqual(sizes, {"2", "1"})
+
+    def test_sizes_from_text_hyphenated_fraction_x_fraction(self) -> None:
+        sizes = _sizes_from_text('1-1/2" X 1-1/4" PVC INSERT COUPLING IXI')
+        self.assertEqual(sizes, {"1-1/2", "1-1/4"})
+
+    def test_sizes_from_text_catalog_hyphenated_fraction_x_fraction(self) -> None:
+        sizes = _sizes_from_text(
+            'PVC Insert Coupler (reducing) - 1-1/2" x 1-1/4"'
+        )
+        self.assertEqual(sizes, {"1-1/2", "1-1/4"})
 
     def test_fitting_strict_rejects_partial_overlap(self) -> None:
         desc = {"1-1/2", "1"}
@@ -123,6 +134,31 @@ class TestFittingCatalogMatch(unittest.TestCase):
         self.assertIsNotNone(rec)
         self.assertEqual(rec.item_name, '1" PVC Insert Tee')
         self.assertNotIn(" x ", rec.item_name or "")
+
+
+class TestReducingCouplerMatch(unittest.TestCase):
+    _INVOICE = '1-1/2" X 1-1/4" PVC INSERT COUPLING IXI'
+    _TARGET = 'PVC Insert Coupler (reducing) - 1-1/2" x 1-1/4"'
+    _WRONG = 'PVC Insert Coupler (reducing) - 2" x 1-1/4"'
+
+    def _refs_fixture(self) -> ReferenceData:
+        refs = ReferenceData()
+        refs.inventory = [
+            InventoryRecord("", self._TARGET, self._TARGET, "Material"),
+            InventoryRecord("", self._WRONG, self._WRONG, "Material"),
+        ]
+        for rec in refs.inventory:
+            if rec.item_name:
+                refs._by_name[_norm(rec.item_name)] = rec
+        return refs
+
+    def test_reducing_coupler_not_two_inch(self) -> None:
+        refs = self._refs_fixture()
+        rec, conf, _ = refs.match_line(self._INVOICE, None)
+        self.assertIsNotNone(rec)
+        self.assertEqual(rec.item_name, self._TARGET)
+        self.assertGreaterEqual(conf, 0.85)
+        self.assertNotEqual(rec.item_name, self._WRONG)
 
 
 class TestFittingSizeCatalogIntegration(unittest.TestCase):

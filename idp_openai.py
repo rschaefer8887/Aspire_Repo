@@ -65,6 +65,8 @@ class ExtractionResult:
     lines: list[LineMatch] = field(default_factory=list)
     receipt_note: str | None = None
     sod_split: object | None = field(default=None, repr=False)
+    openai_raw: dict | None = field(default=None, repr=False)
+    openai_model: str | None = None
 
 
 EXTRACTION_SCHEMA = {
@@ -149,6 +151,51 @@ def require_openai_key() -> str:
     if not key:
         raise RuntimeError("Set OPENAI_API_KEY in .env")
     return key
+
+
+_OPENAI_MODEL_ALIASES: dict[str, str] = {
+    "1": "gpt-4o",
+    "4o": "gpt-4o",
+    "4.o": "gpt-4o",
+    "gpt-4o": "gpt-4o",
+    "2": "gpt-4.1",
+    "4.1": "gpt-4.1",
+    "gpt-4.1": "gpt-4.1",
+    "3": "gpt-4.1-mini",
+    "mini": "gpt-4.1-mini",
+    "4.1-mini": "gpt-4.1-mini",
+    "gpt-4.1-mini": "gpt-4.1-mini",
+}
+
+
+def default_openai_model() -> str:
+    return os.environ.get("OPENAI_MODEL", "gpt-4o").strip() or "gpt-4o"
+
+
+def resolve_openai_model(choice: str) -> str:
+    """Map friendly choice (1/2/3, 4o, 4.1, mini) to OpenAI model id."""
+    key = choice.strip().lower()
+    if key in _OPENAI_MODEL_ALIASES:
+        return _OPENAI_MODEL_ALIASES[key]
+    return choice.strip()
+
+
+def prompt_openai_model(*, default: str | None = None) -> str:
+    """Interactive model pick for invoice extraction (compare 4o vs 4.1 vs mini)."""
+    default_id = resolve_openai_model(default or default_openai_model())
+    print("\nOpenAI vision model for this run:")
+    print("  1 — gpt-4o")
+    print("  2 — gpt-4.1")
+    print("  3 — gpt-4.1-mini (cheapest)")
+    while True:
+        reply = input(
+            f"Choose model [1 / 2 / 3] (Enter = {default_id}): "
+        ).strip().lower()
+        if not reply:
+            return default_id
+        if reply in _OPENAI_MODEL_ALIASES:
+            return _OPENAI_MODEL_ALIASES[reply]
+        print("Please enter 1, 2, or 3.")
 
 
 def pdf_render_scale() -> float:
@@ -295,10 +342,11 @@ def extract_invoice_from_pdf(
     refs: ReferenceData,
     *,
     client: OpenAI | None = None,
+    model: str | None = None,
 ) -> ExtractionResult:
     if client is None:
         client = OpenAI(api_key=require_openai_key())
-    model = os.environ.get("OPENAI_MODEL", "gpt-4o").strip()
+    model = (model or default_openai_model()).strip()
     images = pdf_to_base64_images(pdf_path)
     if not images:
         raise ValueError(f"No pages in PDF: {pdf_path}")
@@ -419,6 +467,8 @@ def extract_invoice_from_pdf(
         invoice_number_raw=str(data.get("invoice_number_raw") or ""),
         invoice_total=_parse_total(data.get("invoice_total")),
         lines=lines,
+        openai_raw=data,
+        openai_model=model,
     )
     return transform_idaho_sod_extraction(result, refs)
 

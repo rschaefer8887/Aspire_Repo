@@ -15,7 +15,7 @@ from idp_costs import (  # noqa: E402
     taxed_line_total,
 )
 from idp_excel import output_filename  # noqa: E402
-from idp_openai import format_invoice_number  # noqa: E402
+from idp_openai import format_invoice_number, resolve_openai_model  # noqa: E402
 from idp_paths import is_import_excluded_xlsx, sanitize_filename_part  # noqa: E402
 from idp_reference import (  # noqa: E402
     ReferenceData,
@@ -78,6 +78,15 @@ class TestIdpHelpers(unittest.TestCase):
         name = output_filename("Ace Hardware", "999-INV")
         self.assertTrue(name.endswith(".xlsx"))
         self.assertIn("Ace", name)
+
+    def test_resolve_openai_model_numeric_choices(self) -> None:
+        self.assertEqual(resolve_openai_model("1"), "gpt-4o")
+        self.assertEqual(resolve_openai_model("2"), "gpt-4.1")
+        self.assertEqual(resolve_openai_model("3"), "gpt-4.1-mini")
+
+    def test_resolve_openai_model_aliases(self) -> None:
+        self.assertEqual(resolve_openai_model("4o"), "gpt-4o")
+        self.assertEqual(resolve_openai_model("mini"), "gpt-4.1-mini")
 
     def test_load_vendors_csv(self) -> None:
         refs = ReferenceData()

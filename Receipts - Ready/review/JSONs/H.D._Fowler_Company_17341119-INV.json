@@ -1,0 +1,598 @@
+{
+  "processed_at": "2026-06-20T11:20:05",
+  "pdf_name": "Aspire-HD Fowler-I7341119-INV__06152026.pdf",
+  "openai_model": "gpt-4.1-mini",
+  "review_flags": [],
+  "invoice_date": "2026-06-15",
+  "vendor_raw": "H.D. FOWLER COMPANY",
+  "vendor_name": "H.D. Fowler Company {Turf}",
+  "vendor_id": 120,
+  "vendor_confidence": 1.0,
+  "vendor_rationale": "Exact match to vendor list for H.D. Fowler / HD Fowler invoices is 'H.D. Fowler Company {Turf}'",
+  "invoice_number_raw": "17341119",
+  "invoice_number": "17341119-INV",
+  "invoice_total": 9471.56,
+  "receipt_note": null,
+  "openai_raw": {
+    "invoice_date": "2026-06-15",
+    "vendor_raw": "H.D. FOWLER COMPANY",
+    "vendor_name": "H.D. Fowler Company {Turf}",
+    "vendor_confidence": 1,
+    "vendor_rationale": "Exact match to vendor list for H.D. Fowler / HD Fowler invoices is 'H.D. Fowler Company {Turf}'",
+    "invoice_number_raw": "17341119",
+    "invoice_total": 9471.56,
+    "lines": [
+      {
+        "description_raw": "MP ROTATOR 3000 22-30' 90-210 DEG. MP300090 BLUE HUNTER",
+        "quantity": 200,
+        "unit_price": 5.55,
+        "uom_raw": "EA",
+        "supplier_item_code": "MP300090",
+        "read_confidence": 0.95,
+        "rationale": "Clear quantity, unit price, UoM, and part number on line 1"
+      },
+      {
+        "description_raw": "MP ROTATOR 1000 8-15' 360 DEG. MP1000360 OLIVE HUNTER",
+        "quantity": 70,
+        "unit_price": 5.55,
+        "uom_raw": "EA",
+        "supplier_item_code": "MP1000360",
+        "read_confidence": 0.95,
+        "rationale": "Clear quantity, unit price, UoM, and part number on line 2"
+      },
+      {
+        "description_raw": "MP ROTATOR 2000 13-21' 360 DEG. MP2000360 RED HUNTER",
+        "quantity": 200,
+        "unit_price": 5.55,
+        "uom_raw": "EA",
+        "supplier_item_code": "MP2000360",
+        "read_confidence": 0.95,
+        "rationale": "Clear quantity, unit price, UoM, and part number on line 3"
+      },
+      {
+        "description_raw": "2\" X 1\" SCH 40 PVC BUSHING TXT",
+        "quantity": 10,
+        "unit_price": 2.22,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, no part number on line 4"
+      },
+      {
+        "description_raw": "PROS-12-SI 12\" SPRAY HEAD W/SIDE INLET HUNTER",
+        "quantity": 50,
+        "unit_price": 10.4,
+        "uom_raw": "EA",
+        "supplier_item_code": "PROS-12-SI",
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, and part number on line 5"
+      },
+      {
+        "description_raw": "PROS-06-SI 6\" SPRAY HEAD W/SIDE INLET HUNTER",
+        "quantity": 150,
+        "unit_price": 6.26,
+        "uom_raw": "EA",
+        "supplier_item_code": "PROS-06-SI",
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, and part number on line 6"
+      },
+      {
+        "description_raw": "PGP04 4\" ADJUSTABLE AND FULL CIRCLE PLASTIC ROTOR W/BLUE & GRAY NOZZLE TREE ULTRA HUNTER",
+        "quantity": 40,
+        "unit_price": 10.55,
+        "uom_raw": "EA",
+        "supplier_item_code": "PGP04",
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, and part number on line 7"
+      },
+      {
+        "description_raw": "RBY100MPTX 1\" INLINE RBY FILTER MIPT X MIPT W/200 MESH SCREEN RAIN BIRD",
+        "quantity": 20,
+        "unit_price": 17.42,
+        "uom_raw": "EA",
+        "supplier_item_code": "RBY100MPTX",
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, and part number on line 8"
+      },
+      {
+        "description_raw": "XFFTEE 17MM TEE BARB X BARB (25-BAG) SOLD BY THE EACH RAIN BIRD",
+        "quantity": 750,
+        "unit_price": 0.39,
+        "uom_raw": "EA",
+        "supplier_item_code": "XFFTEE",
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, and part number on line 9"
+      },
+      {
+        "description_raw": "1-1/4\" X 1\" PVC INSERT COUPLING IXI",
+        "quantity": 100,
+        "unit_price": 1.73,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, no part number on line 10"
+      },
+      {
+        "description_raw": "1\" PVC INSERT PLUG I",
+        "quantity": 50,
+        "unit_price": 1.63,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, no part number on line 11"
+      },
+      {
+        "description_raw": "1\" FEMALE BUTTRESS SWIVEL COUPLING 18120 ACTION",
+        "quantity": 25,
+        "unit_price": 5.79,
+        "uom_raw": "EA",
+        "supplier_item_code": "18120",
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, and part number on line 14"
+      },
+      {
+        "description_raw": "1-1/4\" PVC INSERT TEE IXIXI",
+        "quantity": 20,
+        "unit_price": 3.08,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, no part number on line 15"
+      },
+      {
+        "description_raw": "1-1/2\" PVC INSERT 90 ELBOW IXI",
+        "quantity": 20,
+        "unit_price": 2.28,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, no part number on line 16"
+      },
+      {
+        "description_raw": "1-1/2\" X 1-1/4\" PVC INSERT COUPLING IXI",
+        "quantity": 50,
+        "unit_price": 2.03,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, no part number on line 17"
+      },
+      {
+        "description_raw": "1\" PINCH CLAMP (MECHANICAL TYPE J) KSC3331 DIAMETER RANGER 1.3 - 1.18",
+        "quantity": 2000,
+        "unit_price": 0.27,
+        "uom_raw": "EA",
+        "supplier_item_code": "KSC3331",
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, and part number on line 18"
+      },
+      {
+        "description_raw": "1\" SCH 40 GALVANIZED TEE IMPORT",
+        "quantity": 10,
+        "unit_price": 5.13,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, no part number on line 19"
+      },
+      {
+        "description_raw": "1\" SCH 40 GALVANIZED 90 ELBOW IMPORT",
+        "quantity": 10,
+        "unit_price": 3.46,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, no part number on line 20"
+      },
+      {
+        "description_raw": "EZ-1 SINGLE STATION DECODER WITH STATUS LED HUNTER",
+        "quantity": 40,
+        "unit_price": 55.84,
+        "uom_raw": "EA",
+        "supplier_item_code": "EZ-1",
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, and part number on line 21"
+      },
+      {
+        "description_raw": "1\" 350 DOUBLE CHECK VALVE ASSEMBLY W/FAST TEST COCKS WILKINS",
+        "quantity": 1,
+        "unit_price": 248.18,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, no part number on line 22"
+      },
+      {
+        "description_raw": "1-9/16\" - 2-1/2\" SS WORM DRIVE HOSE CLAMP",
+        "quantity": 70,
+        "unit_price": 0.96,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Clear quantity, unit price, UoM, no part number on line 23"
+      }
+    ]
+  },
+  "lines": [
+    {
+      "description_raw": "MP ROTATOR 3000 22-30' 90-210 DEG. MP300090 BLUE HUNTER",
+      "quantity": 200.0,
+      "unit_price": 5.55,
+      "uom_raw": "EA",
+      "supplier_item_code": "MP300090",
+      "item_code": null,
+      "item_name": "MP Rotator",
+      "item_alternate_name": null,
+      "confidence": 0.941,
+      "rationale": "Clear quantity, unit price, UoM, and part number on line 1; Best catalog match (0.95)"
+    },
+    {
+      "description_raw": "MP ROTATOR 1000 8-15' 360 DEG. MP1000360 OLIVE HUNTER",
+      "quantity": 70.0,
+      "unit_price": 5.55,
+      "uom_raw": "EA",
+      "supplier_item_code": "MP1000360",
+      "item_code": null,
+      "item_name": "MP Rotator",
+      "item_alternate_name": null,
+      "confidence": 0.941,
+      "rationale": "Clear quantity, unit price, UoM, and part number on line 2; Best catalog match (0.95)"
+    },
+    {
+      "description_raw": "MP ROTATOR 2000 13-21' 360 DEG. MP2000360 RED HUNTER",
+      "quantity": 200.0,
+      "unit_price": 5.55,
+      "uom_raw": "EA",
+      "supplier_item_code": "MP2000360",
+      "item_code": null,
+      "item_name": "MP Rotator",
+      "item_alternate_name": null,
+      "confidence": 0.941,
+      "rationale": "Clear quantity, unit price, UoM, and part number on line 3; Best catalog match (0.95)"
+    },
+    {
+      "description_raw": "2\" X 1\" SCH 40 PVC BUSHING TXT",
+      "quantity": 10.0,
+      "unit_price": 2.22,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "PVC Bushing - 2\" x 1\" (FxF)",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, no part number on line 4; Best catalog match (1.57)"
+    },
+    {
+      "description_raw": "PROS-12-SI 12\" SPRAY HEAD W/SIDE INLET HUNTER",
+      "quantity": 50.0,
+      "unit_price": 10.4,
+      "uom_raw": "EA",
+      "supplier_item_code": "PROS-12-SI",
+      "item_code": "PROS-12",
+      "item_name": "Hunter Pros 12\" (Bottom and/or Side Inlet)",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, and part number on line 5; Item code 'PROS-12' found in description"
+    },
+    {
+      "description_raw": "PROS-06-SI 6\" SPRAY HEAD W/SIDE INLET HUNTER",
+      "quantity": 150.0,
+      "unit_price": 6.26,
+      "uom_raw": "EA",
+      "supplier_item_code": "PROS-06-SI",
+      "item_code": "PROS-06",
+      "item_name": "Hunter Pros 6\" (Bottom and/or side inlet)",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, and part number on line 6; Item code 'PROS-06' found in description"
+    },
+    {
+      "description_raw": "PGP04 4\" ADJUSTABLE AND FULL CIRCLE PLASTIC ROTOR W/BLUE & GRAY NOZZLE TREE ULTRA HUNTER",
+      "quantity": 40.0,
+      "unit_price": 10.55,
+      "uom_raw": "EA",
+      "supplier_item_code": "PGP04",
+      "item_code": "PGP-04",
+      "item_name": "Hunter PGP Rotor - 4\" Ultra",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, and part number on line 7; Prefix item code match for 'PGP04'"
+    },
+    {
+      "description_raw": "RBY100MPTX 1\" INLINE RBY FILTER MIPT X MIPT W/200 MESH SCREEN RAIN BIRD",
+      "quantity": 20.0,
+      "unit_price": 17.42,
+      "uom_raw": "EA",
+      "supplier_item_code": "RBY100MPTX",
+      "item_code": "RBY100MPTX",
+      "item_name": "Filter - RB Inline w/ 200 Mesh Screen - 1\" (Y100)",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, and part number on line 8; Exact supplier item code 'RBY100MPTX'"
+    },
+    {
+      "description_raw": "XFFTEE 17MM TEE BARB X BARB (25-BAG) SOLD BY THE EACH RAIN BIRD",
+      "quantity": 750.0,
+      "unit_price": 0.39,
+      "uom_raw": "EA",
+      "supplier_item_code": "XFFTEE",
+      "item_code": "XXFFTEE",
+      "item_name": "RBXFFTEE - Barb Tee - 17 mm",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, and part number on line 9; Prefix item code match for 'XFFTEE'"
+    },
+    {
+      "description_raw": "1-1/4\" X 1\" PVC INSERT COUPLING IXI",
+      "quantity": 100.0,
+      "unit_price": 1.73,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "1429-168",
+      "item_name": "PVC Insert Coupler (reducing) - 1-1/4\" x 1\"",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, no part number on line 10; Best catalog match (1.43)"
+    },
+    {
+      "description_raw": "1\" PVC INSERT PLUG I",
+      "quantity": 50.0,
+      "unit_price": 1.63,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "PVC Insert Plug - 1\"",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, no part number on line 11; Best catalog match (1.80)"
+    },
+    {
+      "description_raw": "1\" FEMALE BUTTRESS SWIVEL COUPLING 18120 ACTION",
+      "quantity": 25.0,
+      "unit_price": 5.79,
+      "uom_raw": "EA",
+      "supplier_item_code": "18120",
+      "item_code": "18120",
+      "item_name": "Action Swivel Coupling - 1\" (F x F)",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, and part number on line 14; Exact supplier item code '18120'"
+    },
+    {
+      "description_raw": "1-1/4\" PVC INSERT TEE IXIXI",
+      "quantity": 20.0,
+      "unit_price": 3.08,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "1401-012",
+      "item_name": "PVC Insert Tee - 1-1/4\"",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, no part number on line 15; Best catalog match (1.49)"
+    },
+    {
+      "description_raw": "1-1/2\" PVC INSERT 90 ELBOW IXI",
+      "quantity": 20.0,
+      "unit_price": 2.28,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "1406-015",
+      "item_name": "PVC Insert Elbow (90) - 1-1/2\" (IxI)",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, no part number on line 16; Best catalog match (1.16)"
+    },
+    {
+      "description_raw": "1-1/2\" X 1-1/4\" PVC INSERT COUPLING IXI",
+      "quantity": 50.0,
+      "unit_price": 2.03,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "1429-212",
+      "item_name": "PVC Insert Coupler (reducing) - 1-1/2\" x 1-1/4\"",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, no part number on line 17; Best catalog match (1.46)"
+    },
+    {
+      "description_raw": "1\" PINCH CLAMP (MECHANICAL TYPE J) KSC3331 DIAMETER RANGER 1.3 - 1.18",
+      "quantity": 2000.0,
+      "unit_price": 0.27,
+      "uom_raw": "EA",
+      "supplier_item_code": "KSC3331",
+      "item_code": "KSC3331",
+      "item_name": "Pinch Clamp - 1\"",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, and part number on line 18; Exact supplier item code 'KSC3331'"
+    },
+    {
+      "description_raw": "1\" SCH 40 GALVANIZED TEE IMPORT",
+      "quantity": 10.0,
+      "unit_price": 5.13,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Galv. Tee - 1\"",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, no part number on line 19; Best catalog match (1.30)"
+    },
+    {
+      "description_raw": "1\" SCH 40 GALVANIZED 90 ELBOW IMPORT",
+      "quantity": 10.0,
+      "unit_price": 3.46,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Galv. Elbow (90) - 1\" (FxF)",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, no part number on line 20; Best catalog match (1.01)"
+    },
+    {
+      "description_raw": "EZ-1 SINGLE STATION DECODER WITH STATUS LED HUNTER",
+      "quantity": 40.0,
+      "unit_price": 55.84,
+      "uom_raw": "EA",
+      "supplier_item_code": "EZ-1",
+      "item_code": "EZ-1",
+      "item_name": "Hunter - EZ-1 Station Decoder",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, and part number on line 21; Exact supplier item code 'EZ-1'"
+    },
+    {
+      "description_raw": "1\" 350 DOUBLE CHECK VALVE ASSEMBLY W/FAST TEST COCKS WILKINS",
+      "quantity": 1.0,
+      "unit_price": 248.18,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "350",
+      "item_name": "Backflow Preventer: Wilkins 350 Double Check Valve Assembly - 1\"",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, no part number on line 22; Item code '350' found in description"
+    },
+    {
+      "description_raw": "1-9/16\" - 2-1/2\" SS WORM DRIVE HOSE CLAMP",
+      "quantity": 70.0,
+      "unit_price": 0.96,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Worm Clamp",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Clear quantity, unit price, UoM, no part number on line 23; One-off: Worm drive hose clamp → Worm Clamp"
+    }
+  ],
+  "aspire_import_lines": [
+    {
+      "item_code": "",
+      "item_name": "MP Rotator",
+      "quantity": 200.0,
+      "unit_cost": 5.883
+    },
+    {
+      "item_code": "",
+      "item_name": "MP Rotator",
+      "quantity": 70.0,
+      "unit_cost": 5.883
+    },
+    {
+      "item_code": "",
+      "item_name": "MP Rotator",
+      "quantity": 200.0,
+      "unit_cost": 5.883
+    },
+    {
+      "item_code": "",
+      "item_name": "PVC Bushing - 2\" x 1\" (FxF)",
+      "quantity": 10.0,
+      "unit_cost": 2.353
+    },
+    {
+      "item_code": "PROS-12",
+      "item_name": "Hunter Pros 12\" (Bottom and/or Side Inlet)",
+      "quantity": 50.0,
+      "unit_cost": 11.024
+    },
+    {
+      "item_code": "PROS-06",
+      "item_name": "Hunter Pros 6\" (Bottom and/or side inlet)",
+      "quantity": 150.0,
+      "unit_cost": 6.636
+    },
+    {
+      "item_code": "PGP-04",
+      "item_name": "Hunter PGP Rotor - 4\" Ultra",
+      "quantity": 40.0,
+      "unit_cost": 11.183
+    },
+    {
+      "item_code": "RBY100MPTX",
+      "item_name": "Filter - RB Inline w/ 200 Mesh Screen - 1\" (Y100)",
+      "quantity": 20.0,
+      "unit_cost": 18.465
+    },
+    {
+      "item_code": "XXFFTEE",
+      "item_name": "RBXFFTEE - Barb Tee - 17 mm",
+      "quantity": 750.0,
+      "unit_cost": 0.413
+    },
+    {
+      "item_code": "1429-168",
+      "item_name": "PVC Insert Coupler (reducing) - 1-1/4\" x 1\"",
+      "quantity": 100.0,
+      "unit_cost": 1.834
+    },
+    {
+      "item_code": "",
+      "item_name": "PVC Insert Plug - 1\"",
+      "quantity": 50.0,
+      "unit_cost": 1.728
+    },
+    {
+      "item_code": "18120",
+      "item_name": "Action Swivel Coupling - 1\" (F x F)",
+      "quantity": 25.0,
+      "unit_cost": 6.137
+    },
+    {
+      "item_code": "1401-012",
+      "item_name": "PVC Insert Tee - 1-1/4\"",
+      "quantity": 20.0,
+      "unit_cost": 3.265
+    },
+    {
+      "item_code": "1406-015",
+      "item_name": "PVC Insert Elbow (90) - 1-1/2\" (IxI)",
+      "quantity": 20.0,
+      "unit_cost": 2.417
+    },
+    {
+      "item_code": "1429-212",
+      "item_name": "PVC Insert Coupler (reducing) - 1-1/2\" x 1-1/4\"",
+      "quantity": 50.0,
+      "unit_cost": 2.152
+    },
+    {
+      "item_code": "KSC3331",
+      "item_name": "Pinch Clamp - 1\"",
+      "quantity": 2000.0,
+      "unit_cost": 0.286
+    },
+    {
+      "item_code": "",
+      "item_name": "Galv. Tee - 1\"",
+      "quantity": 10.0,
+      "unit_cost": 5.438
+    },
+    {
+      "item_code": "",
+      "item_name": "Galv. Elbow (90) - 1\" (FxF)",
+      "quantity": 10.0,
+      "unit_cost": 3.668
+    },
+    {
+      "item_code": "EZ-1",
+      "item_name": "Hunter - EZ-1 Station Decoder",
+      "quantity": 40.0,
+      "unit_cost": 59.19
+    },
+    {
+      "item_code": "350",
+      "item_name": "Backflow Preventer: Wilkins 350 Double Check Valve Assembly - 1\"",
+      "quantity": 1.0,
+      "unit_cost": 263.071
+    },
+    {
+      "item_code": "",
+      "item_name": "Worm Clamp",
+      "quantity": 70.0,
+      "unit_cost": 1.018
+    }
+  ]
+}

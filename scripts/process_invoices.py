@@ -7,13 +7,15 @@ Process PDF invoices with OpenAI vision and write Aspire import workbooks.
    (flagged invoices are queued for Streamlit review first — see app.py)
 4. Move PDFs to Invoices - Processed/Complete
 5. Append low-confidence items to review_dashboard.txt
+6. Save extraction audit JSON to Receipts - Ready/review/JSONs (every invoice)
 
 Usage:
   py scripts/process_invoices.py
   py scripts/process_invoices.py path/to/invoice.pdf
   py scripts/process_invoices.py --dry-run
 
-On start, you will be prompted to refresh exports/catalog_items.csv from Aspire (Y/N).
+On start, you will be prompted to refresh exports/catalog_items.csv from Aspire (Y/N),
+and to choose an OpenAI vision model (1=gpt-4o, 2=gpt-4.1, 3=gpt-4.1-mini).
 
 If any invoice needs review, the Streamlit dashboard opens automatically (use --no-dashboard to skip).
 """
@@ -32,10 +34,14 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from idp_excel import write_from_extraction  # noqa: E402
+from idp_extraction_json import save_extraction_json  # noqa: E402
 from idp_openai import (  # noqa: E402
     collect_review_flags,
+    default_openai_model,
     extract_invoice_from_pdf,
     format_invoice_number,
+    prompt_openai_model,
+    resolve_openai_model,
 )
 from idp_paths import (  # noqa: E402
     invoices_incoming_dir,
@@ -99,6 +105,14 @@ def _prompt_refresh_catalog(skip: bool = False) -> None:
     export_catalog_items(ROOT / "exports")
 
 
+def _resolve_run_model(args: argparse.Namespace) -> str:
+    if args.model:
+        return resolve_openai_model(args.model)
+    if args.no_model_prompt:
+        return default_openai_model()
+    return prompt_openai_model()
+
+
 def _collect_pdfs(args: argparse.Namespace) -> list[Path]:
     if args.files:
         return [Path(p) for p in args.files]
@@ -160,6 +174,8 @@ def process_pdf(
     *,
     refs: ReferenceData,
     dry_run: bool,
+    openai_model: str,
+    save_json: bool = True,
 ) -> tuple[bool, bool]:
     """Returns (success, queued_for_review)."""
     print(f"\n=== {pdf_path.name} ===")
@@ -172,7 +188,9 @@ def process_pdf(
     from openai import OpenAI
 
     client = OpenAI(api_key=require_openai_key())
-    result = extract_invoice_from_pdf(pdf_path, refs, client=client)
+    result = extract_invoice_from_pdf(
+        pdf_path, refs, client=client, model=openai_model
+    )
     inv_display = format_invoice_number(result.invoice_number_raw)
     vendor = result.vendor_name or result.vendor_raw
     profile = vendor_profile_for(result.vendor_name, result.vendor_raw)
@@ -187,16 +205,24 @@ def process_pdf(
     )
     _print_sod_summary(result, profile)
 
+    flags = collect_review_flags(result)
+    if save_json:
+        json_path = save_extraction_json(
+            result,
+            pdf_name=pdf_path.name,
+            openai_model=openai_model,
+            flags=flags,
+        )
+        print(f"  Saved extraction JSON: {json_path.name}")
+
     if dry_run:
         print(f"  Vendor: {vendor!r} ({result.vendor_confidence:.2f})")
         print(f"  Invoice#: {inv_display}")
         print(f"  Lines: {len(result.lines)}")
-        flags = collect_review_flags(result)
         for flag in flags:
             print(f"  REVIEW: {flag.split(chr(10))[0]}")
         return True, bool(flags)
 
-    flags = collect_review_flags(result)
     if not flags:
         n_logged = append_hd_fowler_match_log_from_extraction(
             result,
@@ -306,6 +332,21 @@ def main() -> None:
         action="store_true",
         help="Use existing exports/catalog_items.csv without prompting",
     )
+    parser.add_argument(
+        "--model",
+        metavar="CHOICE",
+        help="OpenAI model: 1 or 4o (gpt-4o), 2 or 4.1 (gpt-4.1), 3 or mini (gpt-4.1-mini)",
+    )
+    parser.add_argument(
+        "--no-model-prompt",
+        action="store_true",
+        help="Use OPENAI_MODEL from .env without prompting",
+    )
+    parser.add_argument(
+        "--no-extraction-json",
+        action="store_true",
+        help="Do not save extraction audit JSON under review/JSONs",
+    )
     args = parser.parse_args()
 
     if args.fresh_dashboard:
@@ -314,6 +355,9 @@ def main() -> None:
         dash.write_text("", encoding="utf-8")
 
     _prompt_refresh_catalog(skip=args.no_catalog_prompt)
+
+    openai_model = _resolve_run_model(args)
+    print(f"OpenAI model for this run: {openai_model}")
 
     refs = ReferenceData()
     refs.load()
@@ -327,7 +371,13 @@ def main() -> None:
     queued_count = 0
     for pdf in pdfs:
         try:
-            success, queued = process_pdf(pdf, refs=refs, dry_run=args.dry_run)
+            success, queued = process_pdf(
+                pdf,
+                refs=refs,
+                dry_run=args.dry_run,
+                openai_model=openai_model,
+                save_json=not args.no_extraction_json,
+            )
             if not success:
                 ok = False
             elif queued and not args.dry_run:

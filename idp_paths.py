@@ -64,6 +64,13 @@ def review_pending_dir() -> Path:
     return receipts_ready_dir() / "review" / "pending"
 
 
+def review_extraction_json_dir() -> Path:
+    env = os.environ.get("IDP_EXTRACTION_JSON_DIR", "").strip()
+    if env:
+        return Path(env)
+    return receipts_ready_dir() / "review" / "JSONs"
+
+
 def inventory_master_path() -> Path:
     """Deprecated alias — IDP uses catalog_items.csv only."""
     return catalog_items_csv_path()

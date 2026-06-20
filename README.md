@@ -82,6 +82,8 @@ Place PDFs in `Receipts - Ready\Invoices - Ready\`.
 ```powershell
 py scripts/process_invoices.py --fresh-dashboard
 py scripts/process_invoices.py --no-catalog-prompt --no-dashboard path/to/invoice.pdf
+# Model: interactive 1/2/3 prompt, or --model 2, or --no-model-prompt to use OPENAI_MODEL from .env
+# Extraction audit JSON saved to Receipts - Ready/review/JSONs (use --no-extraction-json to skip)
 ```
 
 - Uses OpenAI vision + structured JSON (`exports/vendors.csv`, `exports/catalog_items.csv`).

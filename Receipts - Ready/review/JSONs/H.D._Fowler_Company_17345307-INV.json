@@ -1,0 +1,58 @@
+{
+  "processed_at": "2026-06-23T11:50:07",
+  "pdf_name": "06232026_H.D. FOWLER_003.pdf",
+  "openai_model": "gpt-4.1-mini",
+  "review_flags": [],
+  "invoice_date": "2026-06-18",
+  "vendor_raw": "H.D. FOWLER COMPANY",
+  "vendor_name": "H.D. Fowler Company {Turf}",
+  "vendor_id": 120,
+  "vendor_confidence": 0.95,
+  "vendor_rationale": "Vendor name on invoice is 'H.D. FOWLER COMPANY', matches exactly with 'H.D. Fowler Company {Turf}' in vendor list and instructions specify to use this for H.D. Fowler invoices.",
+  "invoice_number_raw": "17345307",
+  "invoice_number": "17345307-INV",
+  "invoice_total": 63.93,
+  "receipt_note": null,
+  "openai_raw": {
+    "invoice_date": "2026-06-18",
+    "vendor_raw": "H.D. FOWLER COMPANY",
+    "vendor_name": "H.D. Fowler Company {Turf}",
+    "vendor_confidence": 0.95,
+    "vendor_rationale": "Vendor name on invoice is 'H.D. FOWLER COMPANY', matches exactly with 'H.D. Fowler Company {Turf}' in vendor list and instructions specify to use this for H.D. Fowler invoices.",
+    "invoice_number_raw": "17345307",
+    "invoice_total": 63.93,
+    "lines": [
+      {
+        "description_raw": "1\" PVC INSERT PLUG I",
+        "quantity": 37,
+        "unit_price": 1.63,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.98,
+        "rationale": "Line item quantity, unit price, and description clearly printed and extracted accurately."
+      }
+    ]
+  },
+  "lines": [
+    {
+      "description_raw": "1\" PVC INSERT PLUG I",
+      "quantity": 37.0,
+      "unit_price": 1.63,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "PVC Insert Plug - 1\"",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Line item quantity, unit price, and description clearly printed and extracted accurately.; Best catalog match (1.80)"
+    }
+  ],
+  "aspire_import_lines": [
+    {
+      "item_code": "",
+      "item_name": "PVC Insert Plug - 1\"",
+      "quantity": 37.0,
+      "unit_cost": 1.728
+    }
+  ]
+}

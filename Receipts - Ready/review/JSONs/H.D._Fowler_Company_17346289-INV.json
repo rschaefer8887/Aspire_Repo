@@ -1,0 +1,58 @@
+{
+  "processed_at": "2026-06-23T11:50:16",
+  "pdf_name": "06232026_H.D. FOWLER_004.pdf",
+  "openai_model": "gpt-4.1-mini",
+  "review_flags": [],
+  "invoice_date": "2026-06-19",
+  "vendor_raw": "H.D. FOWLER COMPANY",
+  "vendor_name": "H.D. Fowler Company {Turf}",
+  "vendor_id": 120,
+  "vendor_confidence": 0.95,
+  "vendor_rationale": "Vendor raw name matches 'H.D. FOWLER COMPANY' and the invoice is for turf-related product, so matched to 'H.D. Fowler Company {Turf}' as instructed.",
+  "invoice_number_raw": "17346289",
+  "invoice_number": "17346289-INV",
+  "invoice_total": 954.0,
+  "receipt_note": null,
+  "openai_raw": {
+    "invoice_date": "2026-06-19",
+    "vendor_raw": "H.D. FOWLER COMPANY",
+    "vendor_name": "H.D. Fowler Company {Turf}",
+    "vendor_confidence": 0.95,
+    "vendor_rationale": "Vendor raw name matches 'H.D. FOWLER COMPANY' and the invoice is for turf-related product, so matched to 'H.D. Fowler Company {Turf}' as instructed.",
+    "invoice_number_raw": "17346289",
+    "invoice_total": 954.0,
+    "lines": [
+      {
+        "description_raw": "1\" PRO TURF GREEN SIDR-15 100 PSI POLY PIPE 300' ROLL 3608 HDPE",
+        "quantity": 3000,
+        "unit_price": 0.3,
+        "uom_raw": "FT",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Quantity, unit price, and description clearly read from line 21."
+      }
+    ]
+  },
+  "lines": [
+    {
+      "description_raw": "1\" PRO TURF GREEN SIDR-15 100 PSI POLY PIPE 300' ROLL 3608 HDPE",
+      "quantity": 3000.0,
+      "unit_price": 0.3,
+      "uom_raw": "FT",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Green Poly Pipe - 1\" (SIDR 15)",
+      "item_alternate_name": null,
+      "confidence": 0.92,
+      "rationale": "Quantity, unit price, and description clearly read from line 21.; One-off: Pro Turf SIDR-15 poly pipe → Green Poly Pipe (SIDR 15)"
+    }
+  ],
+  "aspire_import_lines": [
+    {
+      "item_code": "",
+      "item_name": "Green Poly Pipe - 1\" (SIDR 15)",
+      "quantity": 3000.0,
+      "unit_cost": 0.318
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-"""Idaho Sod and shared sod-invoice transforms (Total Due / sq ft, price split)."""
+"""Idaho Sod, Cedron Sod, and shared sod-invoice transforms (invoice total / sq ft)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from idp_costs import LineOutput, line_total_cost, reconcile_line_costs
 from idp_reference import InventoryRecord, ReferenceData
-from idp_vendor_prefs import is_idaho_sod_vendor
+from idp_vendor_prefs import is_cedron_sod_vendor, is_idaho_sod_vendor
 
 if TYPE_CHECKING:
     from idp_openai import ExtractionResult, LineMatch
@@ -23,7 +23,7 @@ SOD_CATALOG_HINTS: tuple[tuple[re.Pattern[str], str], ...] = (
 )
 
 _CHARGE_LINE_RE = re.compile(
-    r"delivery|fuel\s*surcharge|surcharge|pallet|deposit",
+    r"delivery|fuel\s*surcharge|surcharge|pallet|deposit|\btax\b",
     re.I,
 )
 
@@ -226,8 +226,6 @@ def transform_idaho_sod_extraction(
     Collapse Idaho Sod invoice to one sod catalog line priced from Total Due ÷ sq ft.
     Delivery / pallet / fuel lines are dropped (already in Total Due).
     """
-    from idp_openai import LineMatch
-
     if not (
         is_idaho_sod_vendor(result.vendor_name)
         or is_idaho_sod_vendor(result.vendor_raw)
@@ -253,28 +251,127 @@ def transform_idaho_sod_extraction(
     if not rec:
         return result
 
-    split = compute_sod_price_split(invoice_total, sqft)
-    import_unit = round(invoice_total / sqft, 3)
+    return _collapse_to_single_sod_line(
+        result,
+        vendor_label="Idaho Sod",
+        invoice_total=invoice_total,
+        total_qty=sqft,
+        rec=rec,
+        match_conf=match_conf,
+        match_note=match_note,
+        description_raw=material.description_raw,
+        uom_raw=material.uom_raw or "SF",
+        line_confidence=material.confidence,
+        total_label="Total Due",
+    )
+
+
+def _collapse_to_single_sod_line(
+    result: ExtractionResult,
+    *,
+    vendor_label: str,
+    invoice_total: float,
+    total_qty: float,
+    rec: InventoryRecord,
+    match_conf: float,
+    match_note: str,
+    description_raw: str,
+    uom_raw: str,
+    line_confidence: float,
+    total_label: str = "invoice total",
+) -> ExtractionResult:
+    from idp_openai import LineMatch
+
+    split = compute_sod_price_split(invoice_total, total_qty)
+    import_unit = round(invoice_total / total_qty, 3)
 
     result.lines = [
         LineMatch(
-            description_raw=material.description_raw,
-            quantity=sqft,
+            description_raw=description_raw,
+            quantity=total_qty,
             unit_price=import_unit,
-            uom_raw=material.uom_raw or "SF",
+            uom_raw=uom_raw or "SF",
             item_code=rec.item_code or None,
             item_name=rec.item_name,
             confidence=max(
                 0.95,
-                min(material.confidence, match_conf)
-                if material.confidence
-                else match_conf,
+                min(line_confidence, match_conf) if line_confidence else match_conf,
             ),
             rationale=(
-                f"Idaho Sod: Total Due {invoice_total:.2f} / {sqft:.0f} sq ft; "
-                f"{match_note}; single import line"
+                f"{vendor_label}: {total_label} {invoice_total:.2f} / "
+                f"{total_qty:.0f} sq ft; {match_note}; single import line"
             ),
         )
     ]
     result.sod_split = split
     return result
+
+
+def transform_cedron_sod_extraction(
+    result: ExtractionResult,
+    refs: ReferenceData,
+) -> ExtractionResult:
+    """
+    Collapse Cedron Sod invoice to one sod catalog line when a single grass type.
+    invoice_total (bottom left) ÷ total sod quantity. Pallet credit/charge and tax
+    lines are dropped (already in invoice total). Multiple grass types are left
+    unchanged for review.
+    """
+    if not (
+        is_cedron_sod_vendor(result.vendor_name)
+        or is_cedron_sod_vendor(result.vendor_raw)
+    ):
+        return result
+
+    invoice_total = result.invoice_total
+    if invoice_total is None or invoice_total <= 0:
+        return result
+
+    material_lines = [
+        ln for ln in result.lines if is_sod_material_line(ln.description_raw)
+    ]
+    if not material_lines:
+        return result
+
+    catalog_matches: list[tuple[LineMatch, InventoryRecord, float, str]] = []
+    for ln in material_lines:
+        rec, match_conf, match_note = match_sod_catalog(ln.description_raw, refs)
+        if rec:
+            catalog_matches.append((ln, rec, match_conf, match_note))
+
+    if not catalog_matches:
+        return result
+
+    catalog_codes = {rec.item_code for _, rec, _, _ in catalog_matches}
+    if len(catalog_codes) != 1:
+        return result
+
+    total_qty = sum(ln.quantity for ln, _, _, _ in catalog_matches)
+    if total_qty <= 0:
+        return result
+
+    primary = max(catalog_matches, key=lambda row: row[0].quantity)
+    ln, rec, match_conf, match_note = primary
+    line_conf = min((row[0].confidence for row in catalog_matches if row[0].confidence), default=0.95)
+
+    return _collapse_to_single_sod_line(
+        result,
+        vendor_label="Cedron Sod",
+        invoice_total=invoice_total,
+        total_qty=total_qty,
+        rec=rec,
+        match_conf=match_conf,
+        match_note=match_note,
+        description_raw=ln.description_raw,
+        uom_raw=ln.uom_raw or "SF",
+        line_confidence=line_conf,
+    )
+
+
+def apply_sod_vendor_transform(
+    result: ExtractionResult,
+    refs: ReferenceData,
+) -> ExtractionResult:
+    """Apply Idaho or Cedron sod collapse when vendor matches."""
+    result = transform_idaho_sod_extraction(result, refs)
+    return transform_cedron_sod_extraction(result, refs)

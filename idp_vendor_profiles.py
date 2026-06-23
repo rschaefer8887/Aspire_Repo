@@ -68,11 +68,21 @@ IDAHO_SOD_PROFILE = VendorProfile(
     skip_receipt_item_consolidation=False,
 )
 
+CEDRON_SOD_PROFILE = VendorProfile(
+    profile_id="cedron_sod",
+    display_name="Cedron Sod",
+    tax_multiplier=1.0,
+    reconcile_to_invoice_total=True,
+    unit_prices_are_pre_tax=False,
+    skip_receipt_item_consolidation=False,
+)
+
 # Normalized vendor keys (from Aspire VendorName) → profile.
 _VENDOR_PROFILE_BY_KEY: dict[str, VendorProfile] = {
     _norm_key("H.D. Fowler Company {Turf}"): HD_FOWLER_PROFILE,
     _norm_key("H.D. Fowler Company"): HD_FOWLER_PROFILE,
     _norm_key("Idaho Sod"): IDAHO_SOD_PROFILE,
+    _norm_key("Cedron Sod"): CEDRON_SOD_PROFILE,
 }
 
 
@@ -91,7 +101,16 @@ def vendor_profile_for(
             return HD_FOWLER_PROFILE
         if "idaho" in key and "sod" in key:
             return IDAHO_SOD_PROFILE
+        if "cedron" in key and "sod" in key:
+            return CEDRON_SOD_PROFILE
     return DEFAULT_PROFILE
+
+
+def is_sod_vendor_profile(profile: VendorProfile) -> bool:
+    return profile.profile_id in (
+        IDAHO_SOD_PROFILE.profile_id,
+        CEDRON_SOD_PROFILE.profile_id,
+    )
 
 
 def register_vendor_profile(vendor_name: str, profile: VendorProfile) -> None:

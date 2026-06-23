@@ -1,0 +1,463 @@
+{
+  "processed_at": "2026-06-23T11:49:13",
+  "pdf_name": "06232026_H.D. FOWLER.pdf",
+  "openai_model": "gpt-4.1-mini",
+  "review_flags": [],
+  "invoice_date": "2026-06-18",
+  "vendor_raw": "H.D. FOWLER COMPANY",
+  "vendor_name": "H.D. Fowler Company {Turf}",
+  "vendor_id": 120,
+  "vendor_confidence": 1.0,
+  "vendor_rationale": "Vendor name matches exactly 'H.D. FOWLER COMPANY' on invoice and 'H.D. Fowler Company {Turf}' in vendor list, with instruction to use this vendor for H.D. Fowler invoices.",
+  "invoice_number_raw": "17345308",
+  "invoice_number": "17345308-INV",
+  "invoice_total": 5990.79,
+  "receipt_note": null,
+  "openai_raw": {
+    "invoice_date": "2026-06-18",
+    "vendor_raw": "H.D. FOWLER COMPANY",
+    "vendor_name": "H.D. Fowler Company {Turf}",
+    "vendor_confidence": 1,
+    "vendor_rationale": "Vendor name matches exactly 'H.D. FOWLER COMPANY' on invoice and 'H.D. Fowler Company {Turf}' in vendor list, with instruction to use this vendor for H.D. Fowler invoices.",
+    "invoice_number_raw": "17345308",
+    "invoice_total": 5990.79,
+    "lines": [
+      {
+        "description_raw": "3/4\" PVC INSERT PLUG I",
+        "quantity": 100,
+        "unit_price": 1.22,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear quantity, unit price, and description on line 1"
+      },
+      {
+        "description_raw": "6' VAN VARIABLE ARC PLATIC ORANGE NOZZLE W/SCREEN (25-BAG) SOLD BY THE EACH RAIN BIRD",
+        "quantity": 25,
+        "unit_price": 0.95,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Multi-line description combined for line 2"
+      },
+      {
+        "description_raw": "10' VAN VARIABLE ARC BLUE NOZZLE W/SCREEN (25-BAG) SOLD BY THE EACH RAIN BIRD",
+        "quantity": 25,
+        "unit_price": 0.95,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Multi-line description combined for line 4"
+      },
+      {
+        "description_raw": "15' VAN VARIABLE ARC BLACK NOZZLE W/SCREEN (25-BAG) SOLD BY THE EACH RAIN BIRD",
+        "quantity": 25,
+        "unit_price": 0.95,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Multi-line description combined for line 5"
+      },
+      {
+        "description_raw": "1-1/2\" PVC INSERT MALE ADAPTER MIPTXI",
+        "quantity": 75,
+        "unit_price": 1.44,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear quantity, unit price, and description on line 6"
+      },
+      {
+        "description_raw": "14/2 JACKETED 1000' ROLL DECODER CABLE FOR HUNTER 2-WIRE SYSTEMS RED / BLUE 14GA TWISTED IN BLUE JACKETING",
+        "quantity": 1,
+        "unit_price": 457.4,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Multi-line description combined for line 7"
+      },
+      {
+        "description_raw": "18 GA 13 COND WIRE 500' ROLL",
+        "quantity": 1,
+        "unit_price": 377.89,
+        "uom_raw": "RL",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear quantity, unit price, and description on line 8"
+      },
+      {
+        "description_raw": "1\" POLY X FEMALE BUTTRESS SWIVEL POLY INSERT ADAPTER 18014 ACTION",
+        "quantity": 50,
+        "unit_price": 3.69,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Multi-line description combined for line 9"
+      },
+      {
+        "description_raw": "MP ROTATOR 3000 22-30' 90-210 DEG. MP300090 BLUE HUNTER",
+        "quantity": 200,
+        "unit_price": 5.55,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Multi-line description combined for line 10"
+      },
+      {
+        "description_raw": "MP ROTATOR 2000 13-21' 90-210 DEG. MP200090 BLACK HUNTER",
+        "quantity": 200,
+        "unit_price": 5.55,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Multi-line description combined for line 11"
+      },
+      {
+        "description_raw": "MP ROTATOR 1000 8-15' 90-210 DEG. MP100090 MAROON HUNTER",
+        "quantity": 200,
+        "unit_price": 5.55,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Multi-line description combined for line 12"
+      },
+      {
+        "description_raw": "PGV-101G 1\" GLOBE VALVE W/FLOW CONTROL HUNTER",
+        "quantity": 20,
+        "unit_price": 15.75,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Multi-line description combined for line 13"
+      },
+      {
+        "description_raw": "SBE-050 1/2\" MIP X BARB ELBOW (50-BAG) SOLD BY THE EACH RAIN BIRD",
+        "quantity": 250,
+        "unit_price": 0.19,
+        "uom_raw": "EA",
+        "supplier_item_code": "SBE-050",
+        "read_confidence": 0.95,
+        "rationale": "Multi-line description combined for line 14 with supplier item code"
+      },
+      {
+        "description_raw": "XFFCOUP 17MM COUPLING BARB X BARB (25-BAG) SOLD BY THE EACH RAIN BIRD",
+        "quantity": 250,
+        "unit_price": 0.26,
+        "uom_raw": "EA",
+        "supplier_item_code": "XFFCOUP",
+        "read_confidence": 0.95,
+        "rationale": "Multi-line description combined for line 15 with supplier item code"
+      },
+      {
+        "description_raw": "1-1/2\" PVC INSERT COUPLING IXI",
+        "quantity": 50,
+        "unit_price": 1.44,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear quantity, unit price, and description on line 16"
+      },
+      {
+        "description_raw": "76001 1\" FIP X FIP BALL VALVE CURB STOP W/STOP AND WASTE NO-LEAD AY",
+        "quantity": 3,
+        "unit_price": 167.05,
+        "uom_raw": "EA",
+        "supplier_item_code": "76001",
+        "read_confidence": 0.95,
+        "rationale": "Multi-line description combined for line 17 with supplier item code"
+      }
+    ]
+  },
+  "lines": [
+    {
+      "description_raw": "3/4\" PVC INSERT PLUG I",
+      "quantity": 100.0,
+      "unit_price": 1.22,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "PVC Insert Plug - 3/4\"",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear quantity, unit price, and description on line 1; Best catalog match (1.80)"
+    },
+    {
+      "description_raw": "6' VAN VARIABLE ARC PLATIC ORANGE NOZZLE W/SCREEN (25-BAG) SOLD BY THE EACH RAIN BIRD",
+      "quantity": 25.0,
+      "unit_price": 0.95,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "VAN",
+      "item_name": "Rain Bird (VAN) Nozzle - All (or Hunter)",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Multi-line description combined for line 2; One-off: VAN / Hunter adjustable arc nozzle → Rain Bird (VAN) Nozzle - All (or Hunter)"
+    },
+    {
+      "description_raw": "10' VAN VARIABLE ARC BLUE NOZZLE W/SCREEN (25-BAG) SOLD BY THE EACH RAIN BIRD",
+      "quantity": 25.0,
+      "unit_price": 0.95,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "VAN",
+      "item_name": "Rain Bird (VAN) Nozzle - All (or Hunter)",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Multi-line description combined for line 4; One-off: VAN / Hunter adjustable arc nozzle → Rain Bird (VAN) Nozzle - All (or Hunter)"
+    },
+    {
+      "description_raw": "15' VAN VARIABLE ARC BLACK NOZZLE W/SCREEN (25-BAG) SOLD BY THE EACH RAIN BIRD",
+      "quantity": 25.0,
+      "unit_price": 0.95,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "VAN",
+      "item_name": "Rain Bird (VAN) Nozzle - All (or Hunter)",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Multi-line description combined for line 5; One-off: VAN / Hunter adjustable arc nozzle → Rain Bird (VAN) Nozzle - All (or Hunter)"
+    },
+    {
+      "description_raw": "1-1/2\" PVC INSERT MALE ADAPTER MIPTXI",
+      "quantity": 75.0,
+      "unit_price": 1.44,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "1436-015",
+      "item_name": "PVC Insert x Male Adapter - 1-1/2\"",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear quantity, unit price, and description on line 6; Best catalog match (1.29)"
+    },
+    {
+      "description_raw": "14/2 JACKETED 1000' ROLL DECODER CABLE FOR HUNTER 2-WIRE SYSTEMS RED / BLUE 14GA TWISTED IN BLUE JACKETING",
+      "quantity": 1.0,
+      "unit_price": 457.4,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "14/2",
+      "item_name": "Wire - 14 GA Red/Blue, Golf (for 2-wire systems)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Multi-line description combined for line 7; Best catalog match (1.22)"
+    },
+    {
+      "description_raw": "18 GA 13 COND WIRE 500' ROLL",
+      "quantity": 1.0,
+      "unit_price": 377.89,
+      "uom_raw": "RL",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Wire - 18 GA 13 Strand",
+      "item_alternate_name": null,
+      "confidence": 0.9334,
+      "rationale": "Clear quantity, unit price, and description on line 8; Best catalog match (0.93)"
+    },
+    {
+      "description_raw": "1\" POLY X FEMALE BUTTRESS SWIVEL POLY INSERT ADAPTER 18014 ACTION",
+      "quantity": 50.0,
+      "unit_price": 3.69,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Action Swivel Insert Adapter - 1\" (Insert x F)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Multi-line description combined for line 9; Best catalog match (1.58)"
+    },
+    {
+      "description_raw": "MP ROTATOR 3000 22-30' 90-210 DEG. MP300090 BLUE HUNTER",
+      "quantity": 200.0,
+      "unit_price": 5.55,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "MP Rotator",
+      "item_alternate_name": null,
+      "confidence": 0.941,
+      "rationale": "Multi-line description combined for line 10; Best catalog match (0.95)"
+    },
+    {
+      "description_raw": "MP ROTATOR 2000 13-21' 90-210 DEG. MP200090 BLACK HUNTER",
+      "quantity": 200.0,
+      "unit_price": 5.55,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "MP Rotator",
+      "item_alternate_name": null,
+      "confidence": 0.941,
+      "rationale": "Multi-line description combined for line 11; Best catalog match (0.95)"
+    },
+    {
+      "description_raw": "MP ROTATOR 1000 8-15' 90-210 DEG. MP100090 MAROON HUNTER",
+      "quantity": 200.0,
+      "unit_price": 5.55,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "MP Rotator",
+      "item_alternate_name": null,
+      "confidence": 0.941,
+      "rationale": "Multi-line description combined for line 12; Best catalog match (0.95)"
+    },
+    {
+      "description_raw": "PGV-101G 1\" GLOBE VALVE W/FLOW CONTROL HUNTER",
+      "quantity": 20.0,
+      "unit_price": 15.75,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "PGV-101G",
+      "item_name": "Hunter PGV 101 - 1\" (w/ flow control)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Multi-line description combined for line 13; Item code 'PGV-101G' found in description"
+    },
+    {
+      "description_raw": "SBE-050 1/2\" MIP X BARB ELBOW (50-BAG) SOLD BY THE EACH RAIN BIRD",
+      "quantity": 250.0,
+      "unit_price": 0.19,
+      "uom_raw": "EA",
+      "supplier_item_code": "SBE-050",
+      "item_code": "SBE-050",
+      "item_name": "RBSBE050 - Funny Elbow (1/2\" MIP x barb)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Multi-line description combined for line 14 with supplier item code; Exact supplier item code 'SBE-050'"
+    },
+    {
+      "description_raw": "XFFCOUP 17MM COUPLING BARB X BARB (25-BAG) SOLD BY THE EACH RAIN BIRD",
+      "quantity": 250.0,
+      "unit_price": 0.26,
+      "uom_raw": "EA",
+      "supplier_item_code": "XFFCOUP",
+      "item_code": "XFFCOUP",
+      "item_name": "RBXFFCOUP - Barb Coupler 17 mm",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Multi-line description combined for line 15 with supplier item code; Exact supplier item code 'XFFCOUP'"
+    },
+    {
+      "description_raw": "1-1/2\" PVC INSERT COUPLING IXI",
+      "quantity": 50.0,
+      "unit_price": 1.44,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "1429-015",
+      "item_name": "PVC Insert Coupler - 1-1/2\" (IxI)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear quantity, unit price, and description on line 16; Best catalog match (1.19)"
+    },
+    {
+      "description_raw": "76001 1\" FIP X FIP BALL VALVE CURB STOP W/STOP AND WASTE NO-LEAD AY",
+      "quantity": 3.0,
+      "unit_price": 167.05,
+      "uom_raw": "EA",
+      "supplier_item_code": "76001",
+      "item_code": "76001",
+      "item_name": "Brass Stop & Waste, AY McDonald - 1\" (FNPT x FNPT)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Multi-line description combined for line 17 with supplier item code; Exact supplier item code '76001'"
+    }
+  ],
+  "aspire_import_lines": [
+    {
+      "item_code": "",
+      "item_name": "PVC Insert Plug - 3/4\"",
+      "quantity": 100.0,
+      "unit_cost": 1.293
+    },
+    {
+      "item_code": "VAN",
+      "item_name": "Rain Bird (VAN) Nozzle - All (or Hunter)",
+      "quantity": 25.0,
+      "unit_cost": 1.007
+    },
+    {
+      "item_code": "VAN",
+      "item_name": "Rain Bird (VAN) Nozzle - All (or Hunter)",
+      "quantity": 25.0,
+      "unit_cost": 1.007
+    },
+    {
+      "item_code": "VAN",
+      "item_name": "Rain Bird (VAN) Nozzle - All (or Hunter)",
+      "quantity": 25.0,
+      "unit_cost": 1.007
+    },
+    {
+      "item_code": "1436-015",
+      "item_name": "PVC Insert x Male Adapter - 1-1/2\"",
+      "quantity": 75.0,
+      "unit_cost": 1.526
+    },
+    {
+      "item_code": "14/2",
+      "item_name": "Wire - 14 GA Red/Blue, Golf (for 2-wire systems)",
+      "quantity": 1000.0,
+      "unit_cost": 0.485
+    },
+    {
+      "item_code": "",
+      "item_name": "Wire - 18 GA 13 Strand",
+      "quantity": 500.0,
+      "unit_cost": 0.801
+    },
+    {
+      "item_code": "",
+      "item_name": "Action Swivel Insert Adapter - 1\" (Insert x F)",
+      "quantity": 50.0,
+      "unit_cost": 3.911
+    },
+    {
+      "item_code": "",
+      "item_name": "MP Rotator",
+      "quantity": 200.0,
+      "unit_cost": 5.883
+    },
+    {
+      "item_code": "",
+      "item_name": "MP Rotator",
+      "quantity": 200.0,
+      "unit_cost": 5.883
+    },
+    {
+      "item_code": "",
+      "item_name": "MP Rotator",
+      "quantity": 200.0,
+      "unit_cost": 5.883
+    },
+    {
+      "item_code": "PGV-101G",
+      "item_name": "Hunter PGV 101 - 1\" (w/ flow control)",
+      "quantity": 20.0,
+      "unit_cost": 16.695
+    },
+    {
+      "item_code": "SBE-050",
+      "item_name": "RBSBE050 - Funny Elbow (1/2\" MIP x barb)",
+      "quantity": 250.0,
+      "unit_cost": 0.201
+    },
+    {
+      "item_code": "XFFCOUP",
+      "item_name": "RBXFFCOUP - Barb Coupler 17 mm",
+      "quantity": 250.0,
+      "unit_cost": 0.276
+    },
+    {
+      "item_code": "1429-015",
+      "item_name": "PVC Insert Coupler - 1-1/2\" (IxI)",
+      "quantity": 50.0,
+      "unit_cost": 1.526
+    },
+    {
+      "item_code": "76001",
+      "item_name": "Brass Stop & Waste, AY McDonald - 1\" (FNPT x FNPT)",
+      "quantity": 3.0,
+      "unit_cost": 177.073
+    }
+  ]
+}

@@ -12,8 +12,10 @@ from pathlib import Path
 from idp_paths import catalog_items_csv_path, catalog_item_type_filter, vendors_csv_path
 from idp_vendor_prefs import (
     exclude_vendor_from_llm_list,
+    is_cedron_sod_vendor,
     is_hd_fowler_vendor,
     is_idaho_sod_vendor,
+    resolve_cedron_sod_vendor,
     resolve_hd_fowler_vendor,
     resolve_idaho_sod_vendor,
 )
@@ -1178,6 +1180,8 @@ class ReferenceData:
             return resolve_hd_fowler_vendor(self, vendor_name, vendor_raw)
         if is_idaho_sod_vendor(vendor_name) or is_idaho_sod_vendor(vendor_raw):
             return resolve_idaho_sod_vendor(self, vendor_name, vendor_raw)
+        if is_cedron_sod_vendor(vendor_name) or is_cedron_sod_vendor(vendor_raw):
+            return resolve_cedron_sod_vendor(self, vendor_name, vendor_raw)
         if vendor_name:
             return self.lookup_vendor_record(vendor_name)
         if vendor_raw:

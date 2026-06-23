@@ -53,11 +53,11 @@ from idp_paths import (  # noqa: E402
 from idp_match_log import append_hd_fowler_match_log_from_extraction  # noqa: E402
 from idp_reference import ReferenceData  # noqa: E402
 from aspire_attachments import move_to_aspire_pdf_name  # noqa: E402
-from idp_vendor_profiles import IDAHO_SOD_PROFILE, vendor_profile_for  # noqa: E402
+from idp_vendor_profiles import is_sod_vendor_profile, vendor_profile_for  # noqa: E402
 
 
 def _print_sod_summary(result, profile) -> None:
-    if profile.profile_id != IDAHO_SOD_PROFILE.profile_id:
+    if not is_sod_vendor_profile(profile):
         return
     if not result.invoice_total or not result.lines:
         return

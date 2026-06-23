@@ -21,7 +21,7 @@ except ImportError:
 
 from openai import OpenAI
 
-from idp_fowler_freight import is_fowler_inbound_freight_line
+from idp_fowler_freight import is_fowler_inbound_freight_line, normalize_fowler_invoice_number
 from idp_paths import confidence_threshold
 from idp_review_triggers import (
     is_pinch_clamp_tool_ct108_line,
@@ -29,7 +29,8 @@ from idp_review_triggers import (
     pinch_clamp_tool_ct108_review_flag,
     review_tool_flag,
 )
-from idp_sod import transform_idaho_sod_extraction
+from idp_sod import apply_sod_vendor_transform
+from idp_vendor_prefs import is_hd_fowler_vendor
 from idp_roll_conversion import roll_line_missing_feet_per_roll
 from idp_reference import (
     ReferenceData,
@@ -359,6 +360,7 @@ def extract_invoice_from_pdf(
         "or set vendor_name to null if no confident match. "
         "For H.D. Fowler / HD Fowler invoices always use the Fowler {Turf} vendor from the list, "
         "never Waterworks or other Fowler variants. "
+        "Fowler invoice_number_raw always starts with capital letter I (Invoice), never digit 1. "
         "For each line, copy description_raw, uom_raw (unit of measure column, e.g. RL, EA, FT), "
         "and supplier_item_code as printed on the invoice. "
         "Preserve hyphenated fractional inch sizes exactly as printed "
@@ -370,6 +372,9 @@ def extract_invoice_from_pdf(
         "e.g. Kentucky Bluegrass or RTF). Include delivery, pallet deposit, and fuel "
         "surcharge as separate lines if printed — they are included in Total Due for pricing. "
         "Kentucky on the invoice means Kentucky Bluegrass; RTF means Rhizomatous Tall Fescue. "
+        "For Cedron Sod invoices: invoice_total is the grand total (bottom left). "
+        "Sod line quantity is square feet. Include pallet credit, pallet charge, and tax "
+        "as separate lines if printed — they are included in the invoice total for pricing. "
         "read_confidence is 0.0 to 1.0 for OCR/extraction quality only."
     )
     user_content: list[dict] = [
@@ -457,6 +462,11 @@ def extract_invoice_from_pdf(
             )
         )
 
+    invoice_number_raw = str(data.get("invoice_number_raw") or "")
+    resolved_vendor = vendor_rec.vendor_name if vendor_rec else vendor_name
+    if is_hd_fowler_vendor(resolved_vendor) or is_hd_fowler_vendor(vendor_raw):
+        invoice_number_raw = normalize_fowler_invoice_number(invoice_number_raw)
+
     result = ExtractionResult(
         invoice_date=_parse_date(data.get("invoice_date")),
         vendor_raw=vendor_raw,
@@ -464,13 +474,13 @@ def extract_invoice_from_pdf(
         vendor_id=vendor_id,
         vendor_confidence=float(data.get("vendor_confidence") or 0),
         vendor_rationale=str(data.get("vendor_rationale") or ""),
-        invoice_number_raw=str(data.get("invoice_number_raw") or ""),
+        invoice_number_raw=invoice_number_raw,
         invoice_total=_parse_total(data.get("invoice_total")),
         lines=lines,
         openai_raw=data,
         openai_model=model,
     )
-    return transform_idaho_sod_extraction(result, refs)
+    return apply_sod_vendor_transform(result, refs)
 
 
 def collect_review_flags(result: ExtractionResult, threshold: float | None = None) -> list[str]:

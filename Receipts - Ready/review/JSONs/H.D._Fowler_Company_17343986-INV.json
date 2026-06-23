@@ -1,0 +1,355 @@
+{
+  "processed_at": "2026-06-23T11:49:58",
+  "pdf_name": "06232026_H.D. FOWLER_002.pdf",
+  "openai_model": "gpt-4.1-mini",
+  "review_flags": [],
+  "invoice_date": "2026-06-17",
+  "vendor_raw": "H.D. FOWLER COMPANY",
+  "vendor_name": "H.D. Fowler Company {Turf}",
+  "vendor_id": 120,
+  "vendor_confidence": 0.95,
+  "vendor_rationale": "Vendor name on invoice matches 'H.D. FOWLER COMPANY' and H.D. Fowler Company {Turf} is the correct vendor_name for H.D. Fowler invoices per instructions.",
+  "invoice_number_raw": "17343986",
+  "invoice_number": "17343986-INV",
+  "invoice_total": 4119.0,
+  "receipt_note": null,
+  "openai_raw": {
+    "invoice_date": "2026-06-17",
+    "vendor_raw": "H.D. FOWLER COMPANY",
+    "vendor_name": "H.D. Fowler Company {Turf}",
+    "vendor_confidence": 0.95,
+    "vendor_rationale": "Vendor name on invoice matches 'H.D. FOWLER COMPANY' and H.D. Fowler Company {Turf} is the correct vendor_name for H.D. Fowler invoices per instructions.",
+    "invoice_number_raw": "17343986",
+    "invoice_total": 4119.0,
+    "lines": [
+      {
+        "description_raw": "1-1/2\" SCH 40 PVC MALE ADAPTER SXT",
+        "quantity": 19,
+        "unit_price": 0.82,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear quantity, unit price, and description on invoice line 7."
+      },
+      {
+        "description_raw": "1-1/4\" PVC INSERT PLUG I",
+        "quantity": 50,
+        "unit_price": 2.06,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear quantity, unit price, and description on invoice line 10."
+      },
+      {
+        "description_raw": "1\" PVC INSERT PLUG I",
+        "quantity": 63,
+        "unit_price": 1.63,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear quantity, unit price, and description on invoice line 11."
+      },
+      {
+        "description_raw": "PROS-06-PRS40-CV 6\" SPRAY HEAD W/40PSI PRV AND CHECK VALVE HUNTER",
+        "quantity": 50,
+        "unit_price": 14.51,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Description spans two lines but combined logically; quantity and price clear on line 12."
+      },
+      {
+        "description_raw": "PGP-12-CV 12\" ADJUSTABLE AND FULL CIRCLE PLASTIC ROTOR W/CHECK VALVE & NOZZLE TREE ULTRA HUNTER",
+        "quantity": 36,
+        "unit_price": 25.88,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Description spans multiple lines but combined logically; quantity and price clear on line 13."
+      },
+      {
+        "description_raw": "PROS-12-PRS40-CV 12\" SPRAY HEAD W/40PSI PRV AND CHECK VALVE HUNTER",
+        "quantity": 75,
+        "unit_price": 17.74,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Description spans two lines but combined logically; quantity and price clear on line 14."
+      },
+      {
+        "description_raw": "ECO-INDICATOR 1/2\" FIPT YELLOW POP-UP STEM HUNTER",
+        "quantity": 10,
+        "unit_price": 7.81,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description spans two lines but combined logically; quantity and price clear on line 15."
+      },
+      {
+        "description_raw": "RBY100MPTX 1\" INLINE RBY FILTER MIPT X MIPT W/200 MESH SCREEN RAIN BIRD",
+        "quantity": 10,
+        "unit_price": 17.42,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description spans two lines but combined logically; quantity and price clear on line 16."
+      },
+      {
+        "description_raw": "XFFTEE 17MM TEE BARB X BARB (25-BAG) SOLD BY THE EACH RAIN BIRD",
+        "quantity": 500,
+        "unit_price": 0.39,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description spans two lines but combined logically; quantity and price clear on line 17."
+      },
+      {
+        "description_raw": "XFFCOUP 17MM COUPLING BARB X BARB (25-BAG) SOLD BY THE EACH RAIN BIRD",
+        "quantity": 250,
+        "unit_price": 0.26,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description spans two lines but combined logically; quantity and price clear on line 18."
+      },
+      {
+        "description_raw": "2\" X 1-1/2\" PVC INSERT COUPLING IXI",
+        "quantity": 10,
+        "unit_price": 3.26,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear quantity, unit price, and description on invoice line 19."
+      },
+      {
+        "description_raw": "1-1/2\" PINCH CLAMP (MECHANICAL TYPE J) KSC3485 DIAMETER RANGE 1.90 - 1.787",
+        "quantity": 400,
+        "unit_price": 0.33,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Description spans two lines but combined logically; quantity and price clear on line 21."
+      }
+    ]
+  },
+  "lines": [
+    {
+      "description_raw": "1-1/2\" SCH 40 PVC MALE ADAPTER SXT",
+      "quantity": 19.0,
+      "unit_price": 0.82,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "PVC Male Adapter - 1-1/2\" (SxT) - needs PVC cement",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear quantity, unit price, and description on invoice line 7.; Exact catalog name from description"
+    },
+    {
+      "description_raw": "1-1/4\" PVC INSERT PLUG I",
+      "quantity": 50.0,
+      "unit_price": 2.06,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "PVC Insert Plug - 1-1/4\"",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear quantity, unit price, and description on invoice line 10.; Best catalog match (1.80)"
+    },
+    {
+      "description_raw": "1\" PVC INSERT PLUG I",
+      "quantity": 63.0,
+      "unit_price": 1.63,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "PVC Insert Plug - 1\"",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear quantity, unit price, and description on invoice line 11.; Best catalog match (1.80)"
+    },
+    {
+      "description_raw": "PROS-06-PRS40-CV 6\" SPRAY HEAD W/40PSI PRV AND CHECK VALVE HUNTER",
+      "quantity": 50.0,
+      "unit_price": 14.51,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "PROS-06-PRS40-CV",
+      "item_name": "Hunter Pros 6\" PRS40 CV",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Description spans two lines but combined logically; quantity and price clear on line 12.; Item code 'PROS-06-PRS40-CV' found in description"
+    },
+    {
+      "description_raw": "PGP-12-CV 12\" ADJUSTABLE AND FULL CIRCLE PLASTIC ROTOR W/CHECK VALVE & NOZZLE TREE ULTRA HUNTER",
+      "quantity": 36.0,
+      "unit_price": 25.88,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "PGP-12-CV",
+      "item_name": "Hunter PGP Rotor - 12\" Ultra w/ Check Valve",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Description spans multiple lines but combined logically; quantity and price clear on line 13.; Item code 'PGP-12-CV' found in description"
+    },
+    {
+      "description_raw": "PROS-12-PRS40-CV 12\" SPRAY HEAD W/40PSI PRV AND CHECK VALVE HUNTER",
+      "quantity": 75.0,
+      "unit_price": 17.74,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "PROS-12-PRS40-CV",
+      "item_name": "Hunter Pros 12\" PRS40 CV",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Description spans two lines but combined logically; quantity and price clear on line 14.; Item code 'PROS-12-PRS40-CV' found in description"
+    },
+    {
+      "description_raw": "ECO-INDICATOR 1/2\" FIPT YELLOW POP-UP STEM HUNTER",
+      "quantity": 10.0,
+      "unit_price": 7.81,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Hunter Eco-Indicator (Yellow Pop Up Stem)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description spans two lines but combined logically; quantity and price clear on line 15.; Best catalog match (1.76)"
+    },
+    {
+      "description_raw": "RBY100MPTX 1\" INLINE RBY FILTER MIPT X MIPT W/200 MESH SCREEN RAIN BIRD",
+      "quantity": 10.0,
+      "unit_price": 17.42,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "RBY100MPTX",
+      "item_name": "Filter - RB Inline w/ 200 Mesh Screen - 1\" (Y100)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description spans two lines but combined logically; quantity and price clear on line 16.; Item code 'RBY100MPTX' found in description"
+    },
+    {
+      "description_raw": "XFFTEE 17MM TEE BARB X BARB (25-BAG) SOLD BY THE EACH RAIN BIRD",
+      "quantity": 500.0,
+      "unit_price": 0.39,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "XXFFTEE",
+      "item_name": "RBXFFTEE - Barb Tee - 17 mm",
+      "item_alternate_name": null,
+      "confidence": 0.92,
+      "rationale": "Description spans two lines but combined logically; quantity and price clear on line 17.; Prefix item code match for 'XFFTEE'"
+    },
+    {
+      "description_raw": "XFFCOUP 17MM COUPLING BARB X BARB (25-BAG) SOLD BY THE EACH RAIN BIRD",
+      "quantity": 250.0,
+      "unit_price": 0.26,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "XFFCOUP",
+      "item_name": "RBXFFCOUP - Barb Coupler 17 mm",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description spans two lines but combined logically; quantity and price clear on line 18.; Item code 'XFFCOUP' found in description"
+    },
+    {
+      "description_raw": "2\" X 1-1/2\" PVC INSERT COUPLING IXI",
+      "quantity": 10.0,
+      "unit_price": 3.26,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "1429-251",
+      "item_name": "PVC Insert Coupler (reducing) - 2\" x 1-1/2\"",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear quantity, unit price, and description on invoice line 19.; Best catalog match (1.43)"
+    },
+    {
+      "description_raw": "1-1/2\" PINCH CLAMP (MECHANICAL TYPE J) KSC3485 DIAMETER RANGE 1.90 - 1.787",
+      "quantity": 400.0,
+      "unit_price": 0.33,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "KSC3485",
+      "item_name": "Pinch Clamp - 1-1/2\"",
+      "item_alternate_name": null,
+      "confidence": 0.9,
+      "rationale": "Description spans two lines but combined logically; quantity and price clear on line 21.; Item code 'KSC3485' found in description"
+    }
+  ],
+  "aspire_import_lines": [
+    {
+      "item_code": "",
+      "item_name": "PVC Male Adapter - 1-1/2\" (SxT) - needs PVC cement",
+      "quantity": 19.0,
+      "unit_cost": 0.869
+    },
+    {
+      "item_code": "",
+      "item_name": "PVC Insert Plug - 1-1/4\"",
+      "quantity": 50.0,
+      "unit_cost": 2.184
+    },
+    {
+      "item_code": "",
+      "item_name": "PVC Insert Plug - 1\"",
+      "quantity": 63.0,
+      "unit_cost": 1.728
+    },
+    {
+      "item_code": "PROS-06-PRS40-CV",
+      "item_name": "Hunter Pros 6\" PRS40 CV",
+      "quantity": 50.0,
+      "unit_cost": 15.381
+    },
+    {
+      "item_code": "PGP-12-CV",
+      "item_name": "Hunter PGP Rotor - 12\" Ultra w/ Check Valve",
+      "quantity": 36.0,
+      "unit_cost": 27.433
+    },
+    {
+      "item_code": "PROS-12-PRS40-CV",
+      "item_name": "Hunter Pros 12\" PRS40 CV",
+      "quantity": 75.0,
+      "unit_cost": 18.804
+    },
+    {
+      "item_code": "",
+      "item_name": "Hunter Eco-Indicator (Yellow Pop Up Stem)",
+      "quantity": 10.0,
+      "unit_cost": 8.279
+    },
+    {
+      "item_code": "RBY100MPTX",
+      "item_name": "Filter - RB Inline w/ 200 Mesh Screen - 1\" (Y100)",
+      "quantity": 10.0,
+      "unit_cost": 18.465
+    },
+    {
+      "item_code": "XXFFTEE",
+      "item_name": "RBXFFTEE - Barb Tee - 17 mm",
+      "quantity": 500.0,
+      "unit_cost": 0.413
+    },
+    {
+      "item_code": "XFFCOUP",
+      "item_name": "RBXFFCOUP - Barb Coupler 17 mm",
+      "quantity": 250.0,
+      "unit_cost": 0.276
+    },
+    {
+      "item_code": "1429-251",
+      "item_name": "PVC Insert Coupler (reducing) - 2\" x 1-1/2\"",
+      "quantity": 10.0,
+      "unit_cost": 3.456
+    },
+    {
+      "item_code": "KSC3485",
+      "item_name": "Pinch Clamp - 1-1/2\"",
+      "quantity": 400.0,
+      "unit_cost": 0.35
+    }
+  ]
+}

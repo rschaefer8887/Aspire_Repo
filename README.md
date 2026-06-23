@@ -48,9 +48,12 @@ Per-vendor rules for tax and total reconciliation. **`process_invoices.py`** sta
 
 **HD Fowler freight:** `INBOUND FRT / BILLABLE` lines are not imported as catalog items. Taxed freight (×1.06) is summed and added **per material unit** to each line’s unit cost (total freight ÷ total material quantity).
 | `idaho_sod` | Idaho Sod (Vendor 136) | None (×1.0) | Yes | No |
+| `cedron_sod` | Cedron Sod | None (×1.0) | Yes | No |
 | `default` | Everyone else | None (×1.0) | No | No |
 
 **Idaho Sod:** Invoices use **Total Due** ÷ **square feet** for unit cost (delivery, pallet deposit, and fuel surcharge are included in Total Due, not separate Aspire lines). Kentucky → Bluegrass Sod; RTF → Rhizomatous Tall Fescue Sod. IDP writes **one import line**; when 3 decimals cannot match Total Due exactly, **B6** documents the variance and a manual two-line split for Aspire UI. Import sends B6 as `ReceiptNote`.
+
+**Cedron Sod:** Invoices use the **bottom-left invoice total** ÷ **total sod square feet** when there is a **single grass type** (pallet credit, pallet charge, and tax are included in the total, not separate Aspire lines). Multiple grass types are left for review. Same B6 variance / `ReceiptNote` behavior as Idaho Sod.
 
 Catalog matching treats **tee, elbow, coupler, adapter, plug** as product families with strict size rules.
 

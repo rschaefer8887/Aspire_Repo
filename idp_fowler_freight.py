@@ -19,6 +19,24 @@ def is_fowler_inbound_freight_line(description_raw: str | None) -> bool:
     return bool(_FOWLER_INBOUND_FREIGHT_RE.search(description_raw or ""))
 
 
+def normalize_fowler_invoice_number(raw: str) -> str:
+    """
+    Fowler invoice numbers start with capital I (Invoice). Vision models often
+    misread it as digit 1 — correct that when the remainder is all digits.
+    """
+    s = str(raw).strip()
+    if not s:
+        return s
+    suffix = ""
+    base = s
+    if s.upper().endswith("-INV"):
+        suffix = s[-4:]
+        base = s[:-4]
+    if len(base) >= 2 and base[0] in ("1", "i") and base[1:].isdigit():
+        base = "I" + base[1:]
+    return base + suffix
+
+
 @dataclass(frozen=True)
 class FowlerFreightAllocation:
     """Summary after spreading taxed freight into material unit costs."""

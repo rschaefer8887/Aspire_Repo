@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 _DEFAULT_HD_FOWLER_VENDOR = "H.D. Fowler Company {Turf}"
 _DEFAULT_IDAHO_SOD_VENDOR = "Idaho Sod"
+_DEFAULT_CEDRON_SOD_VENDOR = "Cedron Sod"
 _DEFAULT_MD_INTERNAL_VENDOR = "MD Internal Vendor"
 _DEFAULT_MD_INTERNAL_VENDOR_ID = 347
 
@@ -34,6 +35,20 @@ def is_idaho_sod_vendor(name: str | None) -> bool:
         return False
     key = normalize_vendor_key(name)
     return "idaho" in key and "sod" in key
+
+
+def cedron_sod_preferred_vendor_name() -> str:
+    return (
+        os.environ.get("IDP_CEDRON_SOD_VENDOR_NAME", "").strip()
+        or _DEFAULT_CEDRON_SOD_VENDOR
+    )
+
+
+def is_cedron_sod_vendor(name: str | None) -> bool:
+    if not name:
+        return False
+    key = normalize_vendor_key(name)
+    return "cedron" in key and "sod" in key
 
 
 def normalize_vendor_key(name: str) -> str:
@@ -161,6 +176,32 @@ def resolve_idaho_sod_vendor(
         is_idaho_sod_vendor(vendor_name)
         or is_idaho_sod_vendor(vendor_raw)
         or (rec and is_idaho_sod_vendor(rec.vendor_name))
+    ):
+        return rec
+
+    preferred = refs.lookup_vendor_record(preferred_name)
+    return preferred or rec
+
+
+def resolve_cedron_sod_vendor(
+    refs: ReferenceData,
+    vendor_name: str | None,
+    vendor_raw: str | None = None,
+) -> VendorRecord | None:
+    """Resolve vendor from Aspire list; map Cedron Sod variants to preferred name."""
+    preferred_name = cedron_sod_preferred_vendor_name()
+    rec: VendorRecord | None = None
+
+    if vendor_name:
+        rec = refs.lookup_vendor_record(vendor_name)
+
+    if rec is None and vendor_raw and is_cedron_sod_vendor(vendor_raw):
+        rec = refs.lookup_vendor_record(preferred_name)
+
+    if not (
+        is_cedron_sod_vendor(vendor_name)
+        or is_cedron_sod_vendor(vendor_raw)
+        or (rec and is_cedron_sod_vendor(rec.vendor_name))
     ):
         return rec
 

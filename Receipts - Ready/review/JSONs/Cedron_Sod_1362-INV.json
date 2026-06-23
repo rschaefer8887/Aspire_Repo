@@ -1,0 +1,85 @@
+{
+  "processed_at": "2026-06-23T11:41:55",
+  "pdf_name": "06232026_CEDRON SOD.pdf",
+  "openai_model": "gpt-4.1-mini",
+  "review_flags": [],
+  "invoice_date": "2026-06-20",
+  "vendor_raw": "Cedron Sod",
+  "vendor_name": "Cedron Sod",
+  "vendor_id": 64,
+  "vendor_confidence": 1.0,
+  "vendor_rationale": "Exact match to vendor list entry 'Cedron Sod'",
+  "invoice_number_raw": "1362",
+  "invoice_number": "1362-INV",
+  "invoice_total": 198.08,
+  "receipt_note": null,
+  "openai_raw": {
+    "invoice_date": "2026-06-20",
+    "vendor_raw": "Cedron Sod",
+    "vendor_name": "Cedron Sod",
+    "vendor_confidence": 1,
+    "vendor_rationale": "Exact match to vendor list entry 'Cedron Sod'",
+    "invoice_number_raw": "1362",
+    "invoice_total": 198.08,
+    "lines": [
+      {
+        "description_raw": "Pallet Credit",
+        "quantity": 0,
+        "unit_price": -15.0,
+        "uom_raw": "",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Pallet credit line with zero quantity and negative unit price"
+      },
+      {
+        "description_raw": "Bluegrass Sod - Pick-up Date: 6/19/26",
+        "quantity": 600,
+        "unit_price": 0.28,
+        "uom_raw": "",
+        "supplier_item_code": null,
+        "read_confidence": 0.98,
+        "rationale": "Sod line with quantity 600 and unit price 0.28"
+      },
+      {
+        "description_raw": "Pallet Charge*",
+        "quantity": 1,
+        "unit_price": 20.0,
+        "uom_raw": "",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Pallet charge line with quantity 1 and unit price 20.00"
+      },
+      {
+        "description_raw": "ID Sales Tax - Sod Only",
+        "quantity": 0,
+        "unit_price": 0,
+        "uom_raw": "6%",
+        "supplier_item_code": null,
+        "read_confidence": 0.9,
+        "rationale": "Sales tax line with 6% rate and total price 10.08 included in invoice total"
+      }
+    ]
+  },
+  "lines": [
+    {
+      "description_raw": "Bluegrass Sod - Pick-up Date: 6/19/26",
+      "quantity": 600.0,
+      "unit_price": 0.33,
+      "uom_raw": "SF",
+      "supplier_item_code": null,
+      "item_code": "BSOD",
+      "item_name": "Bluegrass Sod",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Cedron Sod: invoice total 198.08 / 600 sq ft; Sod alias → 'Bluegrass Sod'; single import line"
+    }
+  ],
+  "aspire_import_lines": [
+    {
+      "item_code": "BSOD",
+      "item_name": "Bluegrass Sod",
+      "quantity": 600.0,
+      "unit_cost": 0.33
+    }
+  ]
+}

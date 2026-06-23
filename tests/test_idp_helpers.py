@@ -15,6 +15,7 @@ from idp_costs import (  # noqa: E402
     taxed_line_total,
 )
 from idp_excel import output_filename  # noqa: E402
+from idp_fowler_freight import normalize_fowler_invoice_number
 from idp_openai import format_invoice_number, resolve_openai_model  # noqa: E402
 from idp_paths import is_import_excluded_xlsx, sanitize_filename_part  # noqa: E402
 from idp_reference import (  # noqa: E402
@@ -46,6 +47,12 @@ class TestIdpHelpers(unittest.TestCase):
     def test_format_invoice_number_appends_inv(self) -> None:
         self.assertEqual(format_invoice_number("12345"), "12345-INV")
         self.assertEqual(format_invoice_number("12345-INV"), "12345-INV")
+
+    def test_normalize_fowler_invoice_number_fixes_leading_one(self) -> None:
+        self.assertEqual(normalize_fowler_invoice_number("17343986"), "I7343986")
+        self.assertEqual(normalize_fowler_invoice_number("17343986-INV"), "I7343986-INV")
+        self.assertEqual(normalize_fowler_invoice_number("I7343986"), "I7343986")
+        self.assertEqual(normalize_fowler_invoice_number("i7343986"), "I7343986")
 
     def test_apply_tax_rounds_three_decimals(self) -> None:
         self.assertEqual(apply_tax(100.0, profile=HD_FOWLER_PROFILE), 106.0)
@@ -260,6 +267,12 @@ class TestIdpHelpers(unittest.TestCase):
     def test_vendor_profile_idaho_sod(self) -> None:
         prof = vendor_profile_for("Idaho Sod")
         self.assertEqual(prof.profile_id, "idaho_sod")
+        self.assertTrue(prof.reconcile_to_invoice_total)
+        self.assertFalse(prof.skip_receipt_item_consolidation)
+
+    def test_vendor_profile_cedron_sod(self) -> None:
+        prof = vendor_profile_for("Cedron Sod")
+        self.assertEqual(prof.profile_id, "cedron_sod")
         self.assertTrue(prof.reconcile_to_invoice_total)
         self.assertFalse(prof.skip_receipt_item_consolidation)
 

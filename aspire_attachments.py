@@ -10,7 +10,7 @@ from pathlib import Path
 from aspire_common import AspireClient
 from aspire_excel import ReceiptWorkbook
 from idp_paths import invoices_processed_dir, sanitize_filename_part
-from idp_vendor_prefs import is_hd_fowler_vendor, is_idaho_sod_vendor
+from idp_vendor_prefs import is_cedron_sod_vendor, is_hd_fowler_vendor, is_idaho_sod_vendor
 
 DEFAULT_ATTACHMENT_TYPE_ID = 20  # Vendor Invoice (GET /AttachmentTypes)
 
@@ -38,6 +38,8 @@ def aspire_pdf_vendor_label(
             return "HD Fowler"
         if is_idaho_sod_vendor(candidate):
             return "Idaho Sod"
+        if is_cedron_sod_vendor(candidate):
+            return "Cedron Sod"
     raw = (vendor_name or vendor_raw or "Vendor").strip()
     label = sanitize_filename_part(raw, max_len=40).replace("_", " ")
     return label or "Vendor"

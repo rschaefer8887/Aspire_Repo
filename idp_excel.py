@@ -23,7 +23,7 @@ from idp_paths import default_branch, excel_template_path, sanitize_filename_par
 from idp_pack_conversion import maybe_convert_box_line, maybe_convert_canister_line
 from idp_roll_conversion import maybe_convert_roll_line
 from idp_sod import SodSplitResult, build_sod_receipt_note
-from idp_vendor_profiles import HD_FOWLER_PROFILE, IDAHO_SOD_PROFILE, VendorProfile, vendor_profile_for
+from idp_vendor_profiles import HD_FOWLER_PROFILE, is_sod_vendor_profile, VendorProfile, vendor_profile_for
 
 
 def _line_to_output(line, *, prof: VendorProfile) -> LineOutput:
@@ -191,7 +191,7 @@ def write_from_extraction(
 
     receipt_note = result.receipt_note
     if (
-        profile.profile_id == IDAHO_SOD_PROFILE.profile_id
+        is_sod_vendor_profile(profile)
         and result.invoice_total
         and isinstance(result.sod_split, SodSplitResult)
     ):

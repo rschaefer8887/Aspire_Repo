@@ -1,0 +1,103 @@
+{
+  "processed_at": "2026-06-25T10:51:26",
+  "pdf_name": "07182026_Idaho Sod.pdf",
+  "openai_model": "gpt-4.1-mini",
+  "review_flags": [],
+  "invoice_date": "2026-06-18",
+  "vendor_raw": "Idaho Sod",
+  "vendor_name": "Idaho Sod",
+  "vendor_id": 136,
+  "vendor_confidence": 1.0,
+  "vendor_rationale": "Vendor name 'Idaho Sod' matches exactly with vendor list entry 'Idaho Sod'.",
+  "invoice_number_raw": "ORD-0049",
+  "invoice_number": "ORD-0049-INV",
+  "invoice_total": 4006.4,
+  "receipt_note": null,
+  "openai_raw": {
+    "invoice_date": "2026-06-18",
+    "vendor_raw": "Idaho Sod",
+    "vendor_name": "Idaho Sod",
+    "vendor_confidence": 1,
+    "vendor_rationale": "Vendor name 'Idaho Sod' matches exactly with vendor list entry 'Idaho Sod'.",
+    "invoice_number_raw": "ORD-0049",
+    "invoice_total": 4006.4,
+    "lines": [
+      {
+        "description_raw": "Kentucky",
+        "quantity": 1500,
+        "unit_price": 0.18,
+        "uom_raw": "SQ FT",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Quantity and unit price match line with description 'Kentucky'. Quantity is in square feet as typical for sod."
+      },
+      {
+        "description_raw": "Delivery / Service",
+        "quantity": 1500,
+        "unit_price": 0.03,
+        "uom_raw": "SQ FT",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Delivery / Service charge for 1500 units, unit price 0.03."
+      },
+      {
+        "description_raw": "Pallet Deposit",
+        "quantity": 14,
+        "unit_price": 15.0,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Pallet deposit quantity 14, unit price 15.00 each."
+      },
+      {
+        "description_raw": "Meadow Grass",
+        "quantity": 6500,
+        "unit_price": 0.18,
+        "uom_raw": "SQ FT",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Meadow Grass sod quantity 6500 square feet, unit price 0.18."
+      },
+      {
+        "description_raw": "Delivery / Service",
+        "quantity": 6500,
+        "unit_price": 0.33,
+        "uom_raw": "SQ FT",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Delivery / Service charge for 6500 units, unit price 0.33."
+      },
+      {
+        "description_raw": "Fuel Surcharge",
+        "quantity": 8000,
+        "unit_price": 0.01,
+        "uom_raw": "SQ FT",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Fuel surcharge for 8000 units, unit price 0.01."
+      }
+    ]
+  },
+  "lines": [
+    {
+      "description_raw": "Meadow Grass",
+      "quantity": 6500.0,
+      "unit_price": 0.616,
+      "uom_raw": "SQ FT",
+      "supplier_item_code": null,
+      "item_code": "MSOD",
+      "item_name": "Meadow Grass Sod",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Idaho Sod: Total Due 4006.40 / 6500 sq ft; Sod alias → 'Meadow Grass Sod'; single import line"
+    }
+  ],
+  "aspire_import_lines": [
+    {
+      "item_code": "MSOD",
+      "item_name": "Meadow Grass Sod",
+      "quantity": 6500.0,
+      "unit_cost": 0.616
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "processed_at": "2026-06-25T10:48:56",
+  "pdf_name": "06172026_Ways to pay_001.pdf",
+  "openai_model": "gpt-4.1-mini",
+  "review_flags": [],
+  "invoice_date": "2026-06-17",
+  "vendor_raw": "Idaho Sod",
+  "vendor_name": "Idaho Sod",
+  "vendor_id": 136,
+  "vendor_confidence": 1.0,
+  "vendor_rationale": "Vendor name 'Idaho Sod' matches exactly with vendor list entry 'Idaho Sod'.",
+  "invoice_number_raw": "ORD-0050",
+  "invoice_number": "ORD-0050-INV",
+  "invoice_total": 2123.2,
+  "receipt_note": null,
+  "openai_raw": {
+    "invoice_date": "2026-06-17",
+    "vendor_raw": "Idaho Sod",
+    "vendor_name": "Idaho Sod",
+    "vendor_confidence": 1,
+    "vendor_rationale": "Vendor name 'Idaho Sod' matches exactly with vendor list entry 'Idaho Sod'.",
+    "invoice_number_raw": "ORD-0050",
+    "invoice_total": 2123.2,
+    "lines": [
+      {
+        "description_raw": "Meadow Grass",
+        "quantity": 4000,
+        "unit_price": 0.18,
+        "uom_raw": "SQ FT",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Quantity 4000, unit price 0.18, description 'Meadow Grass' clearly indicated; unit of measure inferred as square feet for sod."
+      },
+      {
+        "description_raw": "Delivery / Service",
+        "quantity": 4000,
+        "unit_price": 0.33,
+        "uom_raw": "SQ FT",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Quantity 4000, unit price 0.33, description 'Delivery / Service' clearly indicated; unit of measure inferred as square feet."
+      },
+      {
+        "description_raw": "Fuel Surcharge",
+        "quantity": 4000,
+        "unit_price": 0.01,
+        "uom_raw": "SQ FT",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Quantity 4000, unit price 0.01, description 'Fuel Surcharge' clearly indicated; unit of measure inferred as square feet."
+      },
+      {
+        "description_raw": "Tube Deposit",
+        "quantity": 10,
+        "unit_price": 0.0,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Quantity 10, unit price 0.00, description 'Tube Deposit' clearly indicated; unit of measure inferred as each (EA)."
+      }
+    ]
+  },
+  "lines": [
+    {
+      "description_raw": "Meadow Grass",
+      "quantity": 4000.0,
+      "unit_price": 0.531,
+      "uom_raw": "SQ FT",
+      "supplier_item_code": null,
+      "item_code": "MSOD",
+      "item_name": "Meadow Grass Sod",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Idaho Sod: Total Due 2123.20 / 4000 sq ft; Sod alias → 'Meadow Grass Sod'; single import line"
+    }
+  ],
+  "aspire_import_lines": [
+    {
+      "item_code": "MSOD",
+      "item_name": "Meadow Grass Sod",
+      "quantity": 4000.0,
+      "unit_cost": 0.531
+    }
+  ]
+}

@@ -9,13 +9,14 @@ _PINCH_CLAMP_CT108_RE = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 
-# Catalog tools — queue for review so user can exclude from receipt if not inventory.
+# Tools / invoice-only lines — queue for review so user can exclude from receipt.
 _REVIEW_TOOL_BY_CODE: dict[str, str] = {
     "ROTORTOOL": "Rain Bird Universal Rotor Tool Green",
     "SS200": "Dawn SS200 Large PVC Cutter",
     "CT112": "PINCH CLAMP TOOL LARGE CT112",
     "7020": "NO HUB TORQUE WRENCH #NH7020 CHRISTYS",
     "NH7020": "NO HUB TORQUE WRENCH #NH7020 CHRISTYS",
+    "6 IN 1 SCREWDRIVER": "6 IN 1 Screwdriver",
 }
 
 
@@ -64,7 +65,14 @@ def review_tool_flag(
     row: int,
 ) -> str:
     code = _normalize_item_code(item_code)
-    label = _REVIEW_TOOL_BY_CODE.get(code) or (item_name or code or "tool")
+    label = _REVIEW_TOOL_BY_CODE.get(code)
+    if not label:
+        desc_u = (description_raw or "").upper()
+        for key, name in _REVIEW_TOOL_BY_CODE.items():
+            if key in desc_u:
+                label = name
+                break
+    label = label or item_name or code or "tool"
     return (
         f"TOOL row {row} ({label}) — review and exclude if not inventory:\n"
         f"  Code: {item_code!r}  Name: {item_name!r}\n"

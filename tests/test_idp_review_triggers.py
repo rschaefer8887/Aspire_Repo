@@ -156,6 +156,15 @@ class TestReviewToolTriggers(unittest.TestCase):
             )
         )
 
+    def test_detector_matches_six_in_one_screwdriver_without_catalog(self) -> None:
+        self.assertTrue(
+            is_review_tool_line(
+                item_code=None,
+                item_name=None,
+                description_raw="6 IN 1 SCREWDRIVER",
+            )
+        )
+
     def test_detector_rejects_unrelated_lines(self) -> None:
         self.assertFalse(
             is_review_tool_line(
@@ -245,6 +254,40 @@ class TestReviewToolTriggers(unittest.TestCase):
         )
         flags = collect_review_flags(result)
         self.assertTrue(any("TOOL row" in flag and "NH7020" in flag for flag in flags))
+
+    def test_collect_review_flags_queues_screwdriver_without_catalog(self) -> None:
+        result = ExtractionResult(
+            invoice_date=None,
+            vendor_raw="H.D. Fowler",
+            vendor_name="H.D. Fowler Company {Turf}",
+            vendor_id=1,
+            vendor_confidence=1.0,
+            vendor_rationale="",
+            invoice_number_raw="12345",
+            invoice_total=50.0,
+            lines=[
+                LineMatch(
+                    description_raw="6 IN 1 SCREWDRIVER",
+                    quantity=1.0,
+                    unit_price=12.0,
+                    item_code=None,
+                    item_name=None,
+                    confidence=0.0,
+                ),
+                LineMatch(
+                    description_raw='1" PVC INSERT TEE',
+                    quantity=1,
+                    unit_price=5.0,
+                    item_code="TEE1",
+                    item_name='1" PVC Insert Tee',
+                    confidence=0.99,
+                ),
+            ],
+        )
+        flags = collect_review_flags(result)
+        self.assertTrue(
+            any("TOOL row" in flag and "6 IN 1 Screwdriver" in flag for flag in flags)
+        )
 
     def test_extraction_to_session_marks_only_tool_line(self) -> None:
         result = ExtractionResult(

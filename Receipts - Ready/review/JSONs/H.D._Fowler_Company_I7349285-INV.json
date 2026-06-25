@@ -1,0 +1,655 @@
+{
+  "processed_at": "2026-06-25T11:56:33",
+  "pdf_name": "06252026_H.D. FOWLER.pdf",
+  "openai_model": "gpt-4.1-mini",
+  "review_flags": [
+    "TOOL row 12 (Dawn SS200 Large PVC Cutter) — review and exclude if not inventory:\n  Code: 'SS200'  Name: 'Black Cutters'\n  Raw: 'SS200 CUTTER BLACK HANDLE W/SS BLADE CUTS UP TO 1-7/8 \" DAWN'",
+    "LOW CONFIDENCE LINE (0.00) row 32:\n  Raw: '2\" X 2\" X 1\" SCH 40 GALVANIZED TEE IMPORT'\n  Matched: ItemCode=None ItemName=None"
+  ],
+  "invoice_date": "2026-06-23",
+  "vendor_raw": "H.D. FOWLER COMPANY",
+  "vendor_name": "H.D. Fowler Company {Turf}",
+  "vendor_id": 120,
+  "vendor_confidence": 1.0,
+  "vendor_rationale": "Vendor name matches exactly 'H.D. Fowler Company {Turf}' from the vendor list and invoice header shows H.D. Fowler Company.",
+  "invoice_number_raw": "I7349285",
+  "invoice_number": "I7349285-INV",
+  "invoice_total": 10821.4,
+  "receipt_note": null,
+  "openai_raw": {
+    "invoice_date": "2026-06-23",
+    "vendor_raw": "H.D. FOWLER COMPANY",
+    "vendor_name": "H.D. Fowler Company {Turf}",
+    "vendor_confidence": 1,
+    "vendor_rationale": "Vendor name matches exactly 'H.D. Fowler Company {Turf}' from the vendor list and invoice header shows H.D. Fowler Company.",
+    "invoice_number_raw": "I7349285",
+    "invoice_total": 10821.4,
+    "lines": [
+      {
+        "description_raw": "FLUORESCENT ORANGE MARKING PAINT CAN",
+        "quantity": 12,
+        "unit_price": 6.15,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear quantity, unit price, and description on invoice line 1."
+      },
+      {
+        "description_raw": "1800EXT 6\" STEM EXTENSION FOR 1800 SPRAY HEADS RAIN BIRD",
+        "quantity": 25,
+        "unit_price": 3.29,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description spans two lines but combined for clarity; quantity and price clear."
+      },
+      {
+        "description_raw": "SS200 CUTTER BLACK HANDLE W/SS BLADE CUTS UP TO 1-7/8 \" DAWN",
+        "quantity": 6,
+        "unit_price": 22.39,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description includes hyphenated fractional size as printed; quantity and price clear."
+      },
+      {
+        "description_raw": "15' VAN VARIABLE ARC BLACK NOZZLE W/SCREEN (25-BAG) SOLD BY THE EACH RAIN BIRD",
+        "quantity": 100,
+        "unit_price": 0.95,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description and pricing clear; quantity and unit price match invoice."
+      },
+      {
+        "description_raw": "1\" MIPT X FEMALE BUTTRESS SWIVEL ADAPTER 18010 ACTION",
+        "quantity": 50,
+        "unit_price": 3.92,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description includes hyphenated fractional size; quantity and price clear."
+      },
+      {
+        "description_raw": "MP ROTATOR 3000 22-30' 90-210 DEG. MP300090 BLUE HUNTER",
+        "quantity": 200,
+        "unit_price": 5.55,
+        "uom_raw": "EA",
+        "supplier_item_code": "MP300090",
+        "read_confidence": 0.95,
+        "rationale": "Description includes part number; quantity and price clear."
+      },
+      {
+        "description_raw": "MP ROTATOR 1000 8-15' 90-210 DEG. MP100090 MAROON HUNTER",
+        "quantity": 200,
+        "unit_price": 5.55,
+        "uom_raw": "EA",
+        "supplier_item_code": "MP100090",
+        "read_confidence": 0.95,
+        "rationale": "Description includes part number; quantity and price clear."
+      },
+      {
+        "description_raw": "MP ROTATOR 3000 22-30' 360 DEG. MP3000360 GRAY HUNTER",
+        "quantity": 200,
+        "unit_price": 5.55,
+        "uom_raw": "EA",
+        "supplier_item_code": "MP3000360",
+        "read_confidence": 0.95,
+        "rationale": "Description includes part number; quantity and price clear."
+      },
+      {
+        "description_raw": "PROS-12-SI 12\" SPRAY HEAD W/SIDE INLET HUNTER",
+        "quantity": 125,
+        "unit_price": 10.4,
+        "uom_raw": "EA",
+        "supplier_item_code": "PROS-12-SI",
+        "read_confidence": 0.95,
+        "rationale": "Description includes part number; quantity and price clear."
+      },
+      {
+        "description_raw": "EZ-DM DECODER MODULE FOR HCC AND ICC2 CONTROLLERS HUNTER",
+        "quantity": 3,
+        "unit_price": 195.63,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description and pricing clear; quantity and unit price match invoice."
+      },
+      {
+        "description_raw": "EZ-1 SINGLE STATION DECODER WITH STATUS LED HUNTER",
+        "quantity": 40,
+        "unit_price": 55.84,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description and pricing clear; quantity and unit price match invoice."
+      },
+      {
+        "description_raw": "1\" SCH 40 GALVANIZED UNION IMPORT",
+        "quantity": 15,
+        "unit_price": 10.38,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description includes hyphenated fractional size; quantity and price clear."
+      },
+      {
+        "description_raw": "1\" SCH 40 GALVANIZED 90 ELBOW IMPORT",
+        "quantity": 15,
+        "unit_price": 3.46,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description includes hyphenated fractional size; quantity and price clear."
+      },
+      {
+        "description_raw": "1\" SCH 40 GALVANIZED TEE IMPORT",
+        "quantity": 15,
+        "unit_price": 5.13,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description includes hyphenated fractional size; quantity and price clear."
+      },
+      {
+        "description_raw": "BLACK/WHITE KING CONNECTOR MIN#22/MAX#12 150 PER CANISTER #61146 KING INNOVATION",
+        "quantity": 4,
+        "unit_price": 81.91,
+        "uom_raw": "EA",
+        "supplier_item_code": "#61146",
+        "read_confidence": 0.95,
+        "rationale": "Description includes part number; quantity and price clear."
+      },
+      {
+        "description_raw": "BLUE KING CONNECTOR MIN#22/MAX#12 100 PER CANISTER #10241 KING INNOVATION",
+        "quantity": 4,
+        "unit_price": 84.27,
+        "uom_raw": "EA",
+        "supplier_item_code": "#10241",
+        "read_confidence": 0.95,
+        "rationale": "Description includes part number; quantity and price clear."
+      },
+      {
+        "description_raw": "PCM-300 3 STATION MODULE FOR PC CONTROLLER HUNTER",
+        "quantity": 20,
+        "unit_price": 39.06,
+        "uom_raw": "EA",
+        "supplier_item_code": "PCM-300",
+        "read_confidence": 0.95,
+        "rationale": "Description includes part number; quantity and price clear."
+      },
+      {
+        "description_raw": "ESP4ME3 4 STATION BASE EXPANDABLE TO 22 STATIONS WI-FI LNK READY INDOOR/OUTDOOR MODULAR CONTROLLER PIGTAIL INCLUDED RAIN BIRD",
+        "quantity": 1,
+        "unit_price": 141.22,
+        "uom_raw": "EA",
+        "supplier_item_code": "ESP4ME3",
+        "read_confidence": 0.95,
+        "rationale": "Description includes part number; quantity and price clear."
+      },
+      {
+        "description_raw": "1\" 720A PRESSURE VACUUM BREAKER ASSEMBLY WILKINS",
+        "quantity": 1,
+        "unit_price": 145.45,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description includes hyphenated fractional size; quantity and price clear."
+      },
+      {
+        "description_raw": "8' PIGTAIL POWER CORD W/INVERTED RIGHT ANGLE PLUG",
+        "quantity": 6,
+        "unit_price": 11.68,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description and pricing clear; quantity and unit price match invoice."
+      },
+      {
+        "description_raw": "2\" X CLOSE SCH 40 GALVANIZED NIPPLE A53 ERW",
+        "quantity": 4,
+        "unit_price": 5.01,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description includes hyphenated fractional size; quantity and price clear."
+      },
+      {
+        "description_raw": "2\" SCH 40 GALVANIZED COUPLING IMPORT",
+        "quantity": 2,
+        "unit_price": 9.44,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description includes hyphenated fractional size; quantity and price clear."
+      },
+      {
+        "description_raw": "2\" X 2\" X 1\" SCH 40 GALVANIZED TEE IMPORT",
+        "quantity": 3,
+        "unit_price": 16.95,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Description includes hyphenated fractional sizes; quantity and price clear."
+      }
+    ]
+  },
+  "lines": [
+    {
+      "description_raw": "FLUORESCENT ORANGE MARKING PAINT CAN",
+      "quantity": 12.0,
+      "unit_price": 6.15,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Marking Paint",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear quantity, unit price, and description on invoice line 1.; Best catalog match (1.40)"
+    },
+    {
+      "description_raw": "1800EXT 6\" STEM EXTENSION FOR 1800 SPRAY HEADS RAIN BIRD",
+      "quantity": 25.0,
+      "unit_price": 3.29,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "1800EXT",
+      "item_name": "Spray Head Stem Extension - 6\" (Rain Bird)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description spans two lines but combined for clarity; quantity and price clear.; Item code '1800EXT' found in description"
+    },
+    {
+      "description_raw": "SS200 CUTTER BLACK HANDLE W/SS BLADE CUTS UP TO 1-7/8 \" DAWN",
+      "quantity": 6.0,
+      "unit_price": 22.39,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "SS200",
+      "item_name": "Black Cutters",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description includes hyphenated fractional size as printed; quantity and price clear.; Item code 'SS200' found in description"
+    },
+    {
+      "description_raw": "15' VAN VARIABLE ARC BLACK NOZZLE W/SCREEN (25-BAG) SOLD BY THE EACH RAIN BIRD",
+      "quantity": 100.0,
+      "unit_price": 0.95,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "VAN",
+      "item_name": "VAN Nozzle",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description and pricing clear; quantity and unit price match invoice.; Item code 'VAN' found in description"
+    },
+    {
+      "description_raw": "1\" MIPT X FEMALE BUTTRESS SWIVEL ADAPTER 18010 ACTION",
+      "quantity": 50.0,
+      "unit_price": 3.92,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "18010",
+      "item_name": "Action Swivel Adapter - 1\" (MIPT x F)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description includes hyphenated fractional size; quantity and price clear.; Item code '18010' found in description"
+    },
+    {
+      "description_raw": "MP ROTATOR 3000 22-30' 90-210 DEG. MP300090 BLUE HUNTER",
+      "quantity": 200.0,
+      "unit_price": 5.55,
+      "uom_raw": "EA",
+      "supplier_item_code": "MP300090",
+      "item_code": null,
+      "item_name": "MP Rotator",
+      "item_alternate_name": null,
+      "confidence": 0.941,
+      "rationale": "Description includes part number; quantity and price clear.; Best catalog match (0.95)"
+    },
+    {
+      "description_raw": "MP ROTATOR 1000 8-15' 90-210 DEG. MP100090 MAROON HUNTER",
+      "quantity": 200.0,
+      "unit_price": 5.55,
+      "uom_raw": "EA",
+      "supplier_item_code": "MP100090",
+      "item_code": null,
+      "item_name": "MP Rotator",
+      "item_alternate_name": null,
+      "confidence": 0.941,
+      "rationale": "Description includes part number; quantity and price clear.; Best catalog match (0.95)"
+    },
+    {
+      "description_raw": "MP ROTATOR 3000 22-30' 360 DEG. MP3000360 GRAY HUNTER",
+      "quantity": 200.0,
+      "unit_price": 5.55,
+      "uom_raw": "EA",
+      "supplier_item_code": "MP3000360",
+      "item_code": null,
+      "item_name": "MP Rotator",
+      "item_alternate_name": null,
+      "confidence": 0.941,
+      "rationale": "Description includes part number; quantity and price clear.; Best catalog match (0.95)"
+    },
+    {
+      "description_raw": "PROS-12-SI 12\" SPRAY HEAD W/SIDE INLET HUNTER",
+      "quantity": 125.0,
+      "unit_price": 10.4,
+      "uom_raw": "EA",
+      "supplier_item_code": "PROS-12-SI",
+      "item_code": "PROS-12",
+      "item_name": "Hunter Pros 12\" (Bottom and/or Side Inlet)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description includes part number; quantity and price clear.; Item code 'PROS-12' found in description"
+    },
+    {
+      "description_raw": "EZ-DM DECODER MODULE FOR HCC AND ICC2 CONTROLLERS HUNTER",
+      "quantity": 3.0,
+      "unit_price": 195.63,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "EZ-DM",
+      "item_name": "Hunter - EZ-DM Decoder Module",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description and pricing clear; quantity and unit price match invoice.; Item code 'EZ-DM' found in description"
+    },
+    {
+      "description_raw": "EZ-1 SINGLE STATION DECODER WITH STATUS LED HUNTER",
+      "quantity": 40.0,
+      "unit_price": 55.84,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "EZ-1",
+      "item_name": "Hunter - EZ-1 Station Decoder",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description and pricing clear; quantity and unit price match invoice.; Item code 'EZ-1' found in description"
+    },
+    {
+      "description_raw": "1\" SCH 40 GALVANIZED UNION IMPORT",
+      "quantity": 15.0,
+      "unit_price": 10.38,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Galv. Union - 1\" (FxF)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description includes hyphenated fractional size; quantity and price clear.; Best catalog match (1.27)"
+    },
+    {
+      "description_raw": "1\" SCH 40 GALVANIZED 90 ELBOW IMPORT",
+      "quantity": 15.0,
+      "unit_price": 3.46,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Galv. Elbow (90) - 1\" (FxF)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description includes hyphenated fractional size; quantity and price clear.; Best catalog match (1.01)"
+    },
+    {
+      "description_raw": "1\" SCH 40 GALVANIZED TEE IMPORT",
+      "quantity": 15.0,
+      "unit_price": 5.13,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Galv. Tee - 1\"",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description includes hyphenated fractional size; quantity and price clear.; Best catalog match (1.30)"
+    },
+    {
+      "description_raw": "BLACK/WHITE KING CONNECTOR MIN#22/MAX#12 150 PER CANISTER #61146 KING INNOVATION",
+      "quantity": 4.0,
+      "unit_price": 81.91,
+      "uom_raw": "EA",
+      "supplier_item_code": "#61146",
+      "item_code": "61146",
+      "item_name": "Wire Nuts - Black/White",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description includes part number; quantity and price clear.; Item code '61146' found in description"
+    },
+    {
+      "description_raw": "BLUE KING CONNECTOR MIN#22/MAX#12 100 PER CANISTER #10241 KING INNOVATION",
+      "quantity": 4.0,
+      "unit_price": 84.27,
+      "uom_raw": "EA",
+      "supplier_item_code": "#10241",
+      "item_code": "10241",
+      "item_name": "Wire Nuts - Blue",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description includes part number; quantity and price clear.; Item code '10241' found in description"
+    },
+    {
+      "description_raw": "PCM-300 3 STATION MODULE FOR PC CONTROLLER HUNTER",
+      "quantity": 20.0,
+      "unit_price": 39.06,
+      "uom_raw": "EA",
+      "supplier_item_code": "PCM-300",
+      "item_code": "PCM-300",
+      "item_name": "Hunter Expansion Module - 3 Station, PCM-300",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description includes part number; quantity and price clear.; Exact supplier item code 'PCM-300'"
+    },
+    {
+      "description_raw": "ESP4ME3 4 STATION BASE EXPANDABLE TO 22 STATIONS WI-FI LNK READY INDOOR/OUTDOOR MODULAR CONTROLLER PIGTAIL INCLUDED RAIN BIRD",
+      "quantity": 1.0,
+      "unit_price": 141.22,
+      "uom_raw": "EA",
+      "supplier_item_code": "ESP4ME3",
+      "item_code": "ESP4ME3",
+      "item_name": "Rain Bird ESP - 4 Station Controller",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description includes part number; quantity and price clear.; Exact supplier item code 'ESP4ME3'"
+    },
+    {
+      "description_raw": "1\" 720A PRESSURE VACUUM BREAKER ASSEMBLY WILKINS",
+      "quantity": 1.0,
+      "unit_price": 145.45,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "720A",
+      "item_name": "PVB - 1\" - 720A",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description includes hyphenated fractional size; quantity and price clear.; Item code '720A' found in description"
+    },
+    {
+      "description_raw": "8' PIGTAIL POWER CORD W/INVERTED RIGHT ANGLE PLUG",
+      "quantity": 6.0,
+      "unit_price": 11.68,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Pigtail - 8'",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description and pricing clear; quantity and unit price match invoice.; Best catalog match (1.87)"
+    },
+    {
+      "description_raw": "2\" X CLOSE SCH 40 GALVANIZED NIPPLE A53 ERW",
+      "quantity": 4.0,
+      "unit_price": 5.01,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Galv. Close Nipple - 2\"",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description includes hyphenated fractional size; quantity and price clear.; Best catalog match (1.66)"
+    },
+    {
+      "description_raw": "2\" SCH 40 GALVANIZED COUPLING IMPORT",
+      "quantity": 2.0,
+      "unit_price": 9.44,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Galv. Coupler - 2\"",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Description includes hyphenated fractional size; quantity and price clear.; Best catalog match (1.07)"
+    },
+    {
+      "description_raw": "2\" X 2\" X 1\" SCH 40 GALVANIZED TEE IMPORT",
+      "quantity": 3.0,
+      "unit_price": 16.95,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": null,
+      "item_alternate_name": null,
+      "confidence": 0.0,
+      "rationale": "Description includes hyphenated fractional sizes; quantity and price clear.; No catalog match"
+    }
+  ],
+  "aspire_import_lines": [
+    {
+      "item_code": "",
+      "item_name": "Marking Paint",
+      "quantity": 12.0,
+      "unit_cost": 6.519
+    },
+    {
+      "item_code": "1800EXT",
+      "item_name": "Spray Head Stem Extension - 6\" (Rain Bird)",
+      "quantity": 25.0,
+      "unit_cost": 3.487
+    },
+    {
+      "item_code": "SS200",
+      "item_name": "Black Cutters",
+      "quantity": 6.0,
+      "unit_cost": 23.733
+    },
+    {
+      "item_code": "VAN",
+      "item_name": "VAN Nozzle",
+      "quantity": 100.0,
+      "unit_cost": 1.007
+    },
+    {
+      "item_code": "18010",
+      "item_name": "Action Swivel Adapter - 1\" (MIPT x F)",
+      "quantity": 50.0,
+      "unit_cost": 4.155
+    },
+    {
+      "item_code": "",
+      "item_name": "MP Rotator",
+      "quantity": 200.0,
+      "unit_cost": 5.883
+    },
+    {
+      "item_code": "",
+      "item_name": "MP Rotator",
+      "quantity": 200.0,
+      "unit_cost": 5.883
+    },
+    {
+      "item_code": "",
+      "item_name": "MP Rotator",
+      "quantity": 200.0,
+      "unit_cost": 5.883
+    },
+    {
+      "item_code": "PROS-12",
+      "item_name": "Hunter Pros 12\" (Bottom and/or Side Inlet)",
+      "quantity": 125.0,
+      "unit_cost": 11.024
+    },
+    {
+      "item_code": "EZ-DM",
+      "item_name": "Hunter - EZ-DM Decoder Module",
+      "quantity": 3.0,
+      "unit_cost": 207.368
+    },
+    {
+      "item_code": "EZ-1",
+      "item_name": "Hunter - EZ-1 Station Decoder",
+      "quantity": 40.0,
+      "unit_cost": 59.19
+    },
+    {
+      "item_code": "",
+      "item_name": "Galv. Union - 1\" (FxF)",
+      "quantity": 15.0,
+      "unit_cost": 11.003
+    },
+    {
+      "item_code": "",
+      "item_name": "Galv. Elbow (90) - 1\" (FxF)",
+      "quantity": 15.0,
+      "unit_cost": 3.668
+    },
+    {
+      "item_code": "",
+      "item_name": "Galv. Tee - 1\"",
+      "quantity": 15.0,
+      "unit_cost": 5.438
+    },
+    {
+      "item_code": "61146",
+      "item_name": "Wire Nuts - Black/White",
+      "quantity": 4.0,
+      "unit_cost": 86.825
+    },
+    {
+      "item_code": "10241",
+      "item_name": "Wire Nuts - Blue",
+      "quantity": 400.0,
+      "unit_cost": 0.893
+    },
+    {
+      "item_code": "PCM-300",
+      "item_name": "Hunter Expansion Module - 3 Station, PCM-300",
+      "quantity": 20.0,
+      "unit_cost": 41.404
+    },
+    {
+      "item_code": "ESP4ME3",
+      "item_name": "Rain Bird ESP - 4 Station Controller",
+      "quantity": 1.0,
+      "unit_cost": 149.693
+    },
+    {
+      "item_code": "720A",
+      "item_name": "PVB - 1\" - 720A",
+      "quantity": 1.0,
+      "unit_cost": 154.177
+    },
+    {
+      "item_code": "",
+      "item_name": "Pigtail - 8'",
+      "quantity": 6.0,
+      "unit_cost": 12.381
+    },
+    {
+      "item_code": "",
+      "item_name": "Galv. Close Nipple - 2\"",
+      "quantity": 4.0,
+      "unit_cost": 5.311
+    },
+    {
+      "item_code": "",
+      "item_name": "Galv. Coupler - 2\"",
+      "quantity": 2.0,
+      "unit_cost": 10.006
+    },
+    {
+      "item_code": "",
+      "item_name": "2\" X 2\" X 1\" SCH 40 GALVANIZED TEE IMPORT",
+      "quantity": 3.0,
+      "unit_cost": 17.967
+    }
+  ]
+}

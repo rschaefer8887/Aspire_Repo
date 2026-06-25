@@ -1,0 +1,85 @@
+{
+  "processed_at": "2026-06-25T10:51:12",
+  "pdf_name": "07152026_ldaho Sod.pdf",
+  "openai_model": "gpt-4.1-mini",
+  "review_flags": [],
+  "invoice_date": "2026-06-15",
+  "vendor_raw": "Idaho Sod",
+  "vendor_name": "Idaho Sod",
+  "vendor_id": 136,
+  "vendor_confidence": 1.0,
+  "vendor_rationale": "Vendor name Idaho Sod matches exactly with vendor list entry Idaho Sod.",
+  "invoice_number_raw": "TCQ3UZ",
+  "invoice_number": "TCQ3UZ-INV",
+  "invoice_total": 767.4,
+  "receipt_note": null,
+  "openai_raw": {
+    "invoice_date": "2026-06-15",
+    "vendor_raw": "Idaho Sod",
+    "vendor_name": "Idaho Sod",
+    "vendor_confidence": 1,
+    "vendor_rationale": "Vendor name Idaho Sod matches exactly with vendor list entry Idaho Sod.",
+    "invoice_number_raw": "TCQ3UZ",
+    "invoice_total": 767.4,
+    "lines": [
+      {
+        "description_raw": "Kentucky",
+        "quantity": 3000,
+        "unit_price": 0.18,
+        "uom_raw": "SF",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Kentucky Bluegrass sod quantity is 3,000 square feet at $0.18 per square foot."
+      },
+      {
+        "description_raw": "Delivery / Service",
+        "quantity": 3000,
+        "unit_price": 0.03,
+        "uom_raw": "SF",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Delivery / Service charge for 3,000 square feet at $0.03 per square foot."
+      },
+      {
+        "description_raw": "Pallet Deposit",
+        "quantity": 5,
+        "unit_price": 15.0,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Pallet deposit quantity 5 at $15.00 each."
+      },
+      {
+        "description_raw": "Fuel Surcharge",
+        "quantity": 3000,
+        "unit_price": 0.01,
+        "uom_raw": "SF",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Fuel surcharge for 3,000 square feet at $0.01 per square foot."
+      }
+    ]
+  },
+  "lines": [
+    {
+      "description_raw": "Kentucky",
+      "quantity": 3000.0,
+      "unit_price": 0.256,
+      "uom_raw": "SF",
+      "supplier_item_code": null,
+      "item_code": "BSOD",
+      "item_name": "Bluegrass Sod",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Idaho Sod: Total Due 767.40 / 3000 sq ft; Sod alias → 'Bluegrass Sod'; single import line"
+    }
+  ],
+  "aspire_import_lines": [
+    {
+      "item_code": "BSOD",
+      "item_name": "Bluegrass Sod",
+      "quantity": 3000.0,
+      "unit_cost": 0.256
+    }
+  ]
+}

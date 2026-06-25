@@ -1,0 +1,872 @@
+{
+  "processed_at": "2026-06-25T11:41:11",
+  "pdf_name": "06252026_H.D. FOWLER 2.pdf",
+  "openai_model": "gpt-4.1-mini",
+  "review_flags": [
+    "TOOL row 10 (Dawn SS200 Large PVC Cutter) — review and exclude if not inventory:\n  Code: 'SS200'  Name: 'Dawn SS200 Large PVC Cutter'\n  Raw: 'SS200 CUTTER BLACK HANDLE W/SS BLADE CUTS UP TO 1-7/8 \" DAWN'",
+    "LOW CONFIDENCE LINE (0.00) row 11:\n  Raw: '6 IN 1 SCREWDRIVER'\n  Matched: ItemCode=None ItemName=None",
+    "TOOL row 11 (6 IN 1 Screwdriver) — review and exclude if not inventory:\n  Code: None  Name: None\n  Raw: '6 IN 1 SCREWDRIVER'"
+  ],
+  "invoice_date": "2026-06-22",
+  "vendor_raw": "H.D. FOWLER COMPANY",
+  "vendor_name": "H.D. Fowler Company {Turf}",
+  "vendor_id": 120,
+  "vendor_confidence": 1.0,
+  "vendor_rationale": "Invoice header shows H.D. FOWLER COMPANY, matches exactly to H.D. Fowler Company {Turf} in vendor list as instructed for H.D. Fowler invoices.",
+  "invoice_number_raw": "I7347802",
+  "invoice_number": "I7347802-INV",
+  "invoice_total": 11442.25,
+  "receipt_note": null,
+  "openai_raw": {
+    "invoice_date": "2026-06-22",
+    "vendor_raw": "H.D. FOWLER COMPANY",
+    "vendor_name": "H.D. Fowler Company {Turf}",
+    "vendor_confidence": 1,
+    "vendor_rationale": "Invoice header shows H.D. FOWLER COMPANY, matches exactly to H.D. Fowler Company {Turf} in vendor list as instructed for H.D. Fowler invoices.",
+    "invoice_number_raw": "I7347802",
+    "invoice_total": 11442.25,
+    "lines": [
+      {
+        "description_raw": "SS200 CUTTER BLACK HANDLE W/SS BLADE CUTS UP TO 1-7/8 \" DAWN",
+        "quantity": 5,
+        "unit_price": 22.39,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear line item with quantity, unit price, and description."
+      },
+      {
+        "description_raw": "6 IN 1 SCREWDRIVER",
+        "quantity": 1,
+        "unit_price": 11.67,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear line item with quantity, unit price, and description."
+      },
+      {
+        "description_raw": "MP ROTATOR 3000 22-30' 210-270 DEG. MP3000210 YELLOW HUNTER",
+        "quantity": 200,
+        "unit_price": 5.55,
+        "uom_raw": "EA",
+        "supplier_item_code": "MP3000210",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "18 GA 13 COND WIRE 500' ROLL",
+        "quantity": 3,
+        "unit_price": 377.89,
+        "uom_raw": "RL",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear line item with quantity, unit price, and description."
+      },
+      {
+        "description_raw": "PGV-101G 1\" GLOBE VALVE W/FLOW CONTROL HUNTER",
+        "quantity": 40,
+        "unit_price": 15.75,
+        "uom_raw": "EA",
+        "supplier_item_code": "PGV-101G",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "PROS-12-PRS40-CV 12\" SPRAY HEAD W/40PSI PRV AND CHECK VALVE HUNTER",
+        "quantity": 75,
+        "unit_price": 17.74,
+        "uom_raw": "EA",
+        "supplier_item_code": "PROS-12-PRS40-CV",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "PROS-12-SI 12\" SPRAY HEAD W/SIDE INLET HUNTER",
+        "quantity": 50,
+        "unit_price": 10.4,
+        "uom_raw": "EA",
+        "supplier_item_code": "PROS-12-SI",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "PROS-06-SI 6\" SPRAY HEAD W/SIDE INLET HUNTER",
+        "quantity": 50,
+        "unit_price": 6.26,
+        "uom_raw": "EA",
+        "supplier_item_code": "PROS-06-SI",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "SB-CPLG 1/2\" BARB X BARB COUPLING (50-BAG) SOLD BY THE EACH RAIN BIRD",
+        "quantity": 200,
+        "unit_price": 0.29,
+        "uom_raw": "EA",
+        "supplier_item_code": "SB-CPLG",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "RBY100MPTX 1\" INLINE RBY FILTER MIPT X MIPT W/200 MESH SCREEN RAIN BIRD",
+        "quantity": 10,
+        "unit_price": 17.42,
+        "uom_raw": "EA",
+        "supplier_item_code": "RBY100MPTX",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "SBE-050 1/2\" MIP X BARB ELBOW (50-BAG) SOLD BY THE EACH RAIN BIRD",
+        "quantity": 250,
+        "unit_price": 0.19,
+        "uom_raw": "EA",
+        "supplier_item_code": "SBE-050",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "XFFTEE 17MM TEE BARB X BARB (25-BAG) SOLD BY THE EACH RAIN BIRD",
+        "quantity": 500,
+        "unit_price": 0.39,
+        "uom_raw": "EA",
+        "supplier_item_code": "XFFTEE",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "1\" PVC INSERT COUPLING IXI",
+        "quantity": 100,
+        "unit_price": 0.82,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear line item with quantity, unit price, and description."
+      },
+      {
+        "description_raw": "1\" PVC INSERT MALE ADAPTER MIPTXI",
+        "quantity": 50,
+        "unit_price": 0.81,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear line item with quantity, unit price, and description."
+      },
+      {
+        "description_raw": "1-1/4\" X 1\" PVC INSERT MALE ADAPTER IXMIPT",
+        "quantity": 50,
+        "unit_price": 2.55,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear line item with quantity, unit price, and description."
+      },
+      {
+        "description_raw": "1 1/4\" PVC INSERT 90 ELBOW IXI",
+        "quantity": 20,
+        "unit_price": 1.94,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear line item with quantity, unit price, and description."
+      },
+      {
+        "description_raw": "VB10RND 10\" ROUND VALVE BOX W/GREEN LID COMPLETE 13.75\" BOTTOM DIAMETER 10\" DEEP RAIN BIRD",
+        "quantity": 10,
+        "unit_price": 21.09,
+        "uom_raw": "EA",
+        "supplier_item_code": "VB10RND",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "1\" KWIK TAP W/SWING ELBOW ADAPTER 10/BAG DAWN",
+        "quantity": 40,
+        "unit_price": 2.31,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear line item with quantity, unit price, and description."
+      },
+      {
+        "description_raw": "P2C-400 4 STATION BASE MODULAR INDOOR/OUTDOOR CONTROLLER EXPANDABLE TO 23 STATIONS PRO-C HUNTER",
+        "quantity": 2,
+        "unit_price": 142.91,
+        "uom_raw": "EA",
+        "supplier_item_code": "P2C-400",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "EZ-1 SINGLE STATION DECODER WITH STATUS LED HUNTER",
+        "quantity": 40,
+        "unit_price": 55.84,
+        "uom_raw": "EA",
+        "supplier_item_code": "EZ-1",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "1\" BRASS BALL VALVE THREADED",
+        "quantity": 8,
+        "unit_price": 18.2,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear line item with quantity, unit price, and description."
+      },
+      {
+        "description_raw": "1-9/16\" - 2-1/2\" SS WORM DRIVE HOSE CLAMP",
+        "quantity": 60,
+        "unit_price": 0.96,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear line item with quantity, unit price, and description."
+      },
+      {
+        "description_raw": "I2CF800PL 8 STATION BASE MODULAR OUTDOOR CONTROLLER WITH FLOW MONITORING EXPANDABLE TO 54 STATIONS PLASTIC WALL MOUNT ICC2 HUNTER",
+        "quantity": 1,
+        "unit_price": 268.51,
+        "uom_raw": "EA",
+        "supplier_item_code": "I2CF800PL",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "EZ-DM DECODER MODULE FOR HCC AND ICC2 CONTROLLERS HUNTER",
+        "quantity": 3,
+        "unit_price": 195.63,
+        "uom_raw": "EA",
+        "supplier_item_code": "EZ-DM",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "MP ROTATOR CORNER 8' X 15' 45-105 DEG. MPCORNER TURQUOISE HUNTER",
+        "quantity": 20,
+        "unit_price": 5.55,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear line item with quantity, unit price, and description."
+      },
+      {
+        "description_raw": "MP ROTATOR 1000 8-15' 360 DEG. MP1000360 OLIVE HUNTER",
+        "quantity": 50,
+        "unit_price": 5.55,
+        "uom_raw": "EA",
+        "supplier_item_code": "MP1000360",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "2\" X 1\" SCH 40 PVC BUSHING TXT",
+        "quantity": 10,
+        "unit_price": 2.22,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear line item with quantity, unit price, and description."
+      },
+      {
+        "description_raw": "1\" FEMALE BUTTRESS SWIVEL COUPLING 18120 ACTION",
+        "quantity": 50,
+        "unit_price": 6.09,
+        "uom_raw": "EA",
+        "supplier_item_code": "18120",
+        "read_confidence": 0.95,
+        "rationale": "Includes part number and clear description."
+      },
+      {
+        "description_raw": "DUCT TAPE 2\" X 60 YDS SILVER 9MIL",
+        "quantity": 24,
+        "unit_price": 8.67,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear line item with quantity, unit price, and description."
+      },
+      {
+        "description_raw": "1-1/2\" X 1-1/4\" SCH 40 GALVANIZED BUSHING IMPORT",
+        "quantity": 6,
+        "unit_price": 5.57,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear line item with quantity, unit price, and description."
+      },
+      {
+        "description_raw": "1-1/4\" X 1\" SCH 40 GALVANIZED BUSHING IMPORT",
+        "quantity": 7,
+        "unit_price": 4.61,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Clear line item with quantity, unit price, and description."
+      }
+    ]
+  },
+  "lines": [
+    {
+      "description_raw": "SS200 CUTTER BLACK HANDLE W/SS BLADE CUTS UP TO 1-7/8 \" DAWN",
+      "quantity": 5.0,
+      "unit_price": 22.39,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "SS200",
+      "item_name": "Dawn SS200 Large PVC Cutter",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear line item with quantity, unit price, and description.; Item code 'SS200' found in description"
+    },
+    {
+      "description_raw": "6 IN 1 SCREWDRIVER",
+      "quantity": 1.0,
+      "unit_price": 11.67,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": null,
+      "item_alternate_name": null,
+      "confidence": 0.0,
+      "rationale": "Clear line item with quantity, unit price, and description.; No catalog match"
+    },
+    {
+      "description_raw": "MP ROTATOR 3000 22-30' 210-270 DEG. MP3000210 YELLOW HUNTER",
+      "quantity": 200.0,
+      "unit_price": 5.55,
+      "uom_raw": "EA",
+      "supplier_item_code": "MP3000210",
+      "item_code": null,
+      "item_name": "MP Rotator",
+      "item_alternate_name": null,
+      "confidence": 0.941,
+      "rationale": "Includes part number and clear description.; Best catalog match (0.95)"
+    },
+    {
+      "description_raw": "18 GA 13 COND WIRE 500' ROLL",
+      "quantity": 3.0,
+      "unit_price": 377.89,
+      "uom_raw": "RL",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Wire - 18 GA 13 Strand",
+      "item_alternate_name": null,
+      "confidence": 0.9334,
+      "rationale": "Clear line item with quantity, unit price, and description.; Best catalog match (0.93)"
+    },
+    {
+      "description_raw": "PGV-101G 1\" GLOBE VALVE W/FLOW CONTROL HUNTER",
+      "quantity": 40.0,
+      "unit_price": 15.75,
+      "uom_raw": "EA",
+      "supplier_item_code": "PGV-101G",
+      "item_code": "PGV-101G",
+      "item_name": "Hunter PGV 101 - 1\" (w/ flow control)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Includes part number and clear description.; Exact supplier item code 'PGV-101G'"
+    },
+    {
+      "description_raw": "PROS-12-PRS40-CV 12\" SPRAY HEAD W/40PSI PRV AND CHECK VALVE HUNTER",
+      "quantity": 75.0,
+      "unit_price": 17.74,
+      "uom_raw": "EA",
+      "supplier_item_code": "PROS-12-PRS40-CV",
+      "item_code": "PROS-12-PRS40-CV",
+      "item_name": "Hunter Pros 12\" PRS40 CV",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Includes part number and clear description.; Exact supplier item code 'PROS-12-PRS40-CV'"
+    },
+    {
+      "description_raw": "PROS-12-SI 12\" SPRAY HEAD W/SIDE INLET HUNTER",
+      "quantity": 50.0,
+      "unit_price": 10.4,
+      "uom_raw": "EA",
+      "supplier_item_code": "PROS-12-SI",
+      "item_code": "PROS-12",
+      "item_name": "Hunter Pros 12\" (Bottom and/or Side Inlet)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Includes part number and clear description.; Item code 'PROS-12' found in description"
+    },
+    {
+      "description_raw": "PROS-06-SI 6\" SPRAY HEAD W/SIDE INLET HUNTER",
+      "quantity": 50.0,
+      "unit_price": 6.26,
+      "uom_raw": "EA",
+      "supplier_item_code": "PROS-06-SI",
+      "item_code": "PROS-06",
+      "item_name": "Hunter Pros 6\" (Bottom and/or side inlet)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Includes part number and clear description.; Item code 'PROS-06' found in description"
+    },
+    {
+      "description_raw": "SB-CPLG 1/2\" BARB X BARB COUPLING (50-BAG) SOLD BY THE EACH RAIN BIRD",
+      "quantity": 200.0,
+      "unit_price": 0.29,
+      "uom_raw": "EA",
+      "supplier_item_code": "SB-CPLG",
+      "item_code": "SBCPLG",
+      "item_name": "RBSBCPLG - Funny x Funny",
+      "item_alternate_name": null,
+      "confidence": 0.92,
+      "rationale": "Includes part number and clear description.; Prefix item code match for 'SB-CPLG'"
+    },
+    {
+      "description_raw": "RBY100MPTX 1\" INLINE RBY FILTER MIPT X MIPT W/200 MESH SCREEN RAIN BIRD",
+      "quantity": 10.0,
+      "unit_price": 17.42,
+      "uom_raw": "EA",
+      "supplier_item_code": "RBY100MPTX",
+      "item_code": "RBY100MPTX",
+      "item_name": "Filter - RB Inline w/ 200 Mesh Screen - 1\" (Y100)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Includes part number and clear description.; Exact supplier item code 'RBY100MPTX'"
+    },
+    {
+      "description_raw": "SBE-050 1/2\" MIP X BARB ELBOW (50-BAG) SOLD BY THE EACH RAIN BIRD",
+      "quantity": 250.0,
+      "unit_price": 0.19,
+      "uom_raw": "EA",
+      "supplier_item_code": "SBE-050",
+      "item_code": "SBE-050",
+      "item_name": "RBSBE050 - Funny Elbow (1/2\" MIP x barb)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Includes part number and clear description.; Exact supplier item code 'SBE-050'"
+    },
+    {
+      "description_raw": "XFFTEE 17MM TEE BARB X BARB (25-BAG) SOLD BY THE EACH RAIN BIRD",
+      "quantity": 500.0,
+      "unit_price": 0.39,
+      "uom_raw": "EA",
+      "supplier_item_code": "XFFTEE",
+      "item_code": "XXFFTEE",
+      "item_name": "RBXFFTEE - Barb Tee - 17 mm",
+      "item_alternate_name": null,
+      "confidence": 0.92,
+      "rationale": "Includes part number and clear description.; Prefix item code match for 'XFFTEE'"
+    },
+    {
+      "description_raw": "1\" PVC INSERT COUPLING IXI",
+      "quantity": 100.0,
+      "unit_price": 0.82,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "1429-010",
+      "item_name": "PVC Insert Coupler - 1\" (IxI)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear line item with quantity, unit price, and description.; Best catalog match (1.17)"
+    },
+    {
+      "description_raw": "1\" PVC INSERT MALE ADAPTER MIPTXI",
+      "quantity": 50.0,
+      "unit_price": 0.81,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "1436-010",
+      "item_name": "PVC Insert x Male Adapter - 1\"",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear line item with quantity, unit price, and description.; Best catalog match (1.20)"
+    },
+    {
+      "description_raw": "1-1/4\" X 1\" PVC INSERT MALE ADAPTER IXMIPT",
+      "quantity": 50.0,
+      "unit_price": 2.55,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "1436-132",
+      "item_name": "PVC Insert x Male Adapter - 1-1/4\" x 1\"",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear line item with quantity, unit price, and description.; Best catalog match (1.54)"
+    },
+    {
+      "description_raw": "1 1/4\" PVC INSERT 90 ELBOW IXI",
+      "quantity": 20.0,
+      "unit_price": 1.94,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": "1406-012",
+      "item_name": "PVC Insert Elbow (90) - 1-1/4\" (IxI)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear line item with quantity, unit price, and description.; Best catalog match (1.14)"
+    },
+    {
+      "description_raw": "VB10RND 10\" ROUND VALVE BOX W/GREEN LID COMPLETE 13.75\" BOTTOM DIAMETER 10\" DEEP RAIN BIRD",
+      "quantity": 10.0,
+      "unit_price": 21.09,
+      "uom_raw": "EA",
+      "supplier_item_code": "VB10RND",
+      "item_code": "VB10RND",
+      "item_name": "Valve Box - 10\" Round",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Includes part number and clear description.; Exact supplier item code 'VB10RND'"
+    },
+    {
+      "description_raw": "1\" KWIK TAP W/SWING ELBOW ADAPTER 10/BAG DAWN",
+      "quantity": 40.0,
+      "unit_price": 2.31,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Dawn Saddle w/ Elbow - 1\" (Kwik Tap)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear line item with quantity, unit price, and description.; Best catalog match (1.19)"
+    },
+    {
+      "description_raw": "P2C-400 4 STATION BASE MODULAR INDOOR/OUTDOOR CONTROLLER EXPANDABLE TO 23 STATIONS PRO-C HUNTER",
+      "quantity": 2.0,
+      "unit_price": 142.91,
+      "uom_raw": "EA",
+      "supplier_item_code": "P2C-400",
+      "item_code": "P2C-400",
+      "item_name": "Hunter Controller - Pro-C 4 Station Outdoor",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Includes part number and clear description.; Exact supplier item code 'P2C-400'"
+    },
+    {
+      "description_raw": "EZ-1 SINGLE STATION DECODER WITH STATUS LED HUNTER",
+      "quantity": 40.0,
+      "unit_price": 55.84,
+      "uom_raw": "EA",
+      "supplier_item_code": "EZ-1",
+      "item_code": "EZ-1",
+      "item_name": "Hunter - EZ-1 Station Decoder",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Includes part number and clear description.; Exact supplier item code 'EZ-1'"
+    },
+    {
+      "description_raw": "1\" BRASS BALL VALVE THREADED",
+      "quantity": 8.0,
+      "unit_price": 18.2,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Brass Ball Valve - 1\"",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear line item with quantity, unit price, and description.; Best catalog match (1.16)"
+    },
+    {
+      "description_raw": "1-9/16\" - 2-1/2\" SS WORM DRIVE HOSE CLAMP",
+      "quantity": 60.0,
+      "unit_price": 0.96,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Worm Clamp",
+      "item_alternate_name": null,
+      "confidence": 0.92,
+      "rationale": "Clear line item with quantity, unit price, and description.; One-off: Worm drive hose clamp → Worm Clamp"
+    },
+    {
+      "description_raw": "I2CF800PL 8 STATION BASE MODULAR OUTDOOR CONTROLLER WITH FLOW MONITORING EXPANDABLE TO 54 STATIONS PLASTIC WALL MOUNT ICC2 HUNTER",
+      "quantity": 1.0,
+      "unit_price": 268.51,
+      "uom_raw": "EA",
+      "supplier_item_code": "I2CF800PL",
+      "item_code": "I2CF-800-PL",
+      "item_name": "Hunter Controller - ICC2 8 Station - Plastic Cabinet",
+      "item_alternate_name": null,
+      "confidence": 0.92,
+      "rationale": "Includes part number and clear description.; Prefix item code match for 'I2CF800PL'"
+    },
+    {
+      "description_raw": "EZ-DM DECODER MODULE FOR HCC AND ICC2 CONTROLLERS HUNTER",
+      "quantity": 3.0,
+      "unit_price": 195.63,
+      "uom_raw": "EA",
+      "supplier_item_code": "EZ-DM",
+      "item_code": "EZ-DM",
+      "item_name": "Hunter - EZ-DM Decoder Module",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Includes part number and clear description.; Exact supplier item code 'EZ-DM'"
+    },
+    {
+      "description_raw": "MP ROTATOR CORNER 8' X 15' 45-105 DEG. MPCORNER TURQUOISE HUNTER",
+      "quantity": 20.0,
+      "unit_price": 5.55,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "MP Rotator",
+      "item_alternate_name": null,
+      "confidence": 0.941,
+      "rationale": "Clear line item with quantity, unit price, and description.; Best catalog match (0.95)"
+    },
+    {
+      "description_raw": "MP ROTATOR 1000 8-15' 360 DEG. MP1000360 OLIVE HUNTER",
+      "quantity": 50.0,
+      "unit_price": 5.55,
+      "uom_raw": "EA",
+      "supplier_item_code": "MP1000360",
+      "item_code": null,
+      "item_name": "MP Rotator",
+      "item_alternate_name": null,
+      "confidence": 0.941,
+      "rationale": "Includes part number and clear description.; Best catalog match (0.95)"
+    },
+    {
+      "description_raw": "2\" X 1\" SCH 40 PVC BUSHING TXT",
+      "quantity": 10.0,
+      "unit_price": 2.22,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "PVC Bushing - 2\" x 1\" (FxF)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear line item with quantity, unit price, and description.; Best catalog match (1.57)"
+    },
+    {
+      "description_raw": "1\" FEMALE BUTTRESS SWIVEL COUPLING 18120 ACTION",
+      "quantity": 50.0,
+      "unit_price": 6.09,
+      "uom_raw": "EA",
+      "supplier_item_code": "18120",
+      "item_code": "18120",
+      "item_name": "Action Swivel Coupling - 1\" (F x F)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Includes part number and clear description.; Exact supplier item code '18120'"
+    },
+    {
+      "description_raw": "DUCT TAPE 2\" X 60 YDS SILVER 9MIL",
+      "quantity": 24.0,
+      "unit_price": 8.67,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Duct Tape",
+      "item_alternate_name": null,
+      "confidence": 0.941,
+      "rationale": "Clear line item with quantity, unit price, and description.; Best catalog match (0.95)"
+    },
+    {
+      "description_raw": "1-1/2\" X 1-1/4\" SCH 40 GALVANIZED BUSHING IMPORT",
+      "quantity": 6.0,
+      "unit_price": 5.57,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Galv. Bushing - 1-1/2\"x1-1/4\" (MxF)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear line item with quantity, unit price, and description.; Best catalog match (1.58)"
+    },
+    {
+      "description_raw": "1-1/4\" X 1\" SCH 40 GALVANIZED BUSHING IMPORT",
+      "quantity": 7.0,
+      "unit_price": 4.61,
+      "uom_raw": "EA",
+      "supplier_item_code": null,
+      "item_code": null,
+      "item_name": "Galv. Bushing - 1-1/4\"x1\" (MxF)",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Clear line item with quantity, unit price, and description.; Best catalog match (1.57)"
+    }
+  ],
+  "aspire_import_lines": [
+    {
+      "item_code": "SS200",
+      "item_name": "Dawn SS200 Large PVC Cutter",
+      "quantity": 5.0,
+      "unit_cost": 23.733
+    },
+    {
+      "item_code": "",
+      "item_name": "6 IN 1 SCREWDRIVER",
+      "quantity": 1.0,
+      "unit_cost": 12.37
+    },
+    {
+      "item_code": "",
+      "item_name": "MP Rotator",
+      "quantity": 200.0,
+      "unit_cost": 5.883
+    },
+    {
+      "item_code": "",
+      "item_name": "Wire - 18 GA 13 Strand",
+      "quantity": 1500.0,
+      "unit_cost": 0.801
+    },
+    {
+      "item_code": "PGV-101G",
+      "item_name": "Hunter PGV 101 - 1\" (w/ flow control)",
+      "quantity": 40.0,
+      "unit_cost": 16.695
+    },
+    {
+      "item_code": "PROS-12-PRS40-CV",
+      "item_name": "Hunter Pros 12\" PRS40 CV",
+      "quantity": 75.0,
+      "unit_cost": 18.804
+    },
+    {
+      "item_code": "PROS-12",
+      "item_name": "Hunter Pros 12\" (Bottom and/or Side Inlet)",
+      "quantity": 50.0,
+      "unit_cost": 11.024
+    },
+    {
+      "item_code": "PROS-06",
+      "item_name": "Hunter Pros 6\" (Bottom and/or side inlet)",
+      "quantity": 50.0,
+      "unit_cost": 6.636
+    },
+    {
+      "item_code": "SBCPLG",
+      "item_name": "RBSBCPLG - Funny x Funny",
+      "quantity": 200.0,
+      "unit_cost": 0.307
+    },
+    {
+      "item_code": "RBY100MPTX",
+      "item_name": "Filter - RB Inline w/ 200 Mesh Screen - 1\" (Y100)",
+      "quantity": 10.0,
+      "unit_cost": 18.465
+    },
+    {
+      "item_code": "SBE-050",
+      "item_name": "RBSBE050 - Funny Elbow (1/2\" MIP x barb)",
+      "quantity": 250.0,
+      "unit_cost": 0.201
+    },
+    {
+      "item_code": "XXFFTEE",
+      "item_name": "RBXFFTEE - Barb Tee - 17 mm",
+      "quantity": 500.0,
+      "unit_cost": 0.413
+    },
+    {
+      "item_code": "1429-010",
+      "item_name": "PVC Insert Coupler - 1\" (IxI)",
+      "quantity": 100.0,
+      "unit_cost": 0.869
+    },
+    {
+      "item_code": "1436-010",
+      "item_name": "PVC Insert x Male Adapter - 1\"",
+      "quantity": 50.0,
+      "unit_cost": 0.859
+    },
+    {
+      "item_code": "1436-132",
+      "item_name": "PVC Insert x Male Adapter - 1-1/4\" x 1\"",
+      "quantity": 50.0,
+      "unit_cost": 2.703
+    },
+    {
+      "item_code": "1406-012",
+      "item_name": "PVC Insert Elbow (90) - 1-1/4\" (IxI)",
+      "quantity": 20.0,
+      "unit_cost": 2.056
+    },
+    {
+      "item_code": "VB10RND",
+      "item_name": "Valve Box - 10\" Round",
+      "quantity": 10.0,
+      "unit_cost": 22.355
+    },
+    {
+      "item_code": "",
+      "item_name": "Dawn Saddle w/ Elbow - 1\" (Kwik Tap)",
+      "quantity": 40.0,
+      "unit_cost": 2.449
+    },
+    {
+      "item_code": "P2C-400",
+      "item_name": "Hunter Controller - Pro-C 4 Station Outdoor",
+      "quantity": 2.0,
+      "unit_cost": 151.485
+    },
+    {
+      "item_code": "EZ-1",
+      "item_name": "Hunter - EZ-1 Station Decoder",
+      "quantity": 40.0,
+      "unit_cost": 59.19
+    },
+    {
+      "item_code": "",
+      "item_name": "Brass Ball Valve - 1\"",
+      "quantity": 8.0,
+      "unit_cost": 19.292
+    },
+    {
+      "item_code": "",
+      "item_name": "Worm Clamp",
+      "quantity": 60.0,
+      "unit_cost": 1.018
+    },
+    {
+      "item_code": "I2CF-800-PL",
+      "item_name": "Hunter Controller - ICC2 8 Station - Plastic Cabinet",
+      "quantity": 1.0,
+      "unit_cost": 284.621
+    },
+    {
+      "item_code": "EZ-DM",
+      "item_name": "Hunter - EZ-DM Decoder Module",
+      "quantity": 3.0,
+      "unit_cost": 207.368
+    },
+    {
+      "item_code": "",
+      "item_name": "MP Rotator",
+      "quantity": 20.0,
+      "unit_cost": 5.883
+    },
+    {
+      "item_code": "",
+      "item_name": "MP Rotator",
+      "quantity": 50.0,
+      "unit_cost": 5.883
+    },
+    {
+      "item_code": "",
+      "item_name": "PVC Bushing - 2\" x 1\" (FxF)",
+      "quantity": 10.0,
+      "unit_cost": 2.353
+    },
+    {
+      "item_code": "18120",
+      "item_name": "Action Swivel Coupling - 1\" (F x F)",
+      "quantity": 50.0,
+      "unit_cost": 6.455
+    },
+    {
+      "item_code": "",
+      "item_name": "Duct Tape",
+      "quantity": 24.0,
+      "unit_cost": 9.19
+    },
+    {
+      "item_code": "",
+      "item_name": "Galv. Bushing - 1-1/2\"x1-1/4\" (MxF)",
+      "quantity": 6.0,
+      "unit_cost": 5.904
+    },
+    {
+      "item_code": "",
+      "item_name": "Galv. Bushing - 1-1/4\"x1\" (MxF)",
+      "quantity": 7.0,
+      "unit_cost": 4.887
+    }
+  ]
+}

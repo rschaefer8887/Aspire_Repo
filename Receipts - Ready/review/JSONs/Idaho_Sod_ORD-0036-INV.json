@@ -1,0 +1,85 @@
+{
+  "processed_at": "2026-06-25T10:48:45",
+  "pdf_name": "06172026_Ways to pay.pdf",
+  "openai_model": "gpt-4.1-mini",
+  "review_flags": [],
+  "invoice_date": "2026-06-17",
+  "vendor_raw": "Idaho Sod",
+  "vendor_name": "Idaho Sod",
+  "vendor_id": 136,
+  "vendor_confidence": 1.0,
+  "vendor_rationale": "Vendor name 'Idaho Sod' matches exactly with vendor list entry 'Idaho Sod'.",
+  "invoice_number_raw": "ORD-0036",
+  "invoice_number": "ORD-0036-INV",
+  "invoice_total": 1384.8,
+  "receipt_note": null,
+  "openai_raw": {
+    "invoice_date": "2026-06-17",
+    "vendor_raw": "Idaho Sod",
+    "vendor_name": "Idaho Sod",
+    "vendor_confidence": 1,
+    "vendor_rationale": "Vendor name 'Idaho Sod' matches exactly with vendor list entry 'Idaho Sod'.",
+    "invoice_number_raw": "ORD-0036",
+    "invoice_total": 1384.8,
+    "lines": [
+      {
+        "description_raw": "Kentucky",
+        "quantity": 6000,
+        "unit_price": 0.18,
+        "uom_raw": "SQFT",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Quantity and price clearly listed; unit of measure inferred as square feet for sod."
+      },
+      {
+        "description_raw": "Delivery / Service",
+        "quantity": 6000,
+        "unit_price": 0.03,
+        "uom_raw": "SQFT",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Delivery charge quantity matches sod quantity; unit price and amount clear."
+      },
+      {
+        "description_raw": "Fuel Surcharge",
+        "quantity": 6000,
+        "unit_price": 0.01,
+        "uom_raw": "SQFT",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Fuel surcharge quantity matches sod quantity; unit price and amount clear."
+      },
+      {
+        "description_raw": "Tube Deposit",
+        "quantity": 15,
+        "unit_price": 0.0,
+        "uom_raw": "EA",
+        "supplier_item_code": null,
+        "read_confidence": 0.95,
+        "rationale": "Tube deposit quantity and zero price clearly listed."
+      }
+    ]
+  },
+  "lines": [
+    {
+      "description_raw": "Kentucky",
+      "quantity": 6000.0,
+      "unit_price": 0.231,
+      "uom_raw": "SQFT",
+      "supplier_item_code": null,
+      "item_code": "BSOD",
+      "item_name": "Bluegrass Sod",
+      "item_alternate_name": null,
+      "confidence": 0.95,
+      "rationale": "Idaho Sod: Total Due 1384.80 / 6000 sq ft; Sod alias → 'Bluegrass Sod'; single import line"
+    }
+  ],
+  "aspire_import_lines": [
+    {
+      "item_code": "BSOD",
+      "item_name": "Bluegrass Sod",
+      "quantity": 6000.0,
+      "unit_cost": 0.231
+    }
+  ]
+}
